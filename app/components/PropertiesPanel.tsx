@@ -10,7 +10,7 @@ interface EditableNodeData {
   fontColor?: string;
   backgroundColor?: string;
   // Add other specific editable properties here
-  [key: string]: any; // Allow other properties
+  // [key: string]: any; // Allow other properties - Removed for better type safety
 }
 
 const PropertiesPanel: React.FC = () => {
@@ -68,7 +68,7 @@ const PropertiesPanel: React.FC = () => {
     const { name, value } = event.target;
     if (selectedNodeId) {
       // Avoid updating if the value hasn't actually changed for text inputs
-      if (selectedNode.data[name as keyof EditableNodeData] !== value) {
+      if (selectedNode.data[name as keyof Omit<EditableNodeData, 'id'>] !== value) {
          updateNodeData(selectedNodeId, { [name]: value });
       }
     }

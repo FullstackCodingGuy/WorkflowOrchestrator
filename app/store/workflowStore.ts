@@ -14,7 +14,8 @@ import dagre from 'dagre';
 export interface NodeData {
   id: string;
   label: string;
-  [key: string]: any; // Allow other properties
+  backgroundColor?: string; // Added for dynamic styling
+  fontColor?: string; // Added for dynamic styling
 }
 
 export interface WorkflowState {
