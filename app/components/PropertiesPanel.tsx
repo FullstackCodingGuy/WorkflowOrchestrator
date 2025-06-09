@@ -47,7 +47,7 @@ export default function PropertiesPanel() {
   if (!selectedNode) {
     return (
       <aside className="w-80 bg-[var(--sidebar-bg)] p-4 border-l border-[var(--border-color)] text-[var(--foreground)]">
-        <h3 className="text-lg font-semibold mb-4">Properties</h3>
+        <h3 className="text-lg font-semibold mb-4 text-[var(--foreground)]">Properties</h3>
         <p className="text-sm text-[var(--muted-foreground)]">Select a node to view and edit its properties.</p>
       </aside>
     );
@@ -79,13 +79,13 @@ export default function PropertiesPanel() {
 
 
   // Common input styling
-  const inputClassName = "w-full p-2 rounded-md border border-[var(--border-color)] bg-[var(--input-bg)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--accent)] outline-none transition-colors";
+  const inputClassName = "w-full p-2 rounded-md border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] outline-none transition-colors";
   const labelClassName = "block text-sm font-medium mb-1 text-[var(--muted-foreground)]";
 
   return (
     <aside className="w-80 bg-[var(--sidebar-bg)] p-6 border-l border-[var(--border-color)] text-[var(--foreground)] shadow-lg">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-semibold">Edit Node</h3>
+        <h3 className="text-xl font-semibold text-[var(--foreground)]">Edit Node</h3>
         <button 
           onClick={() => deselectNode(null)} // Use the fetched setSelectedNodeId (aliased as deselectNode)
           className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"

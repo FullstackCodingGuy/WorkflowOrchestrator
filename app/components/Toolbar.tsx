@@ -34,11 +34,14 @@ export default function Toolbar() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isExportingGif, setIsExportingGif] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  // Ref for the container of the currently open dropdown.
+  const dropdownContainerRef = useRef<HTMLDivElement>(null); 
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (dropdownContainerRef.current && !dropdownContainerRef.current.contains(event.target as Node)) {
+        // If the click is outside the current dropdown's container, close it.
+        // The trigger button's own onClick will handle reopening if the same trigger is clicked.
         setOpenDropdown(null);
       }
     };
@@ -46,7 +49,7 @@ export default function Toolbar() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, []); // Effect runs once to attach/detach listener
 
   const handleToggleAnimation = () => {
     toggleEdgeAnimation();
@@ -205,20 +208,25 @@ export default function Toolbar() {
     }
   };
 
+
+  // Define base styles for buttons
   const buttonBaseStyle = "p-2 rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--background)] flex items-center justify-center gap-2 text-sm font-medium";
-  const buttonHoverStyle = "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]";
-  const buttonTextStyle = "text-[var(--foreground)]";
-  const buttonBorderStyle = "border border-[var(--border-color)]";
-  const commonButtonStyle = `${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`;
+  
+  // Styles for general toolbar buttons (including dropdown triggers)
+  const commonButtonStyle = `${buttonBaseStyle} text-[var(--foreground)] border border-[var(--border-color)] bg-[var(--secondary)] hover:bg-[var(--primary-hover)] hover:text-[var(--primary-foreground)]`;
+
+  // Styles for dropdown items (buttons within the dropdown panel)
+  const dropdownItemStyle = `${buttonBaseStyle} w-full justify-start text-left px-3 py-2 text-[var(--card-foreground)] hover:bg-[var(--secondary-hover)] hover:text-[var(--secondary-foreground)]`;
+
 
   const toolbarActions: ToolbarButtonConfig[] = [
     {
       id: 'animate',
-      label: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop Anim" : "Start Anim",
+      label: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop Animation" : "Start Animation",
       icon: areEdgesAnimated ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />,
       onClick: handleToggleAnimation,
-      title: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop Animation" : "Start Animation",
-      style: { backgroundColor: 'var(--secondary)' },
+      title: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop Edge Animation" : "Start Edge Animation",
+      // No 'style' prop here, commonButtonStyle will be applied
     },
     {
       id: 'restart',
@@ -226,23 +234,31 @@ export default function Toolbar() {
       icon: <RestartIcon className="w-5 h-5" />,
       onClick: handleRestart,
       title: "Restart Workflow",
-      style: { backgroundColor: 'var(--secondary)' },
+      // No 'style' prop here, commonButtonStyle will be applied
     },
     {
-      id: 'layout-tb',
-      label: "Tree",
-      icon: <LayoutTreeIcon className="w-5 h-5" />,
-      onClick: () => applyLayout('TB'),
-      title: "Apply Tree Layout (Top-to-Bottom)",
-      style: { backgroundColor: 'var(--secondary)' },
-    },
-    {
-      id: 'layout-lr',
-      label: "Horizontal",
-      icon: <LayoutHorizontalIcon className="w-5 h-5" />,
-      onClick: () => applyLayout('LR'),
-      title: "Apply Horizontal Layout (Left-to-Right)",
-      style: { backgroundColor: 'var(--secondary)' },
+      id: 'layout-dropdown',
+      label: "Layout",
+      icon: <LayoutTreeIcon className="w-5 h-5" />, // Using LayoutTreeIcon as main for dropdown
+      type: 'dropdown',
+      title: "Change Layout",
+      // No 'style' prop here, commonButtonStyle will be applied to the trigger
+      dropdownActions: [
+        {
+          id: 'layout-tb-dd',
+          label: "Tree Layout",
+          icon: <LayoutTreeIcon className="w-4 h-4 mr-2" />,
+          onClick: () => applyLayout('TB'),
+          title: "Apply Tree Layout (Top-to-Bottom)",
+        },
+        {
+          id: 'layout-lr-dd',
+          label: "Horizontal Layout",
+          icon: <LayoutHorizontalIcon className="w-4 h-4 mr-2" />,
+          onClick: () => applyLayout('LR'),
+          title: "Apply Horizontal Layout (Left-to-Right)",
+        },
+      ]
     },
     { id: 'separator1', type: 'separator' },
     {
@@ -251,7 +267,7 @@ export default function Toolbar() {
       icon: <SaveIcon className="w-5 h-5" />,
       onClick: handleSave,
       title: "Save Workflow to LocalStorage",
-      style: { backgroundColor: 'var(--secondary)' },
+      // No 'style' prop here, commonButtonStyle will be applied
     },
     {
       id: 'load',
@@ -259,7 +275,7 @@ export default function Toolbar() {
       icon: <LoadIcon className="w-5 h-5" />,
       onClick: handleLoad,
       title: "Load Workflow from LocalStorage",
-      style: { backgroundColor: 'var(--secondary)' },
+      // No 'style' prop here, commonButtonStyle will be applied
     },
     { id: 'separator2', type: 'separator' },    
     {
@@ -267,6 +283,7 @@ export default function Toolbar() {
       label: "Export",
       icon: <ExportIcon className="w-5 h-5" />,
       type: 'dropdown',
+      // No specific style, will use commonButtonStyle for the trigger button
       title: "Export Workflow",
       dropdownActions: [
         {
@@ -293,7 +310,7 @@ export default function Toolbar() {
       icon: <ImportIcon className="w-5 h-5" />,
       onClick: handleImportClick,
       title: "Import Workflow from JSON",
-      style: { backgroundColor: 'var(--secondary)' },
+      // No 'style' prop here, commonButtonStyle will be applied
     },
   ];
 
@@ -306,11 +323,14 @@ export default function Toolbar() {
 
         if (action.type === 'dropdown') {
           return (
-            <div key={action.id} className="relative" ref={dropdownRef}>
+            <div 
+              key={action.id} 
+              className="relative" 
+              ref={openDropdown === action.id ? dropdownContainerRef : null} // Assign ref to the active dropdown's container
+            >
               <button
                 onClick={() => setOpenDropdown(openDropdown === action.id ? null : action.id)}
-                className={`${commonButtonStyle} ${ action.style?.backgroundColor ? '' : 'bg-[var(--secondary)]' }`}
-                style={action.style}
+                className={commonButtonStyle} // Dropdown trigger uses common button style
                 title={typeof action.title === 'function' ? action.title(isExportingGif, areEdgesAnimated) : action.title}
               >
                 {action.icon}
@@ -318,7 +338,9 @@ export default function Toolbar() {
                 <ChevronDownIcon className="w-4 h-4 ml-1 hidden sm:inline" />
               </button>
               {openDropdown === action.id && action.dropdownActions && (
-                <div className="absolute right-0 mt-2 w-48 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-md shadow-lg z-50 py-1">
+                <div 
+                  className={`absolute ${action.id === 'export-dropdown' || action.id === 'layout-dropdown' ? 'left-0' : 'right-0'} mt-2 w-56 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-md shadow-lg z-50 py-1`}
+                >
                   {action.dropdownActions.map(ddAction => {
                     if (!ddAction.onClick || !ddAction.label) return null;
                     const currentLabel = typeof ddAction.label === 'function' ? ddAction.label(isExportingGif, areEdgesAnimated) : ddAction.label;
@@ -331,14 +353,15 @@ export default function Toolbar() {
                         key={ddAction.id}
                         onClick={() => {
                           ddAction.onClick?.();
-                          setOpenDropdown(null); // Close dropdown after action
+                          setOpenDropdown(null); 
                         }}
                         title={currentTitle}
                         disabled={currentDisabled}
-                        className={`${buttonBaseStyle} w-full justify-start text-left px-3 py-2 text-sm ${buttonHoverStyle} ${buttonTextStyle} ${dynamicClassName} ${ currentDisabled ? 'opacity-50 cursor-not-allowed' : '' }`}
-                        style={{ border: 'none', ...ddAction.style }} // Remove individual border for dropdown items
+                        // Use dropdownItemStyle for styling, remove individual border, ensure transparent bg
+                        className={`${dropdownItemStyle} ${dynamicClassName || ''} ${currentDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        style={{ border: 'none', backgroundColor: 'transparent', ...ddAction.style }} 
                       >
-                        {ddAction.icon}
+                        {ddAction.icon && <span className="mr-2">{ddAction.icon}</span>}
                         {currentLabel}
                       </button>
                     );
@@ -349,7 +372,7 @@ export default function Toolbar() {
           );
         }
         
-        // Ensure onClick, icon, and label are defined for buttons before trying to use them
+        // Regular button
         if (!action.onClick || !action.icon || !action.label) {
           // This case should ideally not be reached if separators are handled correctly
           // and button configs are complete. Log an error or return null.
@@ -366,13 +389,12 @@ export default function Toolbar() {
           <button 
             key={action.id}
             onClick={action.onClick} 
-            className={`${commonButtonStyle} ${dynamicClassName || ''}`}
-            style={action.style}
+            className={`${commonButtonStyle} ${dynamicClassName || ''}`} // Regular buttons use commonButtonStyle
             title={currentTitle}
             disabled={currentDisabled}
           >
             {action.icon}
-            <span>{currentLabel}</span>
+            <span className="hidden sm:inline">{currentLabel}</span> 
           </button>
         );
       })}

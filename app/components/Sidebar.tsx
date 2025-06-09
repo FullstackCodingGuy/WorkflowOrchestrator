@@ -31,7 +31,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
   return (
     <aside
       className={`transition-all duration-300 ease-in-out overflow-y-auto border-r border-[var(--border-color)] ${isOpen ? 'w-72 p-4' : 'w-0 p-0'}`}
-      style={{ backgroundColor: 'var(--sidebar-bg)', color: 'var(--foreground)' }}
+      style={{ backgroundColor: 'var(--sidebar-bg)', color: 'var(--foreground)' }} // Ensure main text color is --foreground
     >
       {isOpen && (
         <>
@@ -52,9 +52,9 @@ export default function Sidebar({ isOpen }: SidebarProps) {
             {workflowExamples.map((example) => (
               <div 
                 key={example.name} 
-                className="mb-4 p-3 border border-[var(--border-color)] rounded-lg bg-[var(--secondary)] shadow"
+                className="mb-4 p-3 border border-[var(--border-color)] rounded-lg bg-[var(--card-bg)] shadow text-[var(--card-foreground)]"
               >
-                <h4 className="font-semibold text-md text-[var(--secondary-foreground)]">{example.name}</h4>
+                <h4 className="font-semibold text-md">{example.name}</h4> {/* Inherits --card-foreground */}
                 <p className="text-xs text-[var(--muted-foreground)] mt-1 mb-2">{example.description}</p>
                 <button
                   onClick={() => handleLoadExample(example)}
