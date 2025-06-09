@@ -52,7 +52,7 @@ export default function Toolbar() {
 
   const handleExportGif = async () => {
     setIsExportingGif(true);
-    alert('Starting GIF export... This might take a moment.');
+    alert('Starting animated GIF export... This might take a moment and capture for a few seconds.');
 
     const viewport = document.querySelector('.react-flow__viewport') as HTMLElement;
     if (!viewport) {
@@ -62,47 +62,85 @@ export default function Toolbar() {
     }
 
     try {
-      // Ensure the worker script is available in the public folder
-      // You might need to manually copy gif.worker.js from node_modules/gif.js/dist/ to your public folder
-      const workerScriptPath = '/gif.worker.js'; 
+      const workerScriptPath = '/gif.worker.js';
+      const numFrames = 15; // Capture 15 frames
+      const frameDelay = 100; // 100ms delay between frames (10 FPS)
 
-      const canvas = await html2canvas(viewport, {
+      const initialCanvas = await html2canvas(viewport, {
         logging: false,
         useCORS: true,
-        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--background').trim() || '#ffffff',
-        scale: 1,
+        background: getComputedStyle(document.documentElement).getPropertyValue('--background').trim() || '#ffffff',
+        windowWidth: viewport.scrollWidth,
+        windowHeight: viewport.scrollHeight
       });
-      
+
       const gif = new GIF({
         workers: 2,
         quality: 10,
         workerScript: workerScriptPath,
         background: getComputedStyle(document.documentElement).getPropertyValue('--background').trim() || '#ffffff',
-        width: canvas.width,
-        height: canvas.height,
+        width: initialCanvas.width,
+        height: initialCanvas.height,
+        dither: 'FloydSteinberg', // Optional: improves color quantization
       });
 
-      gif.addFrame(canvas, { delay: 200 }); // Single frame for now
+      // Function to capture a single frame
+      const captureFrame = () => {
+        return html2canvas(viewport, {
+          logging: false,
+          useCORS: true,
+          background: getComputedStyle(document.documentElement).getPropertyValue('--background').trim() || '#ffffff',
+          windowWidth: viewport.scrollWidth,
+          windowHeight: viewport.scrollHeight
+        });
+      };
+
+      // Add initial frame immediately
+      gif.addFrame(initialCanvas, { delay: frameDelay });
+      let framesCaptured = 1;
+      console.log(`GIF export: Frame ${framesCaptured}/${numFrames} captured.`);
+
+      // Capture subsequent frames
+      const frameInterval = setInterval(async () => {
+        if (framesCaptured >= numFrames) {
+          clearInterval(frameInterval);
+          console.log('All frames captured. Rendering GIF...');
+          gif.render();
+          return;
+        }
+
+        try {
+          const canvas = await captureFrame();
+          gif.addFrame(canvas, { delay: frameDelay, copy: true }); // Use copy: true for subsequent frames
+          framesCaptured++;
+          console.log(`GIF export: Frame ${framesCaptured}/${numFrames} captured.`);
+        } catch (frameError) {
+          console.error('Error capturing a frame:', frameError);
+          // Optionally, stop the process or skip the frame
+        }
+      }, frameDelay);
+
 
       gif.on('finished', (blob) => {
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = 'workflow.gif';
+        link.download = 'workflow_animated.gif';
         link.click();
-        URL.revokeObjectURL(link.href); // Clean up blob URL
+        URL.revokeObjectURL(link.href);
         setIsExportingGif(false);
-        alert('GIF exported successfully!');
+        alert('Animated GIF exported successfully!');
       });
 
       gif.on('progress', (p) => {
-        console.log(`GIF export progress: ${Math.round(p * 100)}%`);
+        // Progress is for the rendering phase after all frames are added
+        console.log(`GIF rendering progress: ${Math.round(p * 100)}%`);
       });
 
-      gif.render();
+      // Note: gif.render() is called after all frames are captured in the interval
 
     } catch (error) {
-      console.error('Error exporting GIF:', error);
-      alert('Failed to export GIF. Check console and ensure gif.worker.js is in the public folder.');
+      console.error('Error exporting animated GIF:', error);
+      alert('Failed to export animated GIF. Check console.');
       setIsExportingGif(false);
     }
   };
