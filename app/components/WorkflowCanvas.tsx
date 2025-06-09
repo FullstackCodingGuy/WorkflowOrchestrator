@@ -252,6 +252,7 @@ export default function WorkflowCanvas() {
           fitViewOptions={{ maxZoom: 0.75 }}
           attributionPosition="top-right"
           connectionLineStyle={{ stroke: 'var(--foreground)', strokeWidth: 2 }}
+          defaultEdgeOptions={{ style: { strokeWidth: 2, stroke: 'var(--foreground)' } }}
           connectionMode={ConnectionMode.Loose}
           connectionRadius={50}
           onNodeClick={onNodeClick}
