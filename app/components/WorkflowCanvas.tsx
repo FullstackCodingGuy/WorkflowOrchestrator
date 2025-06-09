@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react'; // Removed useMemo
 import ReactFlow,
 {
   Background,
@@ -24,8 +24,9 @@ import EndNode from './EndNode';
 import PropertiesPanel from './PropertiesPanel';
 import useWorkflowStore from '../store/workflowStore';
 import { connectionRules } from '../config/workflowConfig'; // Import connection rules from the new config file
-import DotFlowEdge from './DotFlowEdge'; // Import the custom edge
+import DotFlowEdge from './DotFlowEdge';
 
+// Define nodeTypes and edgeTypes directly at the module scope
 const nodeTypes: NodeTypes = {
   start: StartNode,
   action: ActionNode,
@@ -34,7 +35,7 @@ const nodeTypes: NodeTypes = {
 };
 
 const edgeTypes: EdgeTypes = {
-  dotFlow: DotFlowEdge, // Register the custom edge
+  dotFlow: DotFlowEdge,
 };
 
 export default function WorkflowCanvas() {
@@ -178,8 +179,8 @@ export default function WorkflowCanvas() {
       const { source, target, sourceHandle, targetHandle } = params;
       if (!source || !target) return; // Should not happen with valid connections
 
-      const sourceNode = nodes.find(node => node.id === source);
-      const targetNode = nodes.find(node => node.id === target);
+      const sourceNode = nodes.find(node => node.id === source); // nodes from useWorkflowStore()
+      const targetNode = nodes.find(node => node.id === target); // nodes from useWorkflowStore()
 
       if (!sourceNode || !targetNode) {
         console.warn('Source or target node not found');
@@ -249,8 +250,8 @@ export default function WorkflowCanvas() {
           onConnect={onConnectCustom}
           onConnectStart={onConnectStart}
           onConnectEnd={onConnectEnd}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
+          nodeTypes={nodeTypes} // Pass the module-scope constant directly
+          edgeTypes={edgeTypes} // Pass the module-scope constant directly
           fitView
           fitViewOptions={{ maxZoom: 0.75 }}
           attributionPosition="top-right"
