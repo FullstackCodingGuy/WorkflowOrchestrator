@@ -14,7 +14,7 @@ import dagre from 'dagre';
 export interface NodeData {
   id: string;
   label: string;
-  backgroundColor?: string; // Added for dynamic styling
+  backgroundColor: string; // Changed from optional to required
   fontColor?: string; // Added for dynamic styling
 }
 
@@ -86,7 +86,7 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
     {
       id: 'startNode1',
       type: 'start',
-      data: { id: 'startNode1', label: 'Start' }, // Ensure data.id is present
+      data: { id: 'startNode1', label: 'Start', backgroundColor: '#f5f5f5' }, // Added default backgroundColor
       position: { x: 250, y: 5 },
       width: 180, // Provide initial dimensions
       height: 60,
@@ -110,7 +110,11 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   addNode: (node: Node) => {
     const newNode = {
       ...node,
-      data: { ...node.data, id: node.id }, // Ensure data.id is set for new nodes
+      data: { 
+        ...node.data, 
+        id: node.id, 
+        backgroundColor: node.data.backgroundColor || '#f5f5f5' // Ensure default bg for new nodes
+      }, 
       width: node.width || 180, // Default width for new nodes
       height: node.height || 60, // Default height for new nodes
     };
@@ -118,22 +122,26 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   },
   importWorkflow: (workflow: { nodes: Node[]; edges: Edge[] }, layoutDirection: 'TB' | 'LR' = 'TB') => {
     const currentAnimatedState = get().areEdgesAnimated;
-    const nodesWithDataId = workflow.nodes.map(n => ({
+    const nodesWithDataDefaults = workflow.nodes.map(n => ({
       ...n,
-      data: { ...n.data, id: n.id },
+      data: { 
+        ...n.data, 
+        id: n.id, 
+        backgroundColor: n.data.backgroundColor || '#f5f5f5', // Ensure default bg for imported nodes
+        fontColor: n.data.fontColor // Preserve imported font color or undefined
+      },
       width: n.width || 180,
       height: n.height || 60,
     }));
-    // Ensure edges from imported workflow also respect the current animation state
     const edgesWithAnimationState = workflow.edges.map(edge => ({
       ...edge,
       animated: currentAnimatedState,
     }));
 
-    const { nodes: layoutedNodes, edges } = getLayoutedElements(nodesWithDataId, edgesWithAnimationState || [], layoutDirection);
+    const { nodes: layoutedNodes, edges } = getLayoutedElements(nodesWithDataDefaults, edgesWithAnimationState || [], layoutDirection);
     set({
       nodes: layoutedNodes,
-      edges: edges, // edges already have animation state applied
+      edges: edges,
     });
   },
   exportWorkflow: () => {
@@ -148,7 +156,6 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   applyLayout: (direction: 'TB' | 'LR') => {
     const { nodes, edges } = get().exportWorkflow();
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges, direction);
-    // Ensure layout application also respects current animation state for edges
     set({ nodes: layoutedNodes, edges: layoutedEdges.map(edge => ({ ...edge, animated: get().areEdgesAnimated })) });
   },
 

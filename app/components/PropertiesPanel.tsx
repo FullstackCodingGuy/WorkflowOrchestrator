@@ -31,17 +31,18 @@ export default function PropertiesPanel() {
     if (selectedNodeId) {
       const node = nodes.find((n) => n.id === selectedNodeId);
       if (node) {
+        // Initialize formData with values from node.data if they exist,
+        // otherwise, use the desired defaults for the panel inputs.
         setFormData({
           label: node.data.label || '',
-          fontColor: node.data.fontColor || '#000000', // Default to black
-          backgroundColor: node.data.backgroundColor || '#ffffff', // Default to white
-          // Initialize other properties from node.data if they exist
+          fontColor: node.data.fontColor || '#000000', // Default for panel input if not set
+          backgroundColor: node.data.backgroundColor || '#f5f5f5', // Default to whitesmoke for panel input if not set
         });
       }
     } else {
       setFormData({});
     }
-  }, [selectedNodeId, nodes]);
+  }, [selectedNodeId, nodes]); // formData is intentionally not a dependency to avoid loops with its own setters
 
   if (!selectedNode) {
     return (
