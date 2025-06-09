@@ -22,7 +22,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
 
   return (
     <aside
-      className={`transition-all duration-300 ease-in-out overflow-y-auto border-r border-[var(--accent-color)] bg-opacity-80 backdrop-blur-md ${isOpen ? 'w-64 p-4' : 'w-0 p-0'}`}
+      className={`transition-all duration-300 ease-in-out overflow-y-auto bg-opacity-80 backdrop-blur-md ${isOpen ? 'w-64 p-4' : 'w-0 p-0'}`}
       style={{ backgroundColor: 'var(--node-bg)', color: 'var(--node-color)' }}
     >
       {isOpen && (
@@ -33,8 +33,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
               key={control.id}
               onDragStart={(event) => onDragStart(event, control.type, control.label)}
               draggable
-              className="p-3 mb-3 text-sm text-center border border-[var(--accent-color)] rounded-lg cursor-grab hover:bg-[var(--accent-color)] hover:text-[var(--background)] active:cursor-grabbing transition-colors duration-150 shadow-md hover:shadow-lg"
-              style={{ borderColor: 'var(--accent-color)' }}
+              className="p-3 mb-3 text-sm text-center border border-slate-400 rounded-lg cursor-grab hover:bg-[var(--accent-color)] hover:text-[var(--background)] active:cursor-grabbing transition-colors duration-150 shadow-md hover:shadow-lg"
             >
               {control.label}
             </div>

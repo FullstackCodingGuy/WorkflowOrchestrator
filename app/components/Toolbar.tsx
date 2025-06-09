@@ -2,20 +2,25 @@
 
 import React, { useRef } from 'react';
 import useWorkflowStore from '../store/workflowStore';
-import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon } from './Icons'; // Import new icons
+import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon } from './Icons'; // Import GifIcon
 
 export default function Toolbar() {
-  const { exportWorkflow, importWorkflow, nodes, edges, setNodes, setEdges } = useWorkflowStore(); // Added nodes, edges, setNodes, setEdges for save
+  const { exportWorkflow, importWorkflow, nodes, edges, setNodes, setEdges } = useWorkflowStore(); 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const onStart = () => console.log('Start animation'); // Placeholder
-  const onPause = () => console.log('Pause animation'); // Placeholder
-  const onRestart = () => console.log('Restart animation'); // Placeholder
+  const onStart = () => console.log('Start animation'); 
+  const onPause = () => console.log('Pause animation'); 
+  const onRestart = () => console.log('Restart animation'); 
 
   const handleSave = () => {
-    // Placeholder for save functionality - e.g., save to localStorage or an API
     console.log('Save workflow:', { nodes, edges });
     alert('Workflow state logged to console. Implement actual save logic here.');
+  };
+
+  const handleExportGif = () => {
+    // Placeholder for GIF export functionality
+    console.log('Export to GIF clicked');
+    alert('Export to GIF functionality not yet implemented.');
   };
 
   const handleExport = () => {
@@ -57,8 +62,8 @@ export default function Toolbar() {
 
   const buttonBaseStyle = "p-2 rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--background)] flex items-center justify-center gap-2 text-sm font-medium";
   const buttonHoverStyle = "hover:bg-[var(--accent-color)] hover:text-[var(--background)]";
-  const buttonTextStyle = "text-[var(--node-color)]"; // Use node-color for text for better contrast on node-bg buttons
-  const buttonBorderStyle = "border border-[var(--accent-color)]";
+  const buttonTextStyle = "text-[var(--node-color)]"; 
+  const buttonBorderStyle = "border border-slate-400";
 
   return (
     <nav className="flex items-center gap-2">
@@ -105,7 +110,16 @@ export default function Toolbar() {
         title="Export Workflow as JSON"
       >
         <ExportIcon className="w-5 h-5" />
-        <span>Export</span>
+        <span>Export JSON</span>
+      </button>
+      <button 
+        onClick={handleExportGif} 
+        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
+        style={{ backgroundColor: 'var(--node-bg)'}}
+        title="Export Workflow as GIF"
+      >
+        <GifIcon className="w-5 h-5" />
+        <span>Export GIF</span>
       </button>
       <input 
         type="file"

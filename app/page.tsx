@@ -11,7 +11,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      <header className="flex items-center justify-between p-3 shadow-lg bg-opacity-80 backdrop-blur-md border-b border-[var(--accent-color)]" style={{ backgroundColor: 'var(--node-bg)', color: 'var(--node-color)' }}>
+      <header className="flex items-center justify-between p-3 shadow-lg bg-opacity-80 backdrop-blur-md" style={{ backgroundColor: 'var(--node-bg)', color: 'var(--node-color)' }}>
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
