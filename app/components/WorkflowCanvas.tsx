@@ -21,7 +21,49 @@ import ActionNode from './ActionNode';
 import ConditionNode from './ConditionNode';
 import EndNode from './EndNode';
 import PropertiesPanel from './PropertiesPanel';
-import useWorkflowStore, { WorkflowState } from '../store/workflowStore'; // Import the store and its type
+import useWorkflowStore from '../store/workflowStore'; // Removed WorkflowState import
+
+// --- Define Connection Limit Rules ---
+interface HandleConnectionLimit {
+  max: number;
+  type: 'source' | 'target';
+}
+
+interface NodeConnectionLimits {
+  handleSpecific?: { // Moved handle-specific limits to a nested object
+    [handleId: string]: HandleConnectionLimit;
+  };
+  nodeOverallSourceMax?: number;
+  nodeOverallTargetMax?: number;
+}
+
+interface ConnectionLimitRules {
+  [nodeType: string]: NodeConnectionLimits;
+}
+
+const connectionRules: ConnectionLimitRules = {
+  start: {
+    nodeOverallSourceMax: 1, // Start node can only have 1 outgoing connection from any of its source handles
+    nodeOverallTargetMax: 0, // Start node cannot have incoming connections
+  },
+  action: {
+    nodeOverallSourceMax: 1, // Action node can have 1 outgoing
+    nodeOverallTargetMax: 1, // Action node can have 1 incoming
+  },
+  condition: {
+    nodeOverallSourceMax: 2, // e.g., one for true, one for false (from different handles)
+    nodeOverallTargetMax: 1, // Condition node can have 1 incoming
+    // Example for specific handles if needed, assuming ConditionNode uses 'true' and 'false' as part of its handle IDs
+    // handleSpecific: { 
+    //   'condition-source-true': { max: 1, type: 'source' },
+    //   'condition-source-false': { max: 1, type: 'source' }
+    // }
+  },
+  end: {
+    nodeOverallSourceMax: 0, // End node cannot have outgoing connections
+    nodeOverallTargetMax: 1, // End node can only have 1 incoming connection to any of its target handles
+  },
+};
 
 const nodeTypes: NodeTypes = {
   start: StartNode,
@@ -38,33 +80,28 @@ export default function WorkflowCanvas() {
     edges,
     onNodesChange,
     onEdgesChange,
-    // onConnect, // We'll use a custom onConnect for advanced features
     addNode,
-    setEdges, // Added to use in custom onConnect
-    areEdgesAnimated, // Added to maintain animation state
+    setEdges,
+    areEdgesAnimated,
+    setSelectedNodeId, // Added to use for onNodeClick and onPaneClick
   } = useWorkflowStore();
 
   const { project } = useReactFlow(); // For projecting screen to flow coordinates
   const connectingNodeId = useRef<string | null>(null); // To store the source node id when starting a connection
 
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  // const [selectedNode, setSelectedNode] = useState<Node | null>(null); // Removed, selection handled by store
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-    setSelectedNode(node);
-  }, []);
+    // setSelectedNode(node); // Removed, use store action
+    setSelectedNodeId(node.id); // Use store action
+  }, [setSelectedNodeId]);
 
   const onPaneClick = useCallback(() => {
-    setSelectedNode(null);
-  }, []);
-
-  const updateNodeProperties = useCallback((updatedNode: Node) => {
-    useWorkflowStore.setState((state: WorkflowState) => ({
-      nodes: state.nodes.map((node: Node) => (node.id === updatedNode.id ? updatedNode : node)),
-    }));
-    setSelectedNode(updatedNode);
-  }, []);
+    // setSelectedNode(null); // Removed, use store action
+    setSelectedNodeId(null); // Use store action
+  }, [setSelectedNodeId]);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -175,32 +212,59 @@ export default function WorkflowCanvas() {
   // --- Connection Limit & Custom onConnect ---
   const onConnectCustom = useCallback(
     (params: Connection) => {
-      // Example: Limit 'start' node to 1 outgoing connection
-      if (params.source) {
-        const sourceNode = nodes.find(node => node.id === params.source);
-        if (sourceNode?.type === 'start') {
-          const outgoingEdges = edges.filter(edge => edge.source === params.source);
-          if (outgoingEdges.length >= 1) {
-            console.warn('Start node can only have one outgoing connection.');
-            alert('Start node can only have one outgoing connection.');
+      const { source, target, sourceHandle, targetHandle } = params;
+      if (!source || !target) return; // Should not happen with valid connections
+
+      const sourceNode = nodes.find(node => node.id === source);
+      const targetNode = nodes.find(node => node.id === target);
+
+      if (!sourceNode || !targetNode) {
+        console.warn('Source or target node not found');
+        return;
+      }
+
+      const sourceNodeType = sourceNode.type;
+      const targetNodeType = targetNode.type;
+
+      // Check source node limits
+      if (sourceNodeType && connectionRules[sourceNodeType]) {
+        const rules = connectionRules[sourceNodeType];
+        const outgoingEdges = edges.filter(edge => edge.source === source);
+
+        if (rules.nodeOverallSourceMax !== undefined && outgoingEdges.length >= rules.nodeOverallSourceMax) {
+          alert(`${sourceNodeType} node can only have ${rules.nodeOverallSourceMax} outgoing connection(s).`);
+          return;
+        }
+        // Check specific source handle limit
+        if (sourceHandle && rules.handleSpecific && rules.handleSpecific[sourceHandle] && rules.handleSpecific[sourceHandle].type === 'source') {
+          const handleRules = rules.handleSpecific[sourceHandle];
+          const handleOutgoingEdges = edges.filter(edge => edge.source === source && edge.sourceHandle === sourceHandle);
+          if (handleOutgoingEdges.length >= handleRules.max) {
+            alert(`Handle ${sourceHandle} on ${sourceNodeType} node can only have ${handleRules.max} outgoing connection(s).`);
             return;
           }
         }
       }
-      // Example: Limit 'end' node to 1 incoming connection
-      if (params.target) {
-        const targetNode = nodes.find(node => node.id === params.target);
-        if (targetNode?.type === 'end') {
-          const incomingEdges = edges.filter(edge => edge.target === params.target);
-          if (incomingEdges.length >= 1) {
-            console.warn('End node can only have one incoming connection.');
-            alert('End node can only have one incoming connection.');
+
+      // Check target node limits
+      if (targetNodeType && connectionRules[targetNodeType]) {
+        const rules = connectionRules[targetNodeType];
+        const incomingEdges = edges.filter(edge => edge.target === target);
+
+        if (rules.nodeOverallTargetMax !== undefined && incomingEdges.length >= rules.nodeOverallTargetMax) {
+          alert(`${targetNodeType} node can only have ${rules.nodeOverallTargetMax} incoming connection(s).`);
+          return;
+        }
+        // Check specific target handle limit
+        if (targetHandle && rules.handleSpecific && rules.handleSpecific[targetHandle] && rules.handleSpecific[targetHandle].type === 'target') {
+          const handleRules = rules.handleSpecific[targetHandle];
+          const handleIncomingEdges = edges.filter(edge => edge.target === target && edge.targetHandle === targetHandle);
+          if (handleIncomingEdges.length >= handleRules.max) {
+            alert(`Handle ${targetHandle} on ${targetNodeType} node can only have ${handleRules.max} incoming connection(s).`);
             return;
           }
         }
       }
-      // Add specific handle connection limits here if needed
-      // e.g., if (params.sourceHandle === 'a' && params.targetHandle === 'b') { ... }
 
       setEdges(addEdge({ ...params, animated: areEdgesAnimated }, edges));
     },
@@ -219,18 +283,17 @@ export default function WorkflowCanvas() {
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
-          // onConnect={onConnect} // Use custom onConnect
-          onConnect={onConnectCustom} // Use the new custom onConnect
-          onConnectStart={onConnectStart} // Add Node on Edge Drop
-          onConnectEnd={onConnectEnd} // Add Node on Edge Drop
+          onConnect={onConnectCustom}
+          onConnectStart={onConnectStart}
+          onConnectEnd={onConnectEnd}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
           fitViewOptions={{ maxZoom: 0.75 }}
           attributionPosition="top-right"
           connectionLineStyle={{ stroke: 'var(--foreground)', strokeWidth: 2 }}
-          connectionMode={ConnectionMode.Loose} // Easy Connect / Proximity Connect
-          connectionRadius={50} // Proximity radius
+          connectionMode={ConnectionMode.Loose}
+          connectionRadius={50}
           onNodeClick={onNodeClick}
           onPaneClick={onPaneClick}
           onDragOver={onDragOver}
@@ -242,7 +305,8 @@ export default function WorkflowCanvas() {
           <Background gap={12} size={1} />
         </ReactFlow>
       </div>
-      <PropertiesPanel selectedNode={selectedNode} onUpdateNode={updateNodeProperties} />
+      {/* PropertiesPanel now directly uses the store, so no props are needed here */}
+      <PropertiesPanel />
     </div>
   );
 }

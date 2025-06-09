@@ -1,8 +1,8 @@
 'use client'; // Ensure this is a client component
 
-import React, { useEffect, useState } from 'react';
-import useWorkflowStore from '../store/workflowStore';
-import { Node } from 'reactflow';
+import React, { useState, useEffect } from 'react';
+import useWorkflowStore from '../store/workflowStore'; // Removed NodeData import
+import { useShallow } from 'zustand/shallow';
 
 // Define a more specific type for the data we expect and want to edit
 interface EditableNodeData {
@@ -13,19 +13,23 @@ interface EditableNodeData {
   // [key: string]: any; // Allow other properties - Removed for better type safety
 }
 
-const PropertiesPanel: React.FC = () => {
-  const selectedNodeId = useWorkflowStore((state) => state.selectedNodeId);
-  const nodes = useWorkflowStore((state) => state.nodes);
-  const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
-  const setSelectedNodeId = useWorkflowStore((state) => state.setSelectedNodeId); // To clear selection
+export default function PropertiesPanel() {
+  const { selectedNodeId, nodes, updateNodeData, setSelectedNodeId: deselectNode } = useWorkflowStore(
+    useShallow(state => ({
+      selectedNodeId: state.selectedNodeId,
+      nodes: state.nodes,
+      updateNodeData: state.updateNodeData,
+      setSelectedNodeId: state.setSelectedNodeId, // Fetch setSelectedNodeId for deselecting
+    }))
+  );
 
-  const [selectedNode, setSelectedNode] = useState<Node<EditableNodeData> | null>(null);
+  const selectedNode = nodes.find(node => node.id === selectedNodeId);
+
   const [formData, setFormData] = useState<EditableNodeData>({});
 
   useEffect(() => {
     if (selectedNodeId) {
-      const node = nodes.find((n) => n.id === selectedNodeId) as Node<EditableNodeData> | undefined;
-      setSelectedNode(node || null);
+      const node = nodes.find((n) => n.id === selectedNodeId);
       if (node) {
         setFormData({
           label: node.data.label || '',
@@ -35,17 +39,15 @@ const PropertiesPanel: React.FC = () => {
         });
       }
     } else {
-      setSelectedNode(null);
       setFormData({});
     }
   }, [selectedNodeId, nodes]);
 
   if (!selectedNode) {
     return (
-      <aside 
-        className="w-72 p-4 border-l border-[var(--border-color)] bg-[var(--sidebar-bg)] text-[var(--foreground)] h-full overflow-y-auto"
-      >
-        <p className="text-sm text-[var(--muted-foreground)]">Select a node to see its properties.</p>
+      <aside className="w-80 bg-[var(--sidebar-bg)] p-4 border-l border-[var(--border-color)] text-[var(--foreground)]">
+        <h3 className="text-lg font-semibold mb-4">Properties</h3>
+        <p className="text-sm text-[var(--muted-foreground)]">Select a node to view and edit its properties.</p>
       </aside>
     );
   }
@@ -80,17 +82,17 @@ const PropertiesPanel: React.FC = () => {
   const labelClassName = "block text-sm font-medium mb-1 text-[var(--muted-foreground)]";
 
   return (
-    <aside 
-      className="w-72 p-4 border-l border-[var(--border-color)] bg-[var(--sidebar-bg)] text-[var(--foreground)] h-full overflow-y-auto space-y-6"
-    >
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Properties</h3>
+    <aside className="w-80 bg-[var(--sidebar-bg)] p-6 border-l border-[var(--border-color)] text-[var(--foreground)] shadow-lg">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-semibold">Edit Node</h3>
         <button 
-          onClick={() => setSelectedNodeId(null)} 
-          className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-          title="Deselect Node"
+          onClick={() => deselectNode(null)} // Use the fetched setSelectedNodeId (aliased as deselectNode)
+          className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+          title="Close Panel"
         >
-          Close
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
       </div>
       
@@ -192,5 +194,3 @@ const PropertiesPanel: React.FC = () => {
     </aside>
   );
 };
-
-export default PropertiesPanel;

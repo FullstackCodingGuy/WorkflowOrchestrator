@@ -6,6 +6,18 @@ import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, Gif
 import html2canvas from 'html2canvas';
 import GIF from 'gif.js';
 
+interface ToolbarButtonConfig {
+  id: string;
+  label?: string | ((isExportingGif?: boolean, areEdgesAnimated?: boolean) => string);
+  icon?: React.ReactElement;
+  onClick?: () => void;
+  title?: string | ((isExportingGif?: boolean, areEdgesAnimated?: boolean) => string);
+  isDisabled?: boolean | ((isExportingGif?: boolean) => boolean);
+  style?: React.CSSProperties;
+  className?: string | ((isExportingGif?: boolean) => string); // Allow function for className
+  type?: 'button' | 'separator';
+}
+
 export default function Toolbar() {
   const { 
     exportWorkflow, 
@@ -182,83 +194,121 @@ export default function Toolbar() {
   const buttonHoverStyle = "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]";
   const buttonTextStyle = "text-[var(--foreground)]";
   const buttonBorderStyle = "border border-[var(--border-color)]";
+  const commonButtonStyle = `${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`;
+
+  const toolbarActions: ToolbarButtonConfig[] = [
+    {
+      id: 'animate',
+      label: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop Anim" : "Start Anim",
+      icon: areEdgesAnimated ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />,
+      onClick: handleToggleAnimation,
+      title: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop Animation" : "Start Animation",
+      style: { backgroundColor: 'var(--secondary)' },
+    },
+    {
+      id: 'restart',
+      label: "Restart",
+      icon: <RestartIcon className="w-5 h-5" />,
+      onClick: handleRestart,
+      title: "Restart Workflow",
+      style: { backgroundColor: 'var(--secondary)' },
+    },
+    {
+      id: 'layout-tb',
+      label: "Tree",
+      icon: <LayoutTreeIcon className="w-5 h-5" />,
+      onClick: () => applyLayout('TB'),
+      title: "Apply Tree Layout (Top-to-Bottom)",
+      style: { backgroundColor: 'var(--secondary)' },
+    },
+    {
+      id: 'layout-lr',
+      label: "Horizontal",
+      icon: <LayoutHorizontalIcon className="w-5 h-5" />,
+      onClick: () => applyLayout('LR'),
+      title: "Apply Horizontal Layout (Left-to-Right)",
+      style: { backgroundColor: 'var(--secondary)' },
+    },
+    { id: 'separator1', type: 'separator' },
+    {
+      id: 'save',
+      label: "Save",
+      icon: <SaveIcon className="w-5 h-5" />,
+      onClick: handleSave,
+      title: "Save Workflow to LocalStorage",
+      style: { backgroundColor: 'var(--secondary)' },
+    },
+    {
+      id: 'load',
+      label: "Load",
+      icon: <LoadIcon className="w-5 h-5" />,
+      onClick: handleLoad,
+      title: "Load Workflow from LocalStorage",
+      style: { backgroundColor: 'var(--secondary)' },
+    },
+    { id: 'separator2', type: 'separator' },    
+    {
+      id: 'export-json',
+      label: "Export JSON",
+      icon: <ExportIcon className="w-5 h-5" />,
+      onClick: handleExport,
+      title: "Export Workflow as JSON",
+      style: { backgroundColor: 'var(--secondary)' },
+    },
+    {
+      id: 'export-gif',
+      label: (isExportingGif) => isExportingGif ? "Exporting..." : "Export GIF",
+      icon: <GifIcon className="w-5 h-5" />,
+      onClick: handleExportGif,
+      title: (isExportingGif) => isExportingGif ? "Exporting GIF..." : "Export Workflow as GIF",
+      isDisabled: (isExportingGif) => !!isExportingGif, 
+      className: (isExportingGif) => isExportingGif ? 'opacity-50 cursor-not-allowed' : '', // Keep as function
+      style: { backgroundColor: 'var(--secondary)' },
+    },
+    {
+      id: 'import-json',
+      label: "Import JSON",
+      icon: <ImportIcon className="w-5 h-5" />,
+      onClick: handleImportClick,
+      title: "Import Workflow from JSON",
+      style: { backgroundColor: 'var(--secondary)' },
+    },
+  ];
 
   return (
     <nav className="flex items-center gap-2 p-2 bg-[var(--toolbar-bg)] rounded-lg shadow-md">
-      <button 
-        onClick={handleToggleAnimation} 
-        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--secondary)' }}
-        title={areEdgesAnimated ? "Stop Animation" : "Start Animation"}
-      >
-        {areEdgesAnimated ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
-        <span>{areEdgesAnimated ? "Stop" : "Start"} Anim</span>
-      </button>
-      <button 
-        onClick={handleRestart} 
-        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--secondary)' }}
-        title="Restart Workflow"
-      >
-        <RestartIcon className="w-5 h-5" />
-        <span>Restart</span>
-      </button>
-      <button 
-        onClick={() => applyLayout('TB')} 
-        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--secondary)' }}
-        title="Apply Tree Layout (Top-to-Bottom)"
-      >
-        <LayoutTreeIcon className="w-5 h-5" /> 
-        <span>Tree</span>
-      </button>
-      <button 
-        onClick={() => applyLayout('LR')} 
-        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--secondary)' }}
-        title="Apply Horizontal Layout (Left-to-Right)"
-      >
-        <LayoutHorizontalIcon className="w-5 h-5" />
-        <span>Horizontal</span>
-      </button>
-      <div className="h-6 border-l border-[var(--border-color)] mx-1"></div> {/* Vertical Separator */}
-      <button 
-        onClick={handleSave} 
-        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--secondary)' }}
-        title="Save Workflow to LocalStorage"
-      >
-        <SaveIcon className="w-5 h-5" />
-        <span>Save</span>
-      </button>
-      <button 
-        onClick={handleLoad} 
-        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--secondary)' }}
-        title="Load Workflow from LocalStorage"
-      >
-        <LoadIcon className="w-5 h-5" /> 
-        <span>Load</span>
-      </button>
-      <button 
-        onClick={handleExport} 
-        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--secondary)' }}
-        title="Export Workflow as JSON"
-      >
-        <ExportIcon className="w-5 h-5" />
-        <span>Export JSON</span>
-      </button>
-      <button 
-        onClick={handleExportGif} 
-        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle} ${isExportingGif ? 'opacity-50 cursor-not-allowed' : ''}`}
-        style={{ backgroundColor: 'var(--secondary)' }}
-        title={isExportingGif ? "Exporting GIF..." : "Export Workflow as GIF"}
-        disabled={isExportingGif}
-      >
-        <GifIcon className="w-5 h-5" />
-        <span>{isExportingGif ? "Exporting..." : "Export GIF"}</span>
-      </button>
+      {toolbarActions.map((action) => {
+        if (action.type === 'separator') {
+          return <div key={action.id} className="h-6 border-l border-[var(--border-color)] mx-1"></div>;
+        }
+
+        // Ensure onClick, icon, and label are defined for buttons before trying to use them
+        if (!action.onClick || !action.icon || !action.label) {
+          // This case should ideally not be reached if separators are handled correctly
+          // and button configs are complete. Log an error or return null.
+          console.error(`Toolbar action ${action.id} is missing required properties for a button.`);
+          return null; 
+        }
+
+        const currentLabel = typeof action.label === 'function' ? action.label(isExportingGif, areEdgesAnimated) : action.label;
+        const currentTitle = typeof action.title === 'function' ? action.title(isExportingGif, areEdgesAnimated) : action.title;
+        const currentDisabled = typeof action.isDisabled === 'function' ? action.isDisabled(isExportingGif) : action.isDisabled;
+        const dynamicClassName = typeof action.className === 'function' ? action.className(isExportingGif) : action.className;
+
+        return (
+          <button 
+            key={action.id}
+            onClick={action.onClick} 
+            className={`${commonButtonStyle} ${dynamicClassName || ''}`}
+            style={action.style}
+            title={currentTitle}
+            disabled={currentDisabled}
+          >
+            {action.icon}
+            <span>{currentLabel}</span>
+          </button>
+        );
+      })}
       <input 
         type="file"
         accept=".json"
@@ -266,15 +316,6 @@ export default function Toolbar() {
         style={{ display: 'none' }}
         onChange={handleFileChange}
       />
-      <button 
-        onClick={handleImportClick} 
-        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--secondary)' }}
-        title="Import Workflow from JSON"
-      >
-        <ImportIcon className="w-5 h-5" />
-        <span>Import JSON</span>
-      </button>
     </nav>
   );
 }
