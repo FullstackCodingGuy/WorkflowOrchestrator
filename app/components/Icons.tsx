@@ -79,4 +79,22 @@ export const LoadIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+export const SettingsIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-1.007 1.11-.111l.281.281c.09.09.224.146.357.146H12M9.594 3.94C8.256 4.687 7.5 6.006 7.5 7.5c0 1.494.756 2.813 1.906 3.554M9.594 3.94v2.721M14.406 3.94c-.09.542-.56 1.007-1.11.111l-.281-.281c-.09-.09-.224-.146-.357-.146H12m2.406 0c1.344.733 2.094 2.052 2.094 3.554 0 1.494-.75 2.813-1.906 3.554m0-2.721v2.721m-4.687 1.152A2.25 2.25 0 0112 13.5c1.243 0 2.25.984 2.25 2.197V17.55a2.25 2.25 0 01-2.25 2.25h-1.5a2.25 2.25 0 01-2.25-2.25V15.7c0-1.213 1.007-2.197 2.25-2.197h1.5Z" />
+  </svg>
+);
+
+export const DuplicateIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m9.75 9.25c0-.621-.504-1.125-1.125-1.125H18v-3.125c0-.621-.504-1.125-1.125-1.125H13.5m-7.5 4.5v3.375c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V11.25a9.06 9.06 0 00-1.5-.124m-7.5 10.375h3.375c.621 0 1.125-.504 1.125-1.125V11.25a9.06 9.06 0 00-1.5-.124" />
+  </svg>
+);
+
+export const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12.56 0c.342.052.682.107 1.022.166m0 0A48.11 48.11 0 0112 4.5c2.418 0 4.684.667 6.722 1.84m0 0l-3.18-3.18m3.18 3.18l-3.18-3.18M3.75 5.79h16.5M4.5 5.79V4.5A2.25 2.25 0 016.75 2.25h10.5A2.25 2.25 0 0119.5 4.5v1.29" />
+  </svg>
+);
+
 // Add more icons as needed: e.g., SettingsIcon, HelpIcon, etc.
