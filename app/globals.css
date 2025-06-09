@@ -32,7 +32,8 @@
 
   /* UI Elements */
   --sidebar-bg: #f9fafb;
-  --header-bg: #f9fafb; /* Consistent with sidebar */
+  --header-bg: #ffffff; /* Distinct from sidebar for a cleaner look */
+  --header-foreground: #111827;
   --toolbar-bg: #f9fafb;
   
   /* Node Specific */
@@ -85,7 +86,8 @@
 
   /* UI Elements */
   --sidebar-bg: #1f2937;
-  --header-bg: #1f2937;
+  --header-bg: #111827; /* Distinct dark header */
+  --header-foreground: #f3f4f6;
   --toolbar-bg: #1f2937;
 
   /* Node Specific */

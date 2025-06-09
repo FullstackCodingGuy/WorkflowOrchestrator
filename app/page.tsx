@@ -13,18 +13,20 @@ export default function Home() {
   return (
     <ReactFlowProvider> {/* <-- Wrap the entire content with ReactFlowProvider */}
       <div className="flex flex-col h-screen bg-background text-foreground">
-        <header className="flex items-center justify-between p-3 shadow-lg bg-opacity-80 backdrop-blur-md" style={{ backgroundColor: 'var(--node-bg)', color: 'var(--node-color)' }}>
+        <header 
+          className="flex items-center justify-between p-4 shadow-md border-b border-[var(--border-color)] bg-[var(--header-bg)] text-[var(--header-foreground)] sticky top-0 z-50 backdrop-blur-lg bg-opacity-75"
+        >
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-md hover:bg-[var(--accent-color)] hover:text-[var(--background)] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]"
+              className="p-2 rounded-full hover:bg-[var(--accent-muted)] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
               aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
             >
-              {isSidebarOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+              {isSidebarOpen ? <XIcon className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}
             </button>
-            <h1 className="text-2xl font-bold tracking-tight">Workflow Orchestrator</h1>
+            <h1 className="text-xl font-semibold tracking-tight">Workflow Orchestrator</h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Toolbar />
             <ThemeSwitcher />
           </div>
