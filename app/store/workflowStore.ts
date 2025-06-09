@@ -4,10 +4,8 @@ import {
   Edge,
   applyNodeChanges,
   applyEdgeChanges,
-  addEdge,
   NodeChange,
   EdgeChange,
-  Connection,
   Position
 } from 'reactflow';
 import dagre from 'dagre';
@@ -18,7 +16,6 @@ export interface WorkflowState {
   areEdgesAnimated: boolean; // <-- New state for edge animation
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
-  onConnect: (connection: Connection) => void;
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
   addNode: (node: Node) => void;
@@ -87,11 +84,6 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   onEdgesChange: (changes: EdgeChange[]) => {
     set((state) => ({
       edges: applyEdgeChanges(changes, state.edges),
-    }));
-  },
-  onConnect: (connection: Connection) => {
-    set((state) => ({
-      edges: addEdge({ ...connection, animated: state.areEdgesAnimated }, state.edges), // Apply animation status on new edges
     }));
   },
   setNodes: (nodes: Node[]) => set({ nodes }),

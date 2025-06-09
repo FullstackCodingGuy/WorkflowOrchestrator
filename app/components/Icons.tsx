@@ -55,4 +55,22 @@ export const GifIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+export const ChevronDownIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path fillRule="evenodd" d="M12.53 16.28a.75.75 0 0 1-1.06 0l-7.5-7.5a.75.75 0 0 1 1.06-1.06L12 14.69l6.97-6.97a.75.75 0 1 1 1.06 1.06l-7.5 7.5Z" clipRule="evenodd" />
+  </svg>
+);
+
+export const LayoutTreeIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12 2a1 1 0 0 0-1 1v3H8a1 1 0 0 0-1 1v3H4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3v3a1 1 0 0 0 1 1h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 1-1v-3h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-3V7a1 1 0 0 0-1-1h-3V3a1 1 0 0 0-1-1zm-1 5h2v3h3v3h-3v3h-2v-3H8v-3h3V7z"/>
+  </svg>
+);
+
+export const LayoutHorizontalIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M22 11h-3V8a1 1 0 0 0-1-1h-3V4a1 1 0 0 0-1-1h-3a1 1 0 0 0-1 1v3H7a1 1 0 0 0-1 1v3H3a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h3v3a1 1 0 0 0 1 1h3v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3h3a1 1 0 0 0 1-1v-3h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1zm-5 1h-3v3H9v-3H6v-2h3V8h3v3h3v2z"/>
+  </svg>
+);
+
 // Add more icons as needed: e.g., SettingsIcon, HelpIcon, etc.

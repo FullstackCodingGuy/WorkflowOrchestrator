@@ -2,15 +2,44 @@
 
 import React, { useRef } from 'react';
 import useWorkflowStore from '../store/workflowStore';
-import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon } from './Icons'; // Import GifIcon
+import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon } from './Icons';
 
 export default function Toolbar() {
-  const { exportWorkflow, importWorkflow, nodes, edges, setNodes, setEdges } = useWorkflowStore(); 
+  const { 
+    exportWorkflow, 
+    importWorkflow, 
+    nodes, 
+    edges, 
+    setNodes, 
+    setEdges, 
+    areEdgesAnimated, 
+    toggleEdgeAnimation,
+    applyLayout,
+  } = useWorkflowStore(); 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const onStart = () => console.log('Start animation'); 
-  const onPause = () => console.log('Pause animation'); 
-  const onRestart = () => console.log('Restart animation'); 
+  const handleToggleAnimation = () => {
+    toggleEdgeAnimation();
+  };
+
+  const handleRestart = () => {
+    console.log('Restarting workflow');
+    setNodes([
+      {
+        id: 'startNode_reset_1', // Ensure unique ID on reset
+        type: 'start',
+        data: { id: 'startNode_reset_1', label: 'Start' },
+        position: { x: 250, y: 5 },
+        width: 180,
+        height: 60,
+      },
+    ]);
+    setEdges([]);
+    // Optionally, reset animation state if desired
+    // if (areEdgesAnimated) {
+    //   toggleEdgeAnimation();
+    // }
+  };
 
   const handleSave = () => {
     console.log('Save workflow:', { nodes, edges });
@@ -45,10 +74,11 @@ export default function Toolbar() {
       reader.onload = (e) => {
         try {
           const importedData = JSON.parse(e.target?.result as string);
-          if (Array.isArray(importedData.nodes) && Array.isArray(importedData.edges)) {
-            importWorkflow(importedData);
+          // Validate basic structure, importWorkflow in store does more detailed checks
+          if (importedData && typeof importedData === 'object' && importedData.nodes && importedData.edges) {
+            importWorkflow(importedData, 'TB'); // Default to TB layout on import, or make it selectable
           } else {
-            alert('Invalid workflow file format.');
+            alert('Invalid workflow file format. Missing nodes or edges array.');
           }
         } catch (error) {
           console.error('Error parsing imported JSON:', error);
@@ -61,44 +91,54 @@ export default function Toolbar() {
   };
 
   const buttonBaseStyle = "p-2 rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--background)] flex items-center justify-center gap-2 text-sm font-medium";
-  const buttonHoverStyle = "hover:bg-[var(--accent-color)] hover:text-[var(--background)]";
-  const buttonTextStyle = "text-[var(--node-color)]"; 
-  const buttonBorderStyle = "border border-slate-400";
+  const buttonHoverStyle = "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"; // Using accent and accent-foreground for hover
+  const buttonTextStyle = "text-[var(--foreground)]"; // Changed from --node-color to --foreground for better theme adaptability
+  const buttonBorderStyle = "border border-[var(--border-color)]"; // Using CSS variable for border
 
   return (
-    <nav className="flex items-center gap-2">
+    <nav className="flex items-center gap-2 p-2 bg-[var(--toolbar-bg)] rounded-lg shadow-md">
       <button 
-        onClick={onStart} 
+        onClick={handleToggleAnimation} 
         className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--node-bg)'}}
-        title="Start Workflow"
+        style={{ backgroundColor: 'var(--secondary)' }} // Using secondary for button background
+        title={areEdgesAnimated ? "Stop Animation" : "Start Animation"}
       >
-        <PlayIcon className="w-5 h-5" />
-        <span>Start</span>
+        {areEdgesAnimated ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
+        <span>{areEdgesAnimated ? "Stop" : "Start"} Anim</span>
       </button>
       <button 
-        onClick={onPause} 
+        onClick={handleRestart} 
         className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--node-bg)'}}
-        title="Pause Workflow"
-      >
-        <PauseIcon className="w-5 h-5" />
-        <span>Pause</span>
-      </button>
-      <button 
-        onClick={onRestart} 
-        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--node-bg)'}}
+        style={{ backgroundColor: 'var(--secondary)' }}
         title="Restart Workflow"
       >
         <RestartIcon className="w-5 h-5" />
         <span>Restart</span>
       </button>
       <button 
+        onClick={() => applyLayout('TB')} 
+        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
+        style={{ backgroundColor: 'var(--secondary)' }}
+        title="Apply Tree Layout (Top-to-Bottom)"
+      >
+        <LayoutTreeIcon className="w-5 h-5" /> 
+        <span>Tree</span>
+      </button>
+      <button 
+        onClick={() => applyLayout('LR')} 
+        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
+        style={{ backgroundColor: 'var(--secondary)' }}
+        title="Apply Horizontal Layout (Left-to-Right)"
+      >
+        <LayoutHorizontalIcon className="w-5 h-5" />
+        <span>Horizontal</span>
+      </button>
+      <div className="h-6 border-l border-[var(--border-color)] mx-1"></div> {/* Vertical Separator */}
+      <button 
         onClick={handleSave} 
         className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--node-bg)'}}
-        title="Save Workflow"
+        style={{ backgroundColor: 'var(--secondary)' }}
+        title="Save Workflow (Placeholder)"
       >
         <SaveIcon className="w-5 h-5" />
         <span>Save</span>
@@ -106,7 +146,7 @@ export default function Toolbar() {
       <button 
         onClick={handleExport} 
         className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--node-bg)'}}
+        style={{ backgroundColor: 'var(--secondary)' }}
         title="Export Workflow as JSON"
       >
         <ExportIcon className="w-5 h-5" />
@@ -115,8 +155,8 @@ export default function Toolbar() {
       <button 
         onClick={handleExportGif} 
         className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--node-bg)'}}
-        title="Export Workflow as GIF"
+        style={{ backgroundColor: 'var(--secondary)' }}
+        title="Export Workflow as GIF (Placeholder)"
       >
         <GifIcon className="w-5 h-5" />
         <span>Export GIF</span>
@@ -131,11 +171,11 @@ export default function Toolbar() {
       <button 
         onClick={handleImportClick} 
         className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
-        style={{ backgroundColor: 'var(--node-bg)'}}
+        style={{ backgroundColor: 'var(--secondary)' }}
         title="Import Workflow from JSON"
       >
         <ImportIcon className="w-5 h-5" />
-        <span>Import</span>
+        <span>Import JSON</span>
       </button>
     </nav>
   );
