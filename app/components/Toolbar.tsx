@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import useWorkflowStore from '../store/workflowStore';
-import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon } from './Icons';
+import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon } from './Icons';
 import html2canvas from 'html2canvas';
 import GIF from 'gif.js';
 
@@ -15,7 +15,8 @@ interface ToolbarButtonConfig {
   isDisabled?: boolean | ((isExportingGif?: boolean) => boolean);
   style?: React.CSSProperties;
   className?: string | ((isExportingGif?: boolean) => string); // Allow function for className
-  type?: 'button' | 'separator';
+  type?: 'button' | 'separator' | 'dropdown';
+  dropdownActions?: ToolbarButtonConfig[];
 }
 
 export default function Toolbar() {
@@ -32,6 +33,20 @@ export default function Toolbar() {
   } = useWorkflowStore(); 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isExportingGif, setIsExportingGif] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleToggleAnimation = () => {
     toggleEdgeAnimation();
@@ -248,22 +263,29 @@ export default function Toolbar() {
     },
     { id: 'separator2', type: 'separator' },    
     {
-      id: 'export-json',
-      label: "Export JSON",
+      id: 'export-dropdown',
+      label: "Export",
       icon: <ExportIcon className="w-5 h-5" />,
-      onClick: handleExport,
-      title: "Export Workflow as JSON",
-      style: { backgroundColor: 'var(--secondary)' },
-    },
-    {
-      id: 'export-gif',
-      label: (isExportingGif) => isExportingGif ? "Exporting..." : "Export GIF",
-      icon: <GifIcon className="w-5 h-5" />,
-      onClick: handleExportGif,
-      title: (isExportingGif) => isExportingGif ? "Exporting GIF..." : "Export Workflow as GIF",
-      isDisabled: (isExportingGif) => !!isExportingGif, 
-      className: (isExportingGif) => isExportingGif ? 'opacity-50 cursor-not-allowed' : '', // Keep as function
-      style: { backgroundColor: 'var(--secondary)' },
+      type: 'dropdown',
+      title: "Export Workflow",
+      dropdownActions: [
+        {
+          id: 'export-json',
+          label: "Export JSON",
+          icon: <ExportIcon className="w-4 h-4 mr-2" />, // Smaller icon for dropdown
+          onClick: handleExport,
+          title: "Export Workflow as JSON",
+        },
+        {
+          id: 'export-gif',
+          label: (isExportingGif) => isExportingGif ? "Exporting GIF..." : "Export GIF",
+          icon: <GifIcon className="w-4 h-4 mr-2" />, // Smaller icon for dropdown
+          onClick: handleExportGif,
+          title: (isExportingGif) => isExportingGif ? "Exporting GIF..." : "Export Workflow as GIF",
+          isDisabled: (isExportingGif) => !!isExportingGif,
+          className: (isExportingGif) => isExportingGif ? 'opacity-50 cursor-not-allowed' : '',
+        },
+      ]
     },
     {
       id: 'import-json',
@@ -282,6 +304,51 @@ export default function Toolbar() {
           return <div key={action.id} className="h-6 border-l border-[var(--border-color)] mx-1"></div>;
         }
 
+        if (action.type === 'dropdown') {
+          return (
+            <div key={action.id} className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setOpenDropdown(openDropdown === action.id ? null : action.id)}
+                className={`${commonButtonStyle} ${ action.style?.backgroundColor ? '' : 'bg-[var(--secondary)]' }`}
+                style={action.style}
+                title={typeof action.title === 'function' ? action.title(isExportingGif, areEdgesAnimated) : action.title}
+              >
+                {action.icon}
+                <span className="hidden sm:inline">{typeof action.label === 'function' ? action.label(isExportingGif, areEdgesAnimated) : action.label}</span>
+                <ChevronDownIcon className="w-4 h-4 ml-1 hidden sm:inline" />
+              </button>
+              {openDropdown === action.id && action.dropdownActions && (
+                <div className="absolute right-0 mt-2 w-48 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-md shadow-lg z-50 py-1">
+                  {action.dropdownActions.map(ddAction => {
+                    if (!ddAction.onClick || !ddAction.label) return null;
+                    const currentLabel = typeof ddAction.label === 'function' ? ddAction.label(isExportingGif, areEdgesAnimated) : ddAction.label;
+                    const currentTitle = typeof ddAction.title === 'function' ? ddAction.title(isExportingGif, areEdgesAnimated) : ddAction.title;
+                    const currentDisabled = typeof ddAction.isDisabled === 'function' ? ddAction.isDisabled(isExportingGif) : ddAction.isDisabled;
+                    const dynamicClassName = typeof ddAction.className === 'function' ? ddAction.className(isExportingGif) : ddAction.className;
+                    
+                    return (
+                      <button
+                        key={ddAction.id}
+                        onClick={() => {
+                          ddAction.onClick?.();
+                          setOpenDropdown(null); // Close dropdown after action
+                        }}
+                        title={currentTitle}
+                        disabled={currentDisabled}
+                        className={`${buttonBaseStyle} w-full justify-start text-left px-3 py-2 text-sm ${buttonHoverStyle} ${buttonTextStyle} ${dynamicClassName} ${ currentDisabled ? 'opacity-50 cursor-not-allowed' : '' }`}
+                        style={{ border: 'none', ...ddAction.style }} // Remove individual border for dropdown items
+                      >
+                        {ddAction.icon}
+                        {currentLabel}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        }
+        
         // Ensure onClick, icon, and label are defined for buttons before trying to use them
         if (!action.onClick || !action.icon || !action.label) {
           // This case should ideally not be reached if separators are handled correctly
