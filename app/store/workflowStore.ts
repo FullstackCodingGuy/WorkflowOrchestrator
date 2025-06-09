@@ -10,10 +10,18 @@ import {
 } from 'reactflow';
 import dagre from 'dagre';
 
+// Define a more specific type for node data
+export interface NodeData {
+  id: string;
+  label: string;
+  [key: string]: any; // Allow other properties
+}
+
 export interface WorkflowState {
   nodes: Node[];
   edges: Edge[];
   areEdgesAnimated: boolean;
+  selectedNodeId: string | null; // Added for properties panel
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   setNodes: (nodes: Node[]) => void;
@@ -25,6 +33,11 @@ export interface WorkflowState {
   applyLayout: (direction: 'TB' | 'LR') => void;
   saveWorkflowToLocalStorage: () => void;
   loadWorkflowFromLocalStorage: () => boolean;
+  // Actions for NodeToolbar
+  setSelectedNodeId: (nodeId: string | null) => void;
+  updateNodeData: (nodeId: string, newData: Partial<NodeData>) => void; // Use Partial<NodeData>
+  deleteNode: (nodeId: string) => void;
+  duplicateNode: (nodeId: string) => void;
 }
 
 const LOCAL_STORAGE_KEY = 'reactflow_workflow';
@@ -80,6 +93,7 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   ],
   edges: [],
   areEdgesAnimated: false, // Initialize animation state
+  selectedNodeId: null, // Initialize selectedNodeId
   onNodesChange: (changes: NodeChange[]) => {
     set((state) => ({
       nodes: applyNodeChanges(changes, state.nodes),
@@ -165,6 +179,46 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
       console.error('Error loading workflow from LocalStorage:', error);
     }
     return false;
+  },
+
+  // Implementations for NodeToolbar actions
+  setSelectedNodeId: (nodeId: string | null) => {
+    set({ selectedNodeId: nodeId });
+  },
+
+  updateNodeData: (nodeId: string, newData: Partial<NodeData>) => { // Use Partial<NodeData>
+    set((state) => ({
+      nodes: state.nodes.map((node) =>
+        node.id === nodeId ? { ...node, data: { ...node.data, ...newData } } : node
+      ),
+    }));
+  },
+
+  deleteNode: (nodeId: string) => {
+    set((state) => ({
+      nodes: state.nodes.filter((node) => node.id !== nodeId),
+      edges: state.edges.filter((edge) => edge.source !== nodeId && edge.target !== nodeId),
+      selectedNodeId: state.selectedNodeId === nodeId ? null : state.selectedNodeId, // Deselect if deleted
+    }));
+  },
+
+  duplicateNode: (nodeId: string) => {
+    const { nodes, addNode } = get();
+    const nodeToDuplicate = nodes.find((node) => node.id === nodeId);
+    if (nodeToDuplicate) {
+      const newNodeId = `${nodeToDuplicate.type}_${Date.now()}`; // Simple unique ID
+      const duplicatedNode: Node = {
+        ...nodeToDuplicate,
+        id: newNodeId,
+        data: { ...nodeToDuplicate.data, id: newNodeId }, // Ensure new data.id
+        position: {
+          x: (nodeToDuplicate.position.x || 0) + 30, // Offset slightly
+          y: (nodeToDuplicate.position.y || 0) + 30,
+        },
+        selected: false, // Ensure duplicated node is not selected initially
+      };
+      addNode(duplicatedNode);
+    }
   },
 });
 

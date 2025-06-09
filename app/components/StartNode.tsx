@@ -2,8 +2,11 @@ import React from 'react';
 import { NodeProps, Handle, Position } from 'reactflow';
 import { NodeResizer } from '@reactflow/node-resizer';
 import { NodeToolbar } from '@reactflow/node-toolbar'; // Corrected import
+import useWorkflowStore from '../store/workflowStore'; // Import the store
 
 const StartNode: React.FC<NodeProps> = ({ id, data, selected }) => {
+  const { deleteNode, duplicateNode, setSelectedNodeId } = useWorkflowStore(); // Get actions
+
   return (
     <>
       <NodeResizer
@@ -19,8 +22,28 @@ const StartNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         align="end"
         offset={8}
       >
-        <button onClick={() => console.log(`Toolbar action 1 for ${id}`)} title="Action 1">⚙️</button>
-        <button onClick={() => console.log(`Toolbar action 2 for ${id}`)} title="Action 2">🗑️</button>
+        {/* Updated Toolbar Actions */}
+        <button 
+          onClick={() => setSelectedNodeId(id)} 
+          title="Edit Properties"
+          className="p-1 hover:bg-[var(--background-modifier-hover)] rounded"
+        >
+          ⚙️
+        </button>
+        <button 
+          onClick={() => duplicateNode(id)} 
+          title="Duplicate Node"
+          className="p-1 hover:bg-[var(--background-modifier-hover)] rounded"
+        >
+          📄
+        </button>
+        <button 
+          onClick={() => deleteNode(id)} 
+          title="Delete Node"
+          className="p-1 hover:bg-[var(--background-modifier-hover)] rounded"
+        >
+          🗑️
+        </button>
       </NodeToolbar>
       <div style={{
         padding: '10px 20px',

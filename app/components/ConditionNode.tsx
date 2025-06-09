@@ -1,12 +1,15 @@
 import React from 'react';
 import { NodeProps, Handle, Position } from 'reactflow';
-import { NodeToolbar } from '@reactflow/node-toolbar'; // Correct import for NodeToolbar
-import { NodeResizer } from '@reactflow/node-resizer'; // Correct import for NodeResizer
+import { NodeToolbar } from '@reactflow/node-toolbar';
+import { NodeResizer } from '@reactflow/node-resizer';
+import useWorkflowStore from '../store/workflowStore'; // Import the store
 
 const ConditionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
+  const { deleteNode, duplicateNode, setSelectedNodeId } = useWorkflowStore(); // Get actions
+
   return (
     <>
-      <NodeResizer // Using NodeResizer directly
+      <NodeResizer
         isVisible={selected}
         minWidth={100}
         minHeight={70}
@@ -19,8 +22,28 @@ const ConditionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         align="end"
         offset={8}
       >
-        <button onClick={() => console.log(`Configure condition ${id}`)} title="Configure">⚙️</button>
-        <button onClick={() => console.log(`Info ${id}`)} title="Info">ℹ️</button>
+        {/* Updated Toolbar Actions */}
+        <button
+          onClick={() => setSelectedNodeId(id)}
+          title="Edit Properties"
+          className="p-1 hover:bg-[var(--background-modifier-hover)] rounded"
+        >
+          ⚙️
+        </button>
+        <button
+          onClick={() => duplicateNode(id)}
+          title="Duplicate Node"
+          className="p-1 hover:bg-[var(--background-modifier-hover)] rounded"
+        >
+          📄
+        </button>
+        <button
+          onClick={() => deleteNode(id)}
+          title="Delete Node"
+          className="p-1 hover:bg-[var(--background-modifier-hover)] rounded"
+        >
+          🗑️
+        </button>
       </NodeToolbar>
       <div style={{
         padding: '15px',

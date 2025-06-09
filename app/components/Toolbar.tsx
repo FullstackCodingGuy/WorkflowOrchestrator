@@ -8,8 +8,6 @@ export default function Toolbar() {
   const { 
     exportWorkflow, 
     importWorkflow, 
-    nodes, // Keep nodes for potential direct use if needed, though saveWorkflowToLocalStorage doesn't directly need it as an arg
-    edges, // Keep edges for potential direct use
     setNodes, 
     setEdges, 
     areEdgesAnimated, 
