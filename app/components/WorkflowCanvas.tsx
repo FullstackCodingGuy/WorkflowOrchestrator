@@ -131,7 +131,7 @@ export default function WorkflowCanvas() {
   // TODO: Implement workflow animation
 
   return (
-    <div style={{ display: 'flex', height: '100%' }}> {/* Changed from calc(100vh - 120px) to 100% as parent controls height */}
+    <div style={{ display: 'flex', height: '100%' }}>
       <div style={{ height: '100%', width: '100%' }} ref={reactFlowWrapper} className="flex-grow">
         <ReactFlow
           nodes={nodes}
@@ -142,8 +142,9 @@ export default function WorkflowCanvas() {
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
+          fitViewOptions={{ maxZoom: 0.75 }} // Set maxZoom to 0.75 for 75% scale
           attributionPosition="top-right"
-          connectionLineStyle={{ stroke: '#000', strokeDasharray: '5 5' }}
+          connectionLineStyle={{ stroke: 'var(--foreground)', strokeWidth: 2 }} // Use theme variable for connection line
           onNodeClick={onNodeClick}
           onPaneClick={onPaneClick}
           onDragOver={onDragOver}
