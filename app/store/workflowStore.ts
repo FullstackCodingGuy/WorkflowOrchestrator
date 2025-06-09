@@ -13,17 +13,21 @@ import dagre from 'dagre';
 export interface WorkflowState {
   nodes: Node[];
   edges: Edge[];
-  areEdgesAnimated: boolean; // <-- New state for edge animation
+  areEdgesAnimated: boolean;
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
   addNode: (node: Node) => void;
-  importWorkflow: (workflow: { nodes: Node[]; edges: Edge[] }, layoutDirection?: 'TB' | 'LR') => void; // Modified to accept layout direction
+  importWorkflow: (workflow: { nodes: Node[]; edges: Edge[] }, layoutDirection?: 'TB' | 'LR') => void;
   exportWorkflow: () => { nodes: Node[]; edges: Edge[] };
-  toggleEdgeAnimation: () => void; // <-- New function to toggle animation
-  applyLayout: (direction: 'TB' | 'LR') => void; // <-- New function to apply layout
+  toggleEdgeAnimation: () => void;
+  applyLayout: (direction: 'TB' | 'LR') => void;
+  saveWorkflowToLocalStorage: () => void;
+  loadWorkflowFromLocalStorage: () => boolean;
 }
+
+const LOCAL_STORAGE_KEY = 'reactflow_workflow';
 
 // Dagre layout logic
 const dagreGraph = new dagre.graphlib.Graph();
@@ -98,16 +102,23 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
     set((state) => ({ nodes: [...state.nodes, newNode] }));
   },
   importWorkflow: (workflow: { nodes: Node[]; edges: Edge[] }, layoutDirection: 'TB' | 'LR' = 'TB') => {
+    const currentAnimatedState = get().areEdgesAnimated;
     const nodesWithDataId = workflow.nodes.map(n => ({
       ...n,
       data: { ...n.data, id: n.id },
       width: n.width || 180,
       height: n.height || 60,
     }));
-    const { nodes: layoutedNodes, edges } = getLayoutedElements(nodesWithDataId, workflow.edges || [], layoutDirection);
+    // Ensure edges from imported workflow also respect the current animation state
+    const edgesWithAnimationState = workflow.edges.map(edge => ({
+      ...edge,
+      animated: currentAnimatedState,
+    }));
+
+    const { nodes: layoutedNodes, edges } = getLayoutedElements(nodesWithDataId, edgesWithAnimationState || [], layoutDirection);
     set({
       nodes: layoutedNodes,
-      edges: edges.map(edge => ({ ...edge, animated: get().areEdgesAnimated }))
+      edges: edges, // edges already have animation state applied
     });
   },
   exportWorkflow: () => {
@@ -120,9 +131,40 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
     }));
   },
   applyLayout: (direction: 'TB' | 'LR') => {
-    const { nodes, edges } = get().exportWorkflow(); // Use existing exportWorkflow to get current elements
+    const { nodes, edges } = get().exportWorkflow();
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges, direction);
+    // Ensure layout application also respects current animation state for edges
     set({ nodes: layoutedNodes, edges: layoutedEdges.map(edge => ({ ...edge, animated: get().areEdgesAnimated })) });
+  },
+
+  saveWorkflowToLocalStorage: () => {
+    try {
+      const { nodes, edges } = get().exportWorkflow();
+      const workflowToSave = { nodes, edges, timestamp: new Date().toISOString() }; // Add a timestamp
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(workflowToSave));
+      console.log('Workflow saved to LocalStorage.');
+    } catch (error) {
+      console.error('Error saving workflow to LocalStorage:', error);
+    }
+  },
+
+  loadWorkflowFromLocalStorage: () => {
+    try {
+      const savedWorkflowJSON = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (savedWorkflowJSON) {
+        const savedWorkflow = JSON.parse(savedWorkflowJSON);
+        if (savedWorkflow && savedWorkflow.nodes && savedWorkflow.edges) {
+          // Use importWorkflow to correctly process and layout the loaded data
+          // Defaulting to 'TB' layout, can be made configurable or saved with workflow
+          get().importWorkflow({ nodes: savedWorkflow.nodes, edges: savedWorkflow.edges }, 'TB');
+          console.log('Workflow loaded from LocalStorage.');
+          return true;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading workflow from LocalStorage:', error);
+    }
+    return false;
   },
 });
 

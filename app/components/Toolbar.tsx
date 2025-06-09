@@ -2,19 +2,21 @@
 
 import React, { useRef } from 'react';
 import useWorkflowStore from '../store/workflowStore';
-import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon } from './Icons';
+import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon } from './Icons';
 
 export default function Toolbar() {
   const { 
     exportWorkflow, 
     importWorkflow, 
-    nodes, 
-    edges, 
+    nodes, // Keep nodes for potential direct use if needed, though saveWorkflowToLocalStorage doesn't directly need it as an arg
+    edges, // Keep edges for potential direct use
     setNodes, 
     setEdges, 
     areEdgesAnimated, 
     toggleEdgeAnimation,
     applyLayout,
+    saveWorkflowToLocalStorage, // Added
+    loadWorkflowFromLocalStorage, // Added
   } = useWorkflowStore(); 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -42,8 +44,13 @@ export default function Toolbar() {
   };
 
   const handleSave = () => {
-    console.log('Save workflow:', { nodes, edges });
-    alert('Workflow state logged to console. Implement actual save logic here.');
+    saveWorkflowToLocalStorage(); // Use the store action
+    alert('Workflow saved to LocalStorage!');
+  };
+
+  const handleLoad = () => {
+    loadWorkflowFromLocalStorage(); // Use the store action
+    alert('Workflow loaded from LocalStorage!');
   };
 
   const handleExportGif = () => {
@@ -138,10 +145,19 @@ export default function Toolbar() {
         onClick={handleSave} 
         className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
         style={{ backgroundColor: 'var(--secondary)' }}
-        title="Save Workflow (Placeholder)"
+        title="Save Workflow to LocalStorage" // Updated title
       >
         <SaveIcon className="w-5 h-5" />
         <span>Save</span>
+      </button>
+      <button 
+        onClick={handleLoad} // Added onClick handler
+        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
+        style={{ backgroundColor: 'var(--secondary)' }}
+        title="Load Workflow from LocalStorage" // Added title
+      >
+        <LoadIcon className="w-5 h-5" /> {/* Added LoadIcon */}
+        <span>Load</span>
       </button>
       <button 
         onClick={handleExport} 
