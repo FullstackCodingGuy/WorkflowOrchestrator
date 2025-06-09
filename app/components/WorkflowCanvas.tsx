@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react'; // Removed useEffect as it's not used
-import ReactFlow, {
+import React, { useCallback, useRef, useState } from 'react';
+import ReactFlow,
+{
   Background,
   Controls,
   MiniMap,
@@ -9,10 +10,10 @@ import ReactFlow, {
   NodeTypes,
   EdgeTypes,
   ReactFlowInstance,
-  ConnectionMode, // Added
-  useReactFlow, // Added
-  addEdge, // Added from reactflow
-  Connection, // Added from reactflow
+  ConnectionMode,
+  useReactFlow,
+  addEdge,
+  Connection,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -21,49 +22,8 @@ import ActionNode from './ActionNode';
 import ConditionNode from './ConditionNode';
 import EndNode from './EndNode';
 import PropertiesPanel from './PropertiesPanel';
-import useWorkflowStore from '../store/workflowStore'; // Removed WorkflowState import
-
-// --- Define Connection Limit Rules ---
-interface HandleConnectionLimit {
-  max: number;
-  type: 'source' | 'target';
-}
-
-interface NodeConnectionLimits {
-  handleSpecific?: { // Moved handle-specific limits to a nested object
-    [handleId: string]: HandleConnectionLimit;
-  };
-  nodeOverallSourceMax?: number;
-  nodeOverallTargetMax?: number;
-}
-
-interface ConnectionLimitRules {
-  [nodeType: string]: NodeConnectionLimits;
-}
-
-const connectionRules: ConnectionLimitRules = {
-  start: {
-    nodeOverallSourceMax: 1, // Start node can only have 1 outgoing connection from any of its source handles
-    nodeOverallTargetMax: 0, // Start node cannot have incoming connections
-  },
-  action: {
-    nodeOverallSourceMax: 1, // Action node can have 1 outgoing
-    nodeOverallTargetMax: 1, // Action node can have 1 incoming
-  },
-  condition: {
-    nodeOverallSourceMax: 2, // e.g., one for true, one for false (from different handles)
-    nodeOverallTargetMax: 1, // Condition node can have 1 incoming
-    // Example for specific handles if needed, assuming ConditionNode uses 'true' and 'false' as part of its handle IDs
-    // handleSpecific: { 
-    //   'condition-source-true': { max: 1, type: 'source' },
-    //   'condition-source-false': { max: 1, type: 'source' }
-    // }
-  },
-  end: {
-    nodeOverallSourceMax: 0, // End node cannot have outgoing connections
-    nodeOverallTargetMax: 1, // End node can only have 1 incoming connection to any of its target handles
-  },
-};
+import useWorkflowStore from '../store/workflowStore';
+import { connectionRules } from '../config/workflowConfig'; // Import connection rules from the new config file
 
 const nodeTypes: NodeTypes = {
   start: StartNode,
