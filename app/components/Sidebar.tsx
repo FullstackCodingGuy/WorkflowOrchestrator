@@ -30,7 +30,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
 
   return (
     <aside
-      className={`transition-all duration-300 ease-in-out overflow-y-auto bg-opacity-80 backdrop-blur-md ${isOpen ? 'w-72 p-4' : 'w-0 p-0'}`}
+      className={`transition-all duration-300 ease-in-out overflow-y-auto border-r border-[var(--border-color)] ${isOpen ? 'w-72 p-4' : 'w-0 p-0'}`}
       style={{ backgroundColor: 'var(--sidebar-bg)', color: 'var(--foreground)' }}
     >
       {isOpen && (

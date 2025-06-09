@@ -34,7 +34,7 @@
   --sidebar-bg: #f9fafb;
   --header-bg: #ffffff; /* Distinct from sidebar for a cleaner look */
   --header-foreground: #111827;
-  --toolbar-bg: #f9fafb;
+  --toolbar-bg: #ffffff; /* Match header */
   
   /* Node Specific */
   --node-bg: #f7fafc; 
@@ -88,7 +88,7 @@
   --sidebar-bg: #1f2937;
   --header-bg: #111827; /* Distinct dark header */
   --header-foreground: #f3f4f6;
-  --toolbar-bg: #1f2937;
+  --toolbar-bg: #111827; /* Match header */
 
   /* Node Specific */
   --node-bg: #2d3748; 

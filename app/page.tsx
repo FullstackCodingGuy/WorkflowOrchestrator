@@ -14,7 +14,7 @@ export default function Home() {
     <ReactFlowProvider> {/* <-- Wrap the entire content with ReactFlowProvider */}
       <div className="flex flex-col h-screen bg-background text-foreground">
         <header 
-          className="flex items-center justify-between p-4 shadow-md border-b border-[var(--border-color)] bg-[var(--header-bg)] text-[var(--header-foreground)] sticky top-0 z-50 backdrop-blur-lg bg-opacity-75"
+          className="flex items-center justify-between p-4 shadow-md border-b border-[var(--border-color)] bg-[var(--header-bg)] text-[var(--header-foreground)] sticky top-0 z-50"
         >
           <div className="flex items-center gap-4">
             <button 

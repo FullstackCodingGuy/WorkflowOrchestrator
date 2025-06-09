@@ -276,7 +276,7 @@ export default function Toolbar() {
   ];
 
   return (
-    <nav className="flex items-center gap-2 p-2 bg-[var(--toolbar-bg)] rounded-lg shadow-md">
+    <nav className="flex items-center gap-2 p-2 bg-[var(--toolbar-bg)] rounded-lg">
       {toolbarActions.map((action) => {
         if (action.type === 'separator') {
           return <div key={action.id} className="h-6 border-l border-[var(--border-color)] mx-1"></div>;
