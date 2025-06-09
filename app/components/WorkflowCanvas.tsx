@@ -1,21 +1,14 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react'; // Removed useEffect as it's not used
 import ReactFlow, {
-  addEdge,
-  applyEdgeChanges,
-  applyNodeChanges,
   Background,
   Controls,
   MiniMap,
   Node,
-  Edge,
-  OnNodesChange,
-  OnEdgesChange,
-  OnConnect,
   NodeTypes,
   EdgeTypes,
-  ReactFlowInstance, // Added specific type for reactFlowInstance
+  ReactFlowInstance,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -24,17 +17,7 @@ import ActionNode from './ActionNode';
 import ConditionNode from './ConditionNode';
 import EndNode from './EndNode';
 import PropertiesPanel from './PropertiesPanel';
-
-const initialNodes: Node[] = [
-  {
-    id: 'startNode1',
-    type: 'start', // Updated type
-    data: { label: 'Start' },
-    position: { x: 250, y: 5 },
-  },
-];
-
-const initialEdges: Edge[] = [];
+import useWorkflowStore, { WorkflowState } from '../store/workflowStore'; // Import the store and its type
 
 const nodeTypes: NodeTypes = {
   start: StartNode,
@@ -43,29 +26,21 @@ const nodeTypes: NodeTypes = {
   end: EndNode,
 };
 
-const edgeTypes: EdgeTypes = {
-  // customEdge: CustomEdge, // Example for custom edge
-};
+const edgeTypes: EdgeTypes = {};
 
 export default function WorkflowCanvas() {
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const reactFlowWrapper = React.useRef<HTMLDivElement>(null);
-  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null); // Updated type
+  const {
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    addNode,
+  } = useWorkflowStore();
 
-  const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes]
-  );
-  const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [setEdges]
-  );
-  const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges]
-  );
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
@@ -76,12 +51,11 @@ export default function WorkflowCanvas() {
   }, []);
 
   const updateNodeProperties = useCallback((updatedNode: Node) => {
-    setNodes((nds) =>
-      nds.map((node) => (node.id === updatedNode.id ? updatedNode : node))
-    );
+    useWorkflowStore.setState((state: WorkflowState) => ({ // Added explicit type for state
+      nodes: state.nodes.map((node: Node) => (node.id === updatedNode.id ? updatedNode : node)), // Added explicit type for node
+    }));
     setSelectedNode(updatedNode);
-  }, [setNodes]);
-
+  }, []);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -102,33 +76,33 @@ export default function WorkflowCanvas() {
       if (!typeAndLabel) {
         return;
       }
-      const { nodeType, label } = JSON.parse(typeAndLabel);
+      try {
+        const { nodeType, label } = JSON.parse(typeAndLabel);
 
+        if (typeof nodeType === 'undefined' || !nodeType) {
+          console.error("Dropped item doesn't have a valid nodeType");
+          return;
+        }
 
-      // check if the dropped element is valid
-      if (typeof nodeType === 'undefined' || !nodeType) {
-        return;
+        const position = reactFlowInstance.project({
+          x: event.clientX - reactFlowBounds.left,
+          y: event.clientY - reactFlowBounds.top,
+        });
+        
+        const newNode: Node = {
+          id: `dndnode_\\${+new Date()}`,
+          type: nodeType,
+          position,
+          data: { label: `\\${label}` },
+        };
+
+        addNode(newNode);
+      } catch (error) {
+        console.error("Failed to parse dropped data:", error);
       }
-
-      const position = reactFlowInstance.project({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
-      });
-      
-      const newNode: Node = {
-        id: `dndnode_\\${+new Date()}`, // Simple unique ID
-        type: nodeType,
-        position,
-        data: { label: `\\${label}` },
-      };
-
-      setNodes((nds) => nds.concat(newNode));
     },
-    [reactFlowInstance, setNodes]
+    [reactFlowInstance, addNode]
   );
-
-  // TODO: Implement node configuration (title, color, conditions) - Partially done with PropertiesPanel
-  // TODO: Implement workflow animation
 
   return (
     <div style={{ display: 'flex', height: '100%' }}>
@@ -142,9 +116,9 @@ export default function WorkflowCanvas() {
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
-          fitViewOptions={{ maxZoom: 0.75 }} // Set maxZoom to 0.75 for 75% scale
+          fitViewOptions={{ maxZoom: 0.75 }}
           attributionPosition="top-right"
-          connectionLineStyle={{ stroke: 'var(--foreground)', strokeWidth: 2 }} // Use theme variable for connection line
+          connectionLineStyle={{ stroke: 'var(--foreground)', strokeWidth: 2 }}
           onNodeClick={onNodeClick}
           onPaneClick={onPaneClick}
           onDragOver={onDragOver}
