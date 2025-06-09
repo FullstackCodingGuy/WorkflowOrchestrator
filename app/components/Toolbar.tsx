@@ -2,14 +2,21 @@
 
 import React, { useRef } from 'react';
 import useWorkflowStore from '../store/workflowStore';
+import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon } from './Icons'; // Import new icons
 
 export default function Toolbar() {
-  const { exportWorkflow, importWorkflow } = useWorkflowStore();
+  const { exportWorkflow, importWorkflow, nodes, edges, setNodes, setEdges } = useWorkflowStore(); // Added nodes, edges, setNodes, setEdges for save
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const onStart = () => console.log('Start animation');
-  const onPause = () => console.log('Pause animation');
-  const onRestart = () => console.log('Restart animation');
+  const onStart = () => console.log('Start animation'); // Placeholder
+  const onPause = () => console.log('Pause animation'); // Placeholder
+  const onRestart = () => console.log('Restart animation'); // Placeholder
+
+  const handleSave = () => {
+    // Placeholder for save functionality - e.g., save to localStorage or an API
+    console.log('Save workflow:', { nodes, edges });
+    alert('Workflow state logged to console. Implement actual save logic here.');
+  };
 
   const handleExport = () => {
     const workflowData = exportWorkflow();
@@ -48,25 +55,57 @@ export default function Toolbar() {
     }
   };
 
+  const buttonBaseStyle = "p-2 rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--background)] flex items-center justify-center gap-2 text-sm font-medium";
+  const buttonHoverStyle = "hover:bg-[var(--accent-color)] hover:text-[var(--background)]";
+  const buttonTextStyle = "text-[var(--node-color)]"; // Use node-color for text for better contrast on node-bg buttons
+  const buttonBorderStyle = "border border-[var(--accent-color)]";
+
   return (
     <nav className="flex items-center gap-2">
       <button 
         onClick={onStart} 
-        className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
+        style={{ backgroundColor: 'var(--node-bg)'}}
+        title="Start Workflow"
       >
-        Start
+        <PlayIcon className="w-5 h-5" />
+        <span>Start</span>
       </button>
-      <button onClick={onPause} className="px-3 py-1 text-sm font-medium text-white bg-yellow-500 rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
-        Pause
+      <button 
+        onClick={onPause} 
+        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
+        style={{ backgroundColor: 'var(--node-bg)'}}
+        title="Pause Workflow"
+      >
+        <PauseIcon className="w-5 h-5" />
+        <span>Pause</span>
       </button>
-      <button onClick={onRestart} className="px-3 py-1 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2">
-        Restart
+      <button 
+        onClick={onRestart} 
+        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
+        style={{ backgroundColor: 'var(--node-bg)'}}
+        title="Restart Workflow"
+      >
+        <RestartIcon className="w-5 h-5" />
+        <span>Restart</span>
+      </button>
+      <button 
+        onClick={handleSave} 
+        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
+        style={{ backgroundColor: 'var(--node-bg)'}}
+        title="Save Workflow"
+      >
+        <SaveIcon className="w-5 h-5" />
+        <span>Save</span>
       </button>
       <button 
         onClick={handleExport} 
-        className="px-3 py-1 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
+        style={{ backgroundColor: 'var(--node-bg)'}}
+        title="Export Workflow as JSON"
       >
-        Export JSON
+        <ExportIcon className="w-5 h-5" />
+        <span>Export</span>
       </button>
       <input 
         type="file"
@@ -77,9 +116,12 @@ export default function Toolbar() {
       />
       <button 
         onClick={handleImportClick} 
-        className="px-3 py-1 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+        className={`${buttonBaseStyle} ${buttonTextStyle} ${buttonBorderStyle} ${buttonHoverStyle}`}
+        style={{ backgroundColor: 'var(--node-bg)'}}
+        title="Import Workflow from JSON"
       >
-        Import JSON
+        <ImportIcon className="w-5 h-5" />
+        <span>Import</span>
       </button>
     </nav>
   );

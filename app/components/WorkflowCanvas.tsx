@@ -90,10 +90,10 @@ export default function WorkflowCanvas() {
         });
         
         const newNode: Node = {
-          id: `dndnode_\\${+new Date()}`,
+          id: `dndnode_${+new Date()}`,
           type: nodeType,
           position,
-          data: { label: `\\${label}` },
+          data: { label: `${label}` },
         };
 
         addNode(newNode);

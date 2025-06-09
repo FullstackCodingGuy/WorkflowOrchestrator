@@ -2,31 +2,45 @@
 
 import React from 'react';
 
+interface SidebarProps {
+  isOpen: boolean;
+}
+
 // TODO: Populate with draggable workflow controls
 const controls = [
-  { id: 'task', label: 'Task' },
-  { id: 'condition', label: 'Condition' },
+  { id: 'start', label: 'Start Node', type: 'start' }, // Added type for clarity
+  { id: 'action', label: 'Action Node', type: 'action' },
+  { id: 'condition', label: 'Condition Node', type: 'condition' },
+  { id: 'end', label: 'End Node', type: 'end' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen }: SidebarProps) {
   const onDragStart = (event: React.DragEvent, nodeType: string, label: string) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify({ nodeType, label }));
     event.dataTransfer.effectAllowed = 'move';
   };
 
   return (
-    <aside className="w-64 p-4 overflow-y-auto border-r border-gray-700 bg-background">
-      <h3 className="mb-4 text-lg font-semibold">Controls</h3>
-      {controls.map((control) => (
-        <div
-          key={control.id}
-          onDragStart={(event) => onDragStart(event, control.id, control.label)}
-          draggable
-          className="p-3 mb-2 text-sm text-center border border-gray-600 rounded-md cursor-grab hover:bg-gray-700 active:cursor-grabbing"
-        >
-          {control.label}
-        </div>
-      ))}
+    <aside
+      className={`transition-all duration-300 ease-in-out overflow-y-auto border-r border-[var(--accent-color)] bg-opacity-80 backdrop-blur-md ${isOpen ? 'w-64 p-4' : 'w-0 p-0'}`}
+      style={{ backgroundColor: 'var(--node-bg)', color: 'var(--node-color)' }}
+    >
+      {isOpen && (
+        <>
+          <h3 className="mb-4 text-lg font-semibold">Controls</h3>
+          {controls.map((control) => (
+            <div
+              key={control.id}
+              onDragStart={(event) => onDragStart(event, control.type, control.label)}
+              draggable
+              className="p-3 mb-3 text-sm text-center border border-[var(--accent-color)] rounded-lg cursor-grab hover:bg-[var(--accent-color)] hover:text-[var(--background)] active:cursor-grabbing transition-colors duration-150 shadow-md hover:shadow-lg"
+              style={{ borderColor: 'var(--accent-color)' }}
+            >
+              {control.label}
+            </div>
+          ))}
+        </>
+      )}
     </aside>
   );
 }
