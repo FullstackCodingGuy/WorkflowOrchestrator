@@ -39,6 +39,10 @@ export interface WorkflowState {
   updateNodeData: (nodeId: string, newData: Partial<NodeData>) => void; // Use Partial<NodeData>
   deleteNode: (nodeId: string) => void;
   duplicateNode: (nodeId: string) => void;
+  // New state and actions for message flow
+  isMessageFlowing: boolean;
+  startMessageFlow: () => void;
+  stopMessageFlow: () => void;
 }
 
 const LOCAL_STORAGE_KEY = 'reactflow_workflow';
@@ -95,6 +99,8 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   edges: [],
   areEdgesAnimated: false, // Initialize animation state
   selectedNodeId: null, // Initialize selectedNodeId
+  isMessageFlowing: false, // Initialize message flow state
+
   onNodesChange: (changes: NodeChange[]) => {
     set((state) => ({
       nodes: applyNodeChanges(changes, state.nodes),
@@ -150,13 +156,24 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   toggleEdgeAnimation: () => {
     set((state) => ({
       areEdgesAnimated: !state.areEdgesAnimated,
-      edges: state.edges.map(edge => ({ ...edge, animated: !state.areEdgesAnimated })),
+      edges: state.edges.map(edge => ({ 
+        ...edge, 
+        animated: !state.areEdgesAnimated,
+        // Do not change edge type here, only animation style for default edges
+      })),
     }));
   },
   applyLayout: (direction: 'TB' | 'LR') => {
-    const { nodes, edges } = get().exportWorkflow();
+    const { nodes, edges, isMessageFlowing } = get(); // get isMessageFlowing
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges, direction);
-    set({ nodes: layoutedNodes, edges: layoutedEdges.map(edge => ({ ...edge, animated: get().areEdgesAnimated })) });
+    set({ 
+      nodes: layoutedNodes, 
+      edges: layoutedEdges.map(edge => ({ 
+        ...edge, 
+        animated: get().areEdgesAnimated && !isMessageFlowing, // CSS animation only if not message flowing
+        type: isMessageFlowing ? 'dotFlow' : undefined, // Keep dotFlow if active
+      })) 
+    });
   },
 
   saveWorkflowToLocalStorage: () => {
@@ -227,6 +244,35 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
       };
       addNode(duplicatedNode);
     }
+  },
+
+  // Message flow actions
+  startMessageFlow: () => {
+    set((state) => ({
+      isMessageFlowing: true,
+      areEdgesAnimated: false, // Turn off default CSS animation
+      edges: state.edges.map(edge => ({ 
+        ...edge, 
+        type: 'dotFlow', 
+        animated: false // Ensure CSS animation is off for custom edge
+      })),
+    }));
+  },
+
+  stopMessageFlow: () => {
+    set((state) => ({
+      isMessageFlowing: false,
+      // Restore areEdgesAnimated state for default edges if needed, or set to a default
+      // For now, let's assume we want to turn off all animations when stopping message flow.
+      // If toggleEdgeAnimation was used before starting message flow, its state is lost here.
+      // A more robust solution might store the pre-message-flow animation state.
+      areEdgesAnimated: false, 
+      edges: state.edges.map(edge => ({ 
+        ...edge, 
+        type: undefined, // Revert to default edge type
+        animated: false // Ensure CSS animation is off
+      })),
+    }));
   },
 });
 

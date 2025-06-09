@@ -24,6 +24,7 @@ import EndNode from './EndNode';
 import PropertiesPanel from './PropertiesPanel';
 import useWorkflowStore from '../store/workflowStore';
 import { connectionRules } from '../config/workflowConfig'; // Import connection rules from the new config file
+import DotFlowEdge from './DotFlowEdge'; // Import the custom edge
 
 const nodeTypes: NodeTypes = {
   start: StartNode,
@@ -32,7 +33,9 @@ const nodeTypes: NodeTypes = {
   end: EndNode,
 };
 
-const edgeTypes: EdgeTypes = {};
+const edgeTypes: EdgeTypes = {
+  dotFlow: DotFlowEdge, // Register the custom edge
+};
 
 export default function WorkflowCanvas() {
   const {
