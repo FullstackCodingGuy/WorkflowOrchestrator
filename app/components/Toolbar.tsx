@@ -70,8 +70,6 @@ export default function Toolbar() {
         logging: false,
         useCORS: true,
         background: getComputedStyle(document.documentElement).getPropertyValue('--background').trim() || '#ffffff',
-        windowWidth: viewport.scrollWidth,
-        windowHeight: viewport.scrollHeight
       });
 
       const gif = new GIF({
@@ -90,8 +88,6 @@ export default function Toolbar() {
           logging: false,
           useCORS: true,
           background: getComputedStyle(document.documentElement).getPropertyValue('--background').trim() || '#ffffff',
-          windowWidth: viewport.scrollWidth,
-          windowHeight: viewport.scrollHeight
         });
       };
 
