@@ -207,11 +207,14 @@ export default function WorkflowCanvas() {
     [nodes, edges, setEdges, areEdgesAnimated]
   );
 
+  const proOptions = { hideAttribution: true };
 
   return (
     <div style={{ display: 'flex', height: '100%' }}>
       <div style={{ height: '100%', width: '100%' }} ref={reactFlowWrapper} className="flex-grow">
         <ReactFlow
+        proOptions={proOptions}
+
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}

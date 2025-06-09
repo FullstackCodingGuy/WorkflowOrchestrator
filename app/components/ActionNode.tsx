@@ -1,40 +1,74 @@
 import React from 'react';
-import { NodeProps, Handle, Position } from 'reactflow'; // Import Handle and Position
+import { NodeProps, Handle, Position } from 'reactflow';
+import { NodeResizer } from '@reactflow/node-resizer';
+import { NodeToolbar } from '@reactflow/node-toolbar'; // Corrected import
 
-// Update props to use NodeProps and extract necessary data
-const ActionNode: React.FC<NodeProps> = ({ id, data, xPos, yPos }) => {
-  // const position = data.position || { x: xPos, y: yPos };
-  // const type = data.type || 'Action';
-  // const properties = data.properties || {};
-
+const ActionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   return (
-    <div style={{
-      padding: '10px 20px',
-      border: '1px solid #2196F3', // Border color matching background
-      borderRadius: '8px',
-      background: '#2196F3', // Blue color for action
-      color: 'white',
-      cursor: 'move',
-      textAlign: 'center',
-    }}>
-      <div><strong>{data.label || 'Action'}</strong></div>
-      <Handle
-        type="target"
+    <>
+      <NodeResizer
+        isVisible={selected}
+        minWidth={150} // Adjusted minWidth
+        minHeight={60}  // Adjusted minHeight
+        lineClassName="!border-[var(--primary)]"
+        handleClassName="!bg-[var(--primary)] w-2 h-2 rounded-none"
+      />
+      <NodeToolbar 
+        isVisible={selected} 
         position={Position.Top}
-        id="action-target"
-        style={{ background: '#555' }}
-      />
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        id="action-source"
-        style={{ background: '#555' }}
-      />
-      {/* Display other properties from data as needed */}
-      {/* {Object.entries(properties).map(([key, value]) => (
-        <div key={key}>{key}: {String(value)}</div>
-      ))} */}
-    </div>
+        align="end"
+        offset={8}
+      >
+        <button onClick={() => console.log(`Edit ${id}`)} title="Edit Node">✏️</button>
+        <button onClick={() => console.log(`Delete ${id}`)} title="Delete Node">🗑️</button>
+        <button onClick={() => console.log(`Duplicate ${id}`)} title="Duplicate Node">➕</button>
+      </NodeToolbar>
+      <div style={{
+        padding: '15px 25px', // Slightly more padding
+        border: '1px solid var(--node-border)',
+        borderRadius: '8px',
+        background: 'var(--node-bg)', 
+        color: 'var(--node-color)',
+        cursor: 'move',
+        textAlign: 'center',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column', // Allow content to stack if needed
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxSizing: 'border-box',
+      }}>
+        <div><strong>{data.label || 'Action'}</strong></div>
+        {/* You can add more data display here, e.g., data.description */}
+        {/* <p style={{ fontSize: '0.8em', margin: '5px 0 0 0' }}>{data.description || 'No description'}</p> */}
+        <Handle
+          type="target"
+          position={Position.Top}
+          id={`${id}-target-top`} // Unique handle ID
+          style={{ background: 'var(--handle-bg)' }}
+        />
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          id={`${id}-source-bottom`} // Unique handle ID
+          style={{ background: 'var(--handle-bg)' }}
+        />
+        {/* Optional: Left/Right handles for more complex flows */}
+        {/* <Handle
+          type="target"
+          position={Position.Left}
+          id={`${id}-target-left`}
+          style={{ background: 'var(--handle-bg)' }}
+        />
+        <Handle
+          type="source"
+          position={Position.Right}
+          id={`${id}-source-right`}
+          style={{ background: 'var(--handle-bg)' }}
+        /> */}
+      </div>
+    </>
   );
 };
 

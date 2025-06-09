@@ -1,28 +1,51 @@
 import React from 'react';
-import { NodeProps, Handle, Position } from 'reactflow'; // Import Handle and Position
+import { NodeProps, Handle, Position } from 'reactflow';
+import { NodeResizer } from '@reactflow/node-resizer';
+import { NodeToolbar } from '@reactflow/node-toolbar'; // Corrected import
 
-// Update props to use NodeProps and extract necessary data
-const StartNode: React.FC<NodeProps> = ({ id, data, xPos, yPos }) => {
-  // const position = data.position || { x: xPos, y: yPos };
-
+const StartNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   return (
-    <div style={{
-      padding: '10px 20px',
-      border: '1px solid #4CAF50', // Border color matching background
-      borderRadius: '8px',
-      background: '#4CAF50', // Green color for start
-      color: 'white',
-      cursor: 'move',
-      textAlign: 'center', // Center text
-    }}>
-      {data.label || 'Start'} {/* Display label from data */}
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        id="start-source"
-        style={{ background: '#555' }}
+    <>
+      <NodeResizer
+        isVisible={selected}
+        minWidth={120}
+        minHeight={50}
+        lineClassName="!border-[var(--primary)]"
+        handleClassName="!bg-[var(--primary)] w-2 h-2 rounded-none"
       />
-    </div>
+      <NodeToolbar
+        isVisible={selected}
+        position={Position.Top}
+        align="end"
+        offset={8}
+      >
+        <button onClick={() => console.log(`Toolbar action 1 for ${id}`)} title="Action 1">⚙️</button>
+        <button onClick={() => console.log(`Toolbar action 2 for ${id}`)} title="Action 2">🗑️</button>
+      </NodeToolbar>
+      <div style={{
+        padding: '10px 20px',
+        border: '1px solid var(--node-border)',
+        borderRadius: '8px',
+        background: 'var(--node-bg)',
+        color: 'var(--node-color)',
+        cursor: 'move',
+        textAlign: 'center',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxSizing: 'border-box',
+      }}>
+        {data.label || 'Start'}
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          id={`${id}-source-bottom`}
+          style={{ background: 'var(--handle-bg)' }}
+        />
+      </div>
+    </>
   );
 };
 

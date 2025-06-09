@@ -1,27 +1,57 @@
 import React from 'react';
-import { NodeProps, Handle, Position } from 'reactflow'; // Import Handle and Position
+import { NodeProps, Handle, Position } from 'reactflow';
+import { NodeToolbar } from '@reactflow/node-toolbar';
+import { NodeResizer } from '@reactflow/node-resizer';
 
-// Update props to use NodeProps and extract necessary data
-const EndNode: React.FC<NodeProps> = ({ id, data, xPos, yPos }) => {
-  // const position = data.position || { x: xPos, y: yPos };
+const EndNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   return (
-    <div style={{
-      padding: '10px 20px',
-      border: '1px solid #F44336', // Border color matching background
-      borderRadius: '8px',
-      background: '#F44336', // Red color for end
-      color: 'white',
-      cursor: 'move',
-      textAlign: 'center',
-    }}>
-      {data.label || 'End'}
-      <Handle
-        type="target"
-        position={Position.Top}
-        id="end-target"
-        style={{ background: '#555' }}
+    <>
+      <NodeResizer
+        isVisible={selected}
+        minWidth={120}
+        minHeight={50}
+        lineClassName="!border-[var(--primary)]"
+        handleClassName="!bg-[var(--primary)] w-2 h-2 rounded-none"
       />
-    </div>
+      <NodeToolbar
+        isVisible={selected}
+        position={Position.Top}
+        align="end"
+        offset={8}
+      >
+        <button onClick={() => console.log(`Finalize ${id}`)} title="Finalize">🏁</button>
+      </NodeToolbar>
+      <div style={{
+        padding: '10px 20px',
+        border: '1px solid var(--node-border)',
+        borderRadius: '8px',
+        background: 'var(--node-bg)',
+        color: 'var(--node-color)',
+        cursor: 'move',
+        textAlign: 'center',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxSizing: 'border-box',
+      }}>
+        {data.label || 'End'}
+        <Handle
+          type="target"
+          position={Position.Top}
+          id={`${id}-target-top`} // Unique handle ID
+          style={{ background: 'var(--handle-bg)' }}
+        />
+        {/* Optional: Left handle for EndNode if multiple inputs are allowed */}
+        {/* <Handle
+          type="target"
+          position={Position.Left}
+          id={`${id}-target-left`}
+          style={{ background: 'var(--handle-bg)' }}
+        /> */}
+      </div>
+    </>
   );
 };
 
