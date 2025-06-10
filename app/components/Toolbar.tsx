@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import useWorkflowStore from '../store/workflowStore';
-import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon } from './Icons';
+import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon, SettingsIcon } from './Icons';
 import html2canvas from 'html2canvas';
 import GIF from 'gif.js';
 
@@ -34,6 +34,7 @@ export default function Toolbar() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isExportingGif, setIsExportingGif] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
   // Ref for the container of the currently open dropdown.
   const dropdownContainerRef = useRef<HTMLDivElement>(null); 
 
@@ -312,6 +313,14 @@ export default function Toolbar() {
       title: "Import Workflow from JSON",
       // No 'style' prop here, commonButtonStyle will be applied
     },
+    {
+      id: 'settings',
+      label: "Settings",
+      icon: <SettingsIcon className="w-5 h-5" />,
+      onClick: () => setShowSettings(true),
+      title: "Open Settings",
+      // No 'style' prop here, commonButtonStyle will be applied
+    },
   ];
 
   return (
@@ -405,6 +414,61 @@ export default function Toolbar() {
         style={{ display: 'none' }}
         onChange={handleFileChange}
       />
+      {showSettings && <ProfileModal onClose={() => setShowSettings(false)} />}
     </nav>
   );
 }
+
+// ProfileModal with tab layout
+const ProfileModal = ({ onClose }: { onClose: () => void }) => {
+  const [activeTab, setActiveTab] = useState<'profile' | 'preferences'>('profile');
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-[var(--background)] rounded-lg shadow-xl w-full max-w-md p-0 relative">
+        <div className="flex justify-between items-center border-b border-[var(--border-color)] px-6 py-4">
+          <h2 className="text-lg font-semibold">Settings</h2>
+          <button onClick={onClose} className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] p-1 rounded" aria-label="Close">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div className="flex border-b border-[var(--border-color)] bg-[var(--secondary)]">
+          <button
+            className={`flex-1 px-4 py-2 text-sm font-medium ${activeTab === 'profile' ? 'bg-[var(--background)] text-[var(--foreground)]' : 'text-[var(--muted-foreground)]'}`}
+            onClick={() => setActiveTab('profile')}
+          >
+            Profile
+          </button>
+          <button
+            className={`flex-1 px-4 py-2 text-sm font-medium ${activeTab === 'preferences' ? 'bg-[var(--background)] text-[var(--foreground)]' : 'text-[var(--muted-foreground)]'}`}
+            onClick={() => setActiveTab('preferences')}
+          >
+            Preferences
+          </button>
+        </div>
+        <div className="p-6">
+          {activeTab === 'profile' && (
+            <div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Username</label>
+                <input className="w-full p-2 rounded border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--foreground)]" value="User" readOnly />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <input className="w-full p-2 rounded border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--foreground)]" value="user@email.com" readOnly />
+              </div>
+              {/* Add more profile fields here */}
+            </div>
+          )}
+          {activeTab === 'preferences' && (
+            <div>
+              <div className="mb-4 text-sm text-[var(--muted-foreground)]">Preferences options coming soon...</div>
+              {/* Add preferences controls here */}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
