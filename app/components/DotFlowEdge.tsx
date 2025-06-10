@@ -11,6 +11,7 @@ export default function DotFlowEdge({
   targetPosition,
   style = {},
   markerEnd,
+  animated, // Destructure animated prop
 }: EdgeProps) {
   const [edgePath] = getSmoothStepPath({
     sourceX,
@@ -39,18 +40,20 @@ export default function DotFlowEdge({
         style={{ fill: 'none', stroke: 'none' }} // Ensure path is invisible
       />
 
-      {/* The animating circle */}
-      <circle r="9" fill={style.stroke || 'var(--primary)'} > {/* Use edge's stroke color or fallback */}
-        <animateMotion
-          dur="2s" // Duration of one loop
-          repeatCount="indefinite"
-          keyPoints="0;1" 
-          keyTimes="0;1"
-          calcMode="paced" // Ensures constant speed along the path
-        >
-          <mpath xlinkHref={`#${motionPathId}`} />
-        </animateMotion>
-      </circle>
+      {/* The animating circle, only if animated is true */}
+      {animated && (
+        <circle r="9" fill={style.stroke || 'var(--primary)'}>
+          <animateMotion
+            dur="2s"
+            repeatCount="indefinite"
+            keyPoints="0;1"
+            keyTimes="0;1"
+            calcMode="paced"
+          >
+            <mpath xlinkHref={`#${motionPathId}`} />
+          </animateMotion>
+        </circle>
+      )}
     </>
   );
 }
