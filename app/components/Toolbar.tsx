@@ -25,6 +25,22 @@ interface AppSettings {
   // Add more settings here as needed
 }
 
+const SETTINGS_STORAGE_KEY = 'workflow_app_settings';
+
+function loadSettingsFromStorage(): AppSettings {
+  if (typeof window !== 'undefined') {
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch {
+        // ignore parse error, fallback to default
+      }
+    }
+  }
+  return { hideMinimap: false };
+}
+
 export default function Toolbar() {
   const { 
     exportWorkflow, 
@@ -41,9 +57,15 @@ export default function Toolbar() {
   const [isExportingGif, setIsExportingGif] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [settings, setSettings] = useState<AppSettings>({
-    hideMinimap: false,
-  });
+  const [settings, setSettings] = useState<AppSettings>(() => loadSettingsFromStorage());
+
+  // Persist settings to localStorage whenever they change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    }
+  }, [settings]);
+
   // Ref for the container of the currently open dropdown.
   const dropdownContainerRef = useRef<HTMLDivElement>(null); 
 

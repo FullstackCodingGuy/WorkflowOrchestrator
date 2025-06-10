@@ -26,6 +26,37 @@ import useWorkflowStore from '../store/workflowStore';
 import { connectionRules } from '../config/workflowConfig'; // Import connection rules from the new config file
 import DotFlowEdge from './DotFlowEdge';
 
+// --- Persistence Layer ---
+type PersistenceCallback<T> = (value: T) => void;
+export const persistence = {
+  get<T>(key: string, fallback: T): T {
+    if (typeof window === 'undefined') return fallback;
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) return JSON.parse(raw) as T;
+    } catch {}
+    return fallback;
+  },
+  set<T>(key: string, value: T) {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+  },
+  subscribe<T>(key: string, callback: PersistenceCallback<T>) {
+    const handler = (e: StorageEvent) => {
+      if (e.key === key) {
+        try {
+          callback(e.newValue ? JSON.parse(e.newValue) : undefined);
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }
+};
+
+const SETTINGS_STORAGE_KEY = 'workflow_app_settings';
+
 // Define nodeTypes and edgeTypes directly at the module scope
 const nodeTypes: NodeTypes = {
   start: StartNode,
@@ -58,7 +89,28 @@ export default function WorkflowCanvas() {
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   // Minimap toggle state, now controlled by app settings
-  const [showMiniMap, setShowMiniMap] = useState(true);
+  const [showMiniMap, setShowMiniMap] = useState(true); // Always true for SSR/SSG
+
+  // Hydrate minimap state from persistence on client mount
+  useEffect(() => {
+    const settings = persistence.get<{ hideMinimap: boolean }>(SETTINGS_STORAGE_KEY, { hideMinimap: false });
+    setShowMiniMap(!settings.hideMinimap);
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent<{ hideMinimap?: boolean }>;
+      if (typeof customEvent.detail?.hideMinimap === 'boolean') {
+        setShowMiniMap(!customEvent.detail.hideMinimap);
+      }
+    };
+    window.addEventListener('appsettings:update', handler as EventListener);
+    // Also listen for direct localStorage changes (multi-tab)
+    const unsub = persistence.subscribe<{ hideMinimap: boolean }>(SETTINGS_STORAGE_KEY, (settings) => {
+      setShowMiniMap(!(settings?.hideMinimap ?? false));
+    });
+    return () => {
+      window.removeEventListener('appsettings:update', handler as EventListener);
+      unsub();
+    };
+  }, []);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     // setSelectedNode(node); // Removed, use store action
@@ -237,18 +289,6 @@ export default function WorkflowCanvas() {
     },
     [nodes, edges, setEdges, areEdgesAnimated]
   );
-
-  // Listen for hideMinimap setting from Toolbar (via window event for now)
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const customEvent = e as CustomEvent<{ hideMinimap?: boolean }>;
-      if (typeof customEvent.detail?.hideMinimap === 'boolean') {
-        setShowMiniMap(!customEvent.detail.hideMinimap);
-      }
-    };
-    window.addEventListener('appsettings:update', handler as EventListener);
-    return () => window.removeEventListener('appsettings:update', handler as EventListener);
-  }, []);
 
   const proOptions = { hideAttribution: true };
 
