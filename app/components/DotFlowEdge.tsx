@@ -40,7 +40,7 @@ export default function DotFlowEdge({
       />
 
       {/* The animating circle */}
-      <circle r="3.5" fill={style.stroke || 'var(--primary)'} > {/* Use edge's stroke color or fallback */}
+      <circle r="9" fill={style.stroke || 'var(--primary)'} > {/* Use edge's stroke color or fallback */}
         <animateMotion
           dur="2s" // Duration of one loop
           repeatCount="indefinite"

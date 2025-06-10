@@ -47,8 +47,8 @@ export const workflowExamples: WorkflowExample[] = [
       },
     ],
     edges: [
-      { id: 'slf-e-start-action1', source: 'slf-start', target: 'slf-action1', animated: false },
-      { id: 'slf-e-action1-end', source: 'slf-action1', target: 'slf-end', animated: false },
+      { id: 'slf-e-start-action1', type: 'dotFlow', source: 'slf-start', target: 'slf-action1', animated: false },
+      { id: 'slf-e-action1-end', type: 'dotFlow', source: 'slf-action1', target: 'slf-end', animated: false },
     ],
   },
   {
