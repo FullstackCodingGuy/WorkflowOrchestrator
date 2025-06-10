@@ -57,6 +57,9 @@ export default function WorkflowCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
+  // Minimap toggle state
+  const [showMiniMap, setShowMiniMap] = useState(true);
+
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     // setSelectedNode(node); // Removed, use store action
     setSelectedNodeId(node.id); // Use store action
@@ -240,9 +243,16 @@ export default function WorkflowCanvas() {
   return (
     <div style={{ display: 'flex', height: '100%' }}>
       <div style={{ height: '100%', width: '100%' }} ref={reactFlowWrapper} className="flex-grow">
+        {/* Minimap toggle button */}
+        <button
+          onClick={() => setShowMiniMap((v) => !v)}
+          className="absolute z-50 top-4 right-4 bg-[var(--secondary)] text-[var(--secondary-foreground)] border border-[var(--border-color)] px-3 py-1 rounded shadow hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
+          style={{ pointerEvents: 'auto' }}
+        >
+          {showMiniMap ? 'Hide Minimap' : 'Show Minimap'}
+        </button>
         <ReactFlow
-        proOptions={proOptions}
-
+          proOptions={proOptions}
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
@@ -250,8 +260,8 @@ export default function WorkflowCanvas() {
           onConnect={onConnectCustom}
           onConnectStart={onConnectStart}
           onConnectEnd={onConnectEnd}
-          nodeTypes={nodeTypes} // Pass the module-scope constant directly
-          edgeTypes={edgeTypes} // Pass the module-scope constant directly
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           fitView
           fitViewOptions={{ maxZoom: 0.75 }}
           attributionPosition="top-right"
@@ -266,11 +276,10 @@ export default function WorkflowCanvas() {
           onInit={setReactFlowInstance}
         >
           <Controls />
-          <MiniMap />
+          {showMiniMap && <MiniMap />}
           <Background gap={12} size={1} />
         </ReactFlow>
       </div>
-      {/* PropertiesPanel now directly uses the store, so no props are needed here */}
       <PropertiesPanel />
     </div>
   );
