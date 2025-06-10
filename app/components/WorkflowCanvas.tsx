@@ -56,6 +56,7 @@ export const persistence = {
 };
 
 const SETTINGS_STORAGE_KEY = 'workflow_app_settings';
+const PANEL_STATE_KEY = 'workflow_panel_state';
 
 // Define nodeTypes and edgeTypes directly at the module scope
 const nodeTypes: NodeTypes = {
@@ -90,11 +91,20 @@ export default function WorkflowCanvas() {
 
   // Minimap toggle state, now controlled by app settings
   const [showMiniMap, setShowMiniMap] = useState(true); // Always true for SSR/SSG
+  // Collapsible panel state, now controlled by persistence
+  // Use undefined as initial state to avoid rendering until hydrated
+  const [isPanelOpen, setIsPanelOpen] = useState<boolean | undefined>(undefined);
 
-  // Hydrate minimap state from persistence on client mount
+  // Hydrate minimap and panel state from persistence on client mount
   useEffect(() => {
+    // Minimap
     const settings = persistence.get<{ hideMinimap: boolean }>(SETTINGS_STORAGE_KEY, { hideMinimap: false });
     setShowMiniMap(!settings.hideMinimap);
+    // Collapsible panel
+    const panelState = persistence.get<{ isPanelOpen: boolean }>(PANEL_STATE_KEY, { isPanelOpen: true });
+    setIsPanelOpen(panelState.isPanelOpen);
+
+    // Minimap listeners
     const handler = (e: Event) => {
       const customEvent = e as CustomEvent<{ hideMinimap?: boolean }>;
       if (typeof customEvent.detail?.hideMinimap === 'boolean') {
@@ -102,15 +112,25 @@ export default function WorkflowCanvas() {
       }
     };
     window.addEventListener('appsettings:update', handler as EventListener);
-    // Also listen for direct localStorage changes (multi-tab)
     const unsub = persistence.subscribe<{ hideMinimap: boolean }>(SETTINGS_STORAGE_KEY, (settings) => {
       setShowMiniMap(!(settings?.hideMinimap ?? false));
+    });
+    // Collapsible panel listeners (multi-tab)
+    const panelUnsub = persistence.subscribe<{ isPanelOpen: boolean }>(PANEL_STATE_KEY, (panelState) => {
+      if (typeof panelState?.isPanelOpen === 'boolean') setIsPanelOpen(panelState.isPanelOpen);
     });
     return () => {
       window.removeEventListener('appsettings:update', handler as EventListener);
       unsub();
+      panelUnsub();
     };
   }, []);
+
+  // Collapsible panel toggle handler (to be passed to PropertiesPanel)
+  const handlePanelToggle = (open: boolean) => {
+    setIsPanelOpen(open);
+    persistence.set(PANEL_STATE_KEY, { isPanelOpen: open });
+  };
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     // setSelectedNode(node); // Removed, use store action
@@ -324,7 +344,10 @@ export default function WorkflowCanvas() {
           <Background gap={12} size={1} />
         </ReactFlow>
       </div>
-      <PropertiesPanel />
+      {/* Only render PropertiesPanel after hydration to avoid SSR/CSR mismatch and flicker */}
+      {typeof isPanelOpen === 'boolean' && (
+        <PropertiesPanel isPanelOpen={isPanelOpen} onPanelToggle={handlePanelToggle} />
+      )}
     </div>
   );
 }

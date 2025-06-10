@@ -14,7 +14,12 @@ interface EditableNodeData {
   // [key: string]: any; // Allow other properties - Removed for better type safety
 }
 
-export default function PropertiesPanel() {
+interface PropertiesPanelProps {
+  isPanelOpen: boolean;
+  onPanelToggle: (open: boolean) => void;
+}
+
+export default function PropertiesPanel({ isPanelOpen, onPanelToggle }: PropertiesPanelProps) {
   const { selectedNodeId, nodes, updateNodeData, setSelectedNodeId: deselectNode } = useWorkflowStore(
     useShallow(state => ({
       selectedNodeId: state.selectedNodeId,
@@ -27,7 +32,6 @@ export default function PropertiesPanel() {
   const selectedNode = nodes.find(node => node.id === selectedNodeId);
 
   const [formData, setFormData] = useState<EditableNodeData>({});
-  const [isPanelOpen, setIsPanelOpen] = useState(true); // Collapsible panel state
   const [showMinimal, setShowMinimal] = useState(false); // Minimal section toggle
 
   useEffect(() => {
@@ -52,7 +56,7 @@ export default function PropertiesPanel() {
     return (
       <aside className="w-8 bg-[var(--sidebar-bg)] border-l border-[var(--border-color)] flex flex-col items-center justify-start pt-4">
         <button
-          onClick={() => setIsPanelOpen(true)}
+          onClick={() => onPanelToggle(true)}
           aria-label="Show Properties Panel"
           className="p-1 rounded hover:bg-[var(--accent-hover)]"
         >
@@ -96,7 +100,7 @@ export default function PropertiesPanel() {
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-semibold text-[var(--foreground)]">Properties</h3>
         <div className="flex items-center gap-2">
-          <button onClick={() => setIsPanelOpen((v) => !v)} aria-label="Toggle Properties Panel" className="p-1 rounded hover:bg-[var(--accent-hover)]">
+          <button onClick={() => onPanelToggle(false)} aria-label="Toggle Properties Panel" className="p-1 rounded hover:bg-[var(--accent-hover)]">
             {isPanelOpen ? <ChevronDownIcon className="w-5 h-5" /> : <ChevronRightIcon className="w-5 h-5" />}
           </button>
           {/* <button onClick={() => deselectNode(null)} className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors" title="Close Panel">
