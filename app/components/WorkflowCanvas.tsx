@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react'; // Removed useMemo
+import React, { useCallback, useEffect, useRef, useState } from 'react'; // Removed useMemo
 import ReactFlow,
 {
   Background,
@@ -57,7 +57,7 @@ export default function WorkflowCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
-  // Minimap toggle state
+  // Minimap toggle state, now controlled by app settings
   const [showMiniMap, setShowMiniMap] = useState(true);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
@@ -238,19 +238,23 @@ export default function WorkflowCanvas() {
     [nodes, edges, setEdges, areEdgesAnimated]
   );
 
+  // Listen for hideMinimap setting from Toolbar (via window event for now)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent<{ hideMinimap?: boolean }>;
+      if (typeof customEvent.detail?.hideMinimap === 'boolean') {
+        setShowMiniMap(!customEvent.detail.hideMinimap);
+      }
+    };
+    window.addEventListener('appsettings:update', handler as EventListener);
+    return () => window.removeEventListener('appsettings:update', handler as EventListener);
+  }, []);
+
   const proOptions = { hideAttribution: true };
 
   return (
     <div style={{ display: 'flex', height: '100%' }}>
       <div style={{ height: '100%', width: '100%' }} ref={reactFlowWrapper} className="flex-grow">
-        {/* Minimap toggle button */}
-        <button
-          onClick={() => setShowMiniMap((v) => !v)}
-          className="absolute z-50 top-4 right-4 bg-[var(--secondary)] text-[var(--secondary-foreground)] border border-[var(--border-color)] px-3 py-1 rounded shadow hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
-          style={{ pointerEvents: 'auto' }}
-        >
-          {showMiniMap ? 'Hide Minimap' : 'Show Minimap'}
-        </button>
         <ReactFlow
           proOptions={proOptions}
           nodes={nodes}

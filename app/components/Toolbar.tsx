@@ -19,6 +19,12 @@ interface ToolbarButtonConfig {
   dropdownActions?: ToolbarButtonConfig[];
 }
 
+// Define a type for extensible app settings
+interface AppSettings {
+  hideMinimap: boolean;
+  // Add more settings here as needed
+}
+
 export default function Toolbar() {
   const { 
     exportWorkflow, 
@@ -35,6 +41,9 @@ export default function Toolbar() {
   const [isExportingGif, setIsExportingGif] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState<AppSettings>({
+    hideMinimap: false,
+  });
   // Ref for the container of the currently open dropdown.
   const dropdownContainerRef = useRef<HTMLDivElement>(null); 
 
@@ -51,6 +60,12 @@ export default function Toolbar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []); // Effect runs once to attach/detach listener
+
+  // In Toolbar, fire a custom event when settings change
+  useEffect(() => {
+    const event = new CustomEvent('appsettings:update', { detail: { hideMinimap: settings.hideMinimap } });
+    window.dispatchEvent(event);
+  }, [settings.hideMinimap]);
 
   const handleToggleAnimation = () => {
     toggleEdgeAnimation();
@@ -414,14 +429,20 @@ export default function Toolbar() {
         style={{ display: 'none' }}
         onChange={handleFileChange}
       />
-      {showSettings && <ProfileModal onClose={() => setShowSettings(false)} />}
+      {showSettings && (
+        <ProfileModal 
+          onClose={() => setShowSettings(false)} 
+          settings={settings}
+          setSettings={setSettings}
+        />
+      )}
     </nav>
   );
 }
 
-// ProfileModal with tab layout
-const ProfileModal = ({ onClose }: { onClose: () => void }) => {
-  const [activeTab, setActiveTab] = useState<'profile' | 'preferences'>('profile');
+// ProfileModal with tab layout and extensible app settings
+const ProfileModal = ({ onClose, settings, setSettings }: { onClose: () => void, settings: AppSettings, setSettings: React.Dispatch<React.SetStateAction<AppSettings>> }) => {
+  const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'appsettings'>('profile');
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-[var(--background)] rounded-lg shadow-xl w-full max-w-md p-0 relative">
@@ -446,6 +467,12 @@ const ProfileModal = ({ onClose }: { onClose: () => void }) => {
           >
             Preferences
           </button>
+          <button
+            className={`flex-1 px-4 py-2 text-sm font-medium ${activeTab === 'appsettings' ? 'bg-[var(--background)] text-[var(--foreground)]' : 'text-[var(--muted-foreground)]'}`}
+            onClick={() => setActiveTab('appsettings')}
+          >
+            App Settings
+          </button>
         </div>
         <div className="p-6">
           {activeTab === 'profile' && (
@@ -458,13 +485,27 @@ const ProfileModal = ({ onClose }: { onClose: () => void }) => {
                 <label className="block text-sm font-medium mb-1">Email</label>
                 <input className="w-full p-2 rounded border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--foreground)]" value="user@email.com" readOnly />
               </div>
-              {/* Add more profile fields here */}
             </div>
           )}
           {activeTab === 'preferences' && (
             <div>
               <div className="mb-4 text-sm text-[var(--muted-foreground)]">Preferences options coming soon...</div>
-              {/* Add preferences controls here */}
+            </div>
+          )}
+          {activeTab === 'appsettings' && (
+            <div>
+              <div className="mb-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings.hideMinimap}
+                    onChange={e => setSettings(prev => ({ ...prev, hideMinimap: e.target.checked }))}
+                    className="form-checkbox h-4 w-4 text-[var(--primary)] border-[var(--border-color)] rounded"
+                  />
+                  <span className="text-sm">Hide Minimap</span>
+                </label>
+              </div>
+              {/* Add more boolean switches or settings here for extensibility */}
             </div>
           )}
         </div>
