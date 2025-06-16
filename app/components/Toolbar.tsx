@@ -102,18 +102,22 @@ export default function Toolbar() {
   };
 
   const handleRestart = () => {
-    console.log('Restarting workflow');
-    setNodes([
-      {
-        id: 'startNode_reset_1',
-        type: 'start',
-        data: { id: 'startNode_reset_1', label: 'Start' },
-        position: { x: 250, y: 5 },
-        width: 180,
-        height: 60,
-      },
-    ]);
-    setEdges([]);
+    // Find all start nodes
+    const nodes = useWorkflowStore.getState().nodes;
+    const edges = useWorkflowStore.getState().edges;
+    const startNodeIds = nodes.filter(n => n.type === 'start').map(n => n.id);
+    // Find the first edge whose source is a start node
+    const firstEdgeIdx = edges.findIndex(e => startNodeIds.includes(e.source));
+    setEdges(
+      edges.map((e, i) => ({
+        ...e,
+        animated: i === firstEdgeIdx,
+        data: {
+          ...(e.data || {}),
+          completed: false,
+        },
+      }))
+    );
   };
 
   const handleSave = () => {
