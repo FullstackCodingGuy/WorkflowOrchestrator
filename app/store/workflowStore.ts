@@ -9,6 +9,7 @@ import {
   Position,
 } from "reactflow";
 import dagre from "dagre";
+import { APP_COLORS, NODE_DIMENSIONS, STORAGE_KEYS } from '../config/appConfig';
 
 // Define a more specific type for node data
 export interface NodeData {
@@ -48,7 +49,7 @@ export interface WorkflowState {
   stopMessageFlow: () => void;
 }
 
-const LOCAL_STORAGE_KEY = "reactflow_workflow";
+const LOCAL_STORAGE_KEY = STORAGE_KEYS.workflow;
 
 // Dagre layout logic
 const dagreGraph = new dagre.graphlib.Graph();
@@ -96,10 +97,10 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
     {
       id: "startNode1",
       type: "start",
-      data: { id: "startNode1", label: "Start", backgroundColor: "#f5f5f5" }, // Added default backgroundColor
+      data: { id: "startNode1", label: "Start", backgroundColor: APP_COLORS.defaultBg }, // Added default backgroundColor
       position: { x: 250, y: 5 },
-      width: 180, // Provide initial dimensions
-      height: 60,
+      width: NODE_DIMENSIONS.defaultWidth, // Provide initial dimensions
+      height: NODE_DIMENSIONS.startEndHeight,
     },
   ],
   edges: [],
@@ -127,10 +128,10 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
       data: {
         ...node.data,
         id: node.id,
-        backgroundColor: node.data.backgroundColor || "#f5f5f5", // Ensure default bg for new nodes
+        backgroundColor: node.data.backgroundColor || APP_COLORS.defaultBg, // Ensure default bg for new nodes
       },
-      width: node.width || 180, // Default width for new nodes
-      height: node.height || 60, // Default height for new nodes
+      width: node.width || NODE_DIMENSIONS.defaultWidth, // Default width for new nodes
+      height: node.height || NODE_DIMENSIONS.defaultHeight, // Default height for new nodes
     };
     set((state) => ({ nodes: [...state.nodes, newNode] }));
   },
@@ -144,11 +145,11 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
       data: {
         ...n.data,
         id: n.id,
-        backgroundColor: n.data.backgroundColor || "#f5f5f5", // Ensure default bg for imported nodes
+        backgroundColor: n.data.backgroundColor || APP_COLORS.defaultBg, // Ensure default bg for imported nodes
         fontColor: n.data.fontColor, // Preserve imported font color or undefined
       },
-      width: n.width || 180,
-      height: n.height || 60,
+      width: n.width || NODE_DIMENSIONS.defaultWidth,
+      height: n.height || NODE_DIMENSIONS.defaultHeight,
     }));
     const edgesWithAnimationState = workflow.edges.map((edge) => ({
       ...edge,

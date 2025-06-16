@@ -6,6 +6,7 @@ import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, Gif
 import html2canvas from 'html2canvas';
 import GIF from 'gif.js';
 import dynamic from 'next/dynamic';
+import { APP_COLORS } from '../config/appConfig';
 
 // Dynamically import RevealEditor to avoid SSR issues with reveal.js
 const RevealEditor = dynamic(() => import('./RevealEditor'), { ssr: false });

@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { EdgeProps, getSmoothStepPath, BaseEdge } from 'reactflow';
+import { APP_COLORS } from '../config/appConfig';
 
 export default function DotFlowEdge({
   id,
@@ -43,8 +44,8 @@ export default function DotFlowEdge({
   }, [id, data]);
 
   // Determine edge color based on animation/completed state
-  const animatedColor = data?.animatedColor || '#6c2bd7'; // dark violet
-  const completedColor = data?.completedColor || '#22c55e'; // green
+  const animatedColor = data?.animatedColor || APP_COLORS.animatedEdge;
+  const completedColor = data?.completedColor || APP_COLORS.completedEdge;
   const isCompleted = !!data?.completed;
   const edgeStroke = animated
     ? animatedColor
