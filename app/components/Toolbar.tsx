@@ -267,6 +267,15 @@ export default function Toolbar() {
     }
   };
 
+  const handleStop = () => {
+    const edges = useWorkflowStore.getState().edges;
+    setEdges(
+      edges.map(e => ({
+        ...e,
+        animated: false,
+      }))
+    );
+  };
 
   // Define base styles for buttons
   const buttonBaseStyle = "p-2 rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--background)] flex items-center justify-center gap-2 text-sm font-medium";
@@ -285,7 +294,13 @@ export default function Toolbar() {
       icon: areEdgesAnimated ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />,
       onClick: handleToggleAnimation,
       title: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop Edge Animation" : "Start Edge Animation",
-      // No 'style' prop here, commonButtonStyle will be applied
+    },
+    {
+      id: 'stop',
+      label: 'Stop',
+      icon: <PauseIcon className="w-5 h-5" />, // You may want a different icon
+      onClick: handleStop,
+      title: 'Stop All Edge Animations',
     },
     {
       id: 'restart',
