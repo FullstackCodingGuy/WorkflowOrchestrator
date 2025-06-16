@@ -42,15 +42,22 @@ export default function DotFlowEdge({
     };
   }, [id, data]);
 
+  // Determine edge color based on animation/completed state
+  const animatedColor = data?.animatedColor || '#6c2bd7'; // dark violet
+  const completedColor = data?.completedColor || '#22c55e'; // green
+  const isCompleted = !!data?.completed;
+  const edgeStroke = animated
+    ? animatedColor
+    : isCompleted
+      ? completedColor
+      : style.stroke || 'var(--primary)';
+
   return (
     <>
       {/* The main visible edge path, rendered by BaseEdge */}
-      <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} style={style} />
+      <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} style={{ ...style, stroke: edgeStroke }} />
 
-      {/* Invisible path for the animateMotion to follow.
-          This MUST be rendered for the animation to work.
-          It has the same geometry as the visible edge.
-      */}
+      {/* Invisible path for the animateMotion to follow. This MUST be rendered for the animation to work. It has the same geometry as the visible edge. */}
       <path
         id={motionPathId}
         d={edgePath}
@@ -59,7 +66,7 @@ export default function DotFlowEdge({
 
       {/* The animating circle, only if animated is true */}
       {animated && (
-        <circle r="9" fill={style.stroke || 'var(--primary)'}>
+        <circle r="9" fill={edgeStroke}>
           <animateMotion
             ref={motionRef}
             dur="2s"
