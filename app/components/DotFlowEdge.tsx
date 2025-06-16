@@ -73,7 +73,7 @@ export default function DotFlowEdge({
             repeatCount="indefinite"
             keyPoints="0;1"
             keyTimes="0;1"
-            calcMode="paced"
+            calcMode="linear"
           >
             <mpath xlinkHref={`#${motionPathId}`} />
           </animateMotion>
