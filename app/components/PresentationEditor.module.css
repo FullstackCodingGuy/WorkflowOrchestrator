@@ -1,0 +1,329 @@
+/* PresentationEditor.module.css */
+.editorContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #fff;
+  z-index: 2000; /* Higher than RevealEditor */
+  display: flex;
+  flex-direction: column;
+  color: #333;
+}
+
+.toolbar {
+  padding: 10px 20px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+}
+
+.toolbar h3 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.closeButton {
+  padding: 8px 15px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.closeButton:hover {
+  background-color: #5a6268;
+}
+
+.mainArea {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 280px;
+  border-right: 1px solid #ccc;
+  padding: 15px;
+  overflow-y: auto;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebar h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.1em;
+  color: #343a40;
+}
+
+.sidebarButton {
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.sidebarButton:hover {
+  background-color: #0056b3;
+}
+
+.slideList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.slideItem, .selectedSlideItem {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9em;
+}
+
+.slideItem:hover {
+  background-color: #e9ecef;
+}
+
+.selectedSlideItem {
+  background-color: #cfe2ff;
+  border-color: #007bff;
+  font-weight: bold;
+}
+
+.draggingSlideItem {
+  background-color: #d6eaff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.deleteSlideButton {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.8em;
+}
+
+.deleteSlideButton:hover {
+  background: #c82333;
+}
+
+.propertiesPanel {
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+.propertiesPanel label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.propertiesPanel select,
+.propertiesPanel textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #fff;
+  color: #333;
+}
+
+.contentTextArea {
+  font-family: monospace;
+  font-size: 0.9em;
+  min-height: 150px;
+}
+
+.jsxWarning {
+  font-size: 0.8em;
+  color: #dc3545;
+  margin-top: -5px;
+  margin-bottom: 10px;
+}
+
+.elementSelector {
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.draggableElement {
+  padding: 10px;
+  background-color: #e9ecef;
+  border: 1px dashed #adb5bd;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  cursor: grab;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.draggableElement:active {
+  cursor: grabbing;
+}
+
+.previewArea {
+  flex-grow: 1;
+  background-color: #e9ecef;
+  padding: 20px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewArea :global(.reveal) {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #ccc;
+}
+
+.previewArea :global(.reveal .slides section) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  border: 2px dashed transparent;
+}
+
+.previewArea :global(.reveal .slides section.editing) {
+  border-color: #007bff;
+}
+
+/* Styles for different slide layouts */
+.previewArea :global(.reveal .slides section[data-layout="title-slide"]) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.previewArea :global(.reveal .slides section[data-layout="title-slide"] h1) {
+  font-size: 2.5em;
+  margin-bottom: 0.5em;
+}
+
+.previewArea :global(.reveal .slides section[data-layout="title-slide"] h2) {
+  font-size: 1.5em;
+  color: #666;
+}
+
+.previewArea :global(.reveal .slides section[data-layout="content-left-image-right"]) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.previewArea :global(.reveal .slides section[data-layout="two-column"]) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.previewArea :global(.reveal .slides section[data-layout="full-image"]) {
+  padding: 0;
+}
+
+.previewArea :global(.reveal .slides section[data-layout="full-image"] img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Element positioning and selection styles */
+.slideElement {
+  position: absolute;
+  border: 1px solid transparent;
+  cursor: move;
+  min-width: 50px;
+  min-height: 30px;
+}
+
+.slideElement:hover {
+  border-color: #007bff;
+  outline: 1px solid rgba(0, 123, 255, 0.3);
+}
+
+.slideElement.selected {
+  border-color: #007bff;
+  border-width: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 123, 255, 0.5);
+}
+
+.elementResizeHandle {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  background-color: #007bff;
+  cursor: se-resize;
+  border: 1px solid white;
+  border-radius: 1px;
+}
+
+/* Animation for drag operations */
+.draggingSlideItem {
+  background-color: #d6eaff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: rotate(2deg);
+  transition: transform 0.2s ease;
+}
+
+/* Improved drop zone styling */
+.dropZone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 3px dashed #007bff;
+  background-color: rgba(0, 123, 255, 0.05);
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.dropZone.active {
+  opacity: 1;
+}
+
+.dropZone.active::after {
+  content: "Drop element here";
+}

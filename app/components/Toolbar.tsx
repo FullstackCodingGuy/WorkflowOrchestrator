@@ -2,13 +2,14 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import useWorkflowStore from '../store/workflowStore';
-import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon, SettingsIcon, PresentationIcon } from './Icons';
+import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon, SettingsIcon, PresentationIcon, VisualEditorIcon } from './Icons';
 import html2canvas from 'html2canvas';
 import GIF from 'gif.js';
 import dynamic from 'next/dynamic';
 
 // Dynamically import RevealEditor to avoid SSR issues with reveal.js
 const RevealEditor = dynamic(() => import('./RevealEditor'), { ssr: false });
+const PresentationEditor = dynamic(() => import('./PresentationEditor'), { ssr: false });
 
 // Define a type for extensible app settings
 interface AppSettings {
@@ -64,6 +65,7 @@ export default function Toolbar() {
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(() => loadSettingsFromStorage());
   const [showRevealEditor, setShowRevealEditor] = useState(false);
+  const [showPresentationEditor, setShowPresentationEditor] = useState(false);
 
   // Persist settings to localStorage whenever they change
   useEffect(() => {
@@ -126,6 +128,10 @@ export default function Toolbar() {
 
   const handlePresentationClick = () => {
     setShowRevealEditor(true);
+  };
+
+  const handleOpenPresentationEditor = () => {
+    setShowPresentationEditor(true);
   };
 
   const handleExportGif = async () => {
@@ -369,6 +375,13 @@ export default function Toolbar() {
       title: "Open Presentation Editor",
       // No 'style' prop here, commonButtonStyle will be applied
     },
+    {
+      id: 'visual-editor',
+      label: "Visual Editor",
+      icon: <VisualEditorIcon className="w-5 h-5" />,
+      onClick: handleOpenPresentationEditor,
+      title: "Open Visual Presentation Editor",
+    },
   ];
 
   return (
@@ -470,6 +483,11 @@ export default function Toolbar() {
       {/* Render RevealEditor if needed */}
       {showRevealEditor && (
         <RevealEditor onClose={() => setShowRevealEditor(false)} />
+      )}
+
+      {/* Render PresentationEditor if needed */}
+      {showPresentationEditor && (
+        <PresentationEditor onClose={() => setShowPresentationEditor(false)} />
       )}
     </nav>
   );
