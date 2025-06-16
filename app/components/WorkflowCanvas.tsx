@@ -25,6 +25,7 @@ import PropertiesPanel from './PropertiesPanel';
 import useWorkflowStore from '../store/workflowStore';
 import { connectionRules } from '../config/workflowConfig'; // Import connection rules from the new config file
 import DotFlowEdge from './DotFlowEdge';
+import { Edge } from 'reactflow';
 
 // --- Persistence Layer ---
 type PersistenceCallback<T> = (value: T) => void;
@@ -312,8 +313,20 @@ export default function WorkflowCanvas() {
 
   // Callback for edge animation end
   const onEdgeAnimationEnd = useCallback((edgeId: string) => {
-    console.log(`Edge animation completed for edge: ${edgeId}`);
-  }, []);
+    // Use the latest edges from the store
+    const idx = edges.findIndex((e) => e.id === edgeId);
+    if (idx === -1) return;
+    // Mark current edge as not animated
+    const updatedEdges = edges.map((e, i) =>
+      i === idx ? { ...e, animated: false } : e
+    );
+    // Find next edge (by order in array)
+    const nextIdx = idx + 1 < edges.length ? idx + 1 : 0;
+    if (edges.length > 1) {
+      updatedEdges[nextIdx] = { ...updatedEdges[nextIdx], animated: true };
+    }
+    setEdges(updatedEdges);
+  }, [edges, setEdges]);
 
   // Inject onEdgeAnimationEnd into each edge's data
   const edgesWithCallback = edges.map(edge => ({

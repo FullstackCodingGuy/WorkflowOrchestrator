@@ -276,7 +276,7 @@ export default function Toolbar() {
   const toolbarActions: ToolbarButtonConfig[] = [
     {
       id: 'animate',
-      label: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop Animation" : "Start Animation",
+      label: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop" : "Start",
       icon: areEdgesAnimated ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />,
       onClick: handleToggleAnimation,
       title: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop Edge Animation" : "Start Edge Animation",

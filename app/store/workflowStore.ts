@@ -175,7 +175,7 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
       const updatedEdges = state.edges.map((edge, idx) =>
         idx === 0 ? { ...edge, animated: true } : edge
       );
-      return { edges: updatedEdges };
+      return { edges: updatedEdges, areEdgesAnimated: !state.areEdgesAnimated };
     });
     // set((state) => ({
     //   areEdgesAnimated: !state.areEdgesAnimated,
