@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { EdgeProps, getSmoothStepPath, BaseEdge } from 'reactflow';
 
 export default function DotFlowEdge({
@@ -12,6 +12,7 @@ export default function DotFlowEdge({
   style = {},
   markerEnd,
   animated, // Destructure animated prop
+  data, // Accept data prop
 }: EdgeProps) {
   const [edgePath] = getSmoothStepPath({
     sourceX,
@@ -24,6 +25,22 @@ export default function DotFlowEdge({
 
   // Unique ID for the invisible path that animateMotion will follow
   const motionPathId = `motionpath-${id}`;
+
+  const motionRef = useRef<SVGAnimateMotionElement>(null);
+
+  useEffect(() => {
+    const node = motionRef.current;
+    if (!node) return;
+    const handler = () => {
+      if (data && typeof data.onEdgeAnimationEnd === 'function') {
+        data.onEdgeAnimationEnd(id);
+      }
+    };
+    node.addEventListener('repeatEvent', handler);
+    return () => {
+      node.removeEventListener('repeatEvent', handler);
+    };
+  }, [id, data]);
 
   return (
     <>
@@ -44,6 +61,7 @@ export default function DotFlowEdge({
       {animated && (
         <circle r="9" fill={style.stroke || 'var(--primary)'}>
           <animateMotion
+            ref={motionRef}
             dur="2s"
             repeatCount="indefinite"
             keyPoints="0;1"

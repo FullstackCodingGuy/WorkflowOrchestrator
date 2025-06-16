@@ -310,6 +310,20 @@ export default function WorkflowCanvas() {
     [nodes, edges, setEdges, areEdgesAnimated]
   );
 
+  // Callback for edge animation end
+  const onEdgeAnimationEnd = useCallback((edgeId: string) => {
+    console.log(`Edge animation completed for edge: ${edgeId}`);
+  }, []);
+
+  // Inject onEdgeAnimationEnd into each edge's data
+  const edgesWithCallback = edges.map(edge => ({
+    ...edge,
+    data: {
+      ...(edge.data || {}),
+      onEdgeAnimationEnd,
+    },
+  }));
+
   const proOptions = { hideAttribution: true };
 
   return (
@@ -318,7 +332,7 @@ export default function WorkflowCanvas() {
         <ReactFlow
           proOptions={proOptions}
           nodes={nodes}
-          edges={edges}
+          edges={edgesWithCallback}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnectCustom}
