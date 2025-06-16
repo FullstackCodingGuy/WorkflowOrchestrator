@@ -2,22 +2,13 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import useWorkflowStore from '../store/workflowStore';
-import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon, SettingsIcon } from './Icons';
+import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon, SettingsIcon, PresentationIcon } from './Icons';
 import html2canvas from 'html2canvas';
 import GIF from 'gif.js';
+import dynamic from 'next/dynamic';
 
-interface ToolbarButtonConfig {
-  id: string;
-  label?: string | ((isExportingGif?: boolean, areEdgesAnimated?: boolean) => string);
-  icon?: React.ReactElement;
-  onClick?: () => void;
-  title?: string | ((isExportingGif?: boolean, areEdgesAnimated?: boolean) => string);
-  isDisabled?: boolean | ((isExportingGif?: boolean) => boolean);
-  style?: React.CSSProperties;
-  className?: string | ((isExportingGif?: boolean) => string); // Allow function for className
-  type?: 'button' | 'separator' | 'dropdown';
-  dropdownActions?: ToolbarButtonConfig[];
-}
+// Dynamically import RevealEditor to avoid SSR issues with reveal.js
+const RevealEditor = dynamic(() => import('./RevealEditor'), { ssr: false });
 
 // Define a type for extensible app settings
 interface AppSettings {
@@ -41,6 +32,20 @@ function loadSettingsFromStorage(): AppSettings {
   return { hideMinimap: false };
 }
 
+// Interface for toolbar button configuration
+interface ToolbarButtonConfig {
+  id: string;
+  label?: string | ((isExportingGif?: boolean, areEdgesAnimated?: boolean) => string);
+  icon?: React.ReactElement;
+  onClick?: () => void;
+  title?: string | ((isExportingGif?: boolean, areEdgesAnimated?: boolean) => string);
+  isDisabled?: boolean | ((isExportingGif?: boolean) => boolean);
+  style?: React.CSSProperties;
+  className?: string | ((isExportingGif?: boolean) => string);
+  type?: 'button' | 'separator' | 'dropdown';
+  dropdownActions?: ToolbarButtonConfig[];
+}
+
 export default function Toolbar() {
   const { 
     exportWorkflow, 
@@ -58,6 +63,7 @@ export default function Toolbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(() => loadSettingsFromStorage());
+  const [showRevealEditor, setShowRevealEditor] = useState(false);
 
   // Persist settings to localStorage whenever they change
   useEffect(() => {
@@ -116,6 +122,10 @@ export default function Toolbar() {
   const handleLoad = () => {
     loadWorkflowFromLocalStorage();
     alert('Workflow loaded from LocalStorage!');
+  };
+
+  const handlePresentationClick = () => {
+    setShowRevealEditor(true);
   };
 
   const handleExportGif = async () => {
@@ -350,12 +360,13 @@ export default function Toolbar() {
       title: "Import Workflow from JSON",
       // No 'style' prop here, commonButtonStyle will be applied
     },
+    { id: 'separator3', type: 'separator' },
     {
-      id: 'settings',
-      label: "Settings",
-      icon: <SettingsIcon className="w-5 h-5" />,
-      onClick: () => setShowSettings(true),
-      title: "Open Settings",
+      id: 'presentation',
+      label: "Presentation",
+      icon: <PresentationIcon className="w-5 h-5" />,
+      onClick: handlePresentationClick,
+      title: "Open Presentation Editor",
       // No 'style' prop here, commonButtonStyle will be applied
     },
   ];
@@ -444,19 +455,21 @@ export default function Toolbar() {
           </button>
         );
       })}
-      <input 
-        type="file"
-        accept=".json"
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        onChange={handleFileChange}
-      />
+      {/* Render uploaded file input (hidden) */}
+      <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".json" onChange={handleFileChange} />
+      
+      {/* Render Settings Modal if needed */}
       {showSettings && (
         <ProfileModal 
-          onClose={() => setShowSettings(false)} 
+          onClose={() => setShowSettings(false)}
           settings={settings}
           setSettings={setSettings}
         />
+      )}
+
+      {/* Render RevealEditor if needed */}
+      {showRevealEditor && (
+        <RevealEditor onClose={() => setShowRevealEditor(false)} />
       )}
     </nav>
   );

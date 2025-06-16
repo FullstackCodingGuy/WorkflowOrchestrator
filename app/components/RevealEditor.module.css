@@ -1,0 +1,181 @@
+/* RevealEditor.module.css */
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: white;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--toolbar-bg, #f0f0f0);
+}
+
+.closeButton {
+  padding: 5px 10px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.closeButton:hover {
+  background: #d32f2f;
+}
+
+.editControls {
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  background-color: var(--secondary, #f5f5f5);
+  border-bottom: 1px solid #ddd;
+}
+
+.controlButton {
+  padding: 5px 10px;
+  background: var(--primary, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.controlButton:hover {
+  background: var(--primary-hover, #1e40af);
+}
+
+.revealContainer {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Override Reveal.js styles for better integration */
+:global(.reveal) {
+  height: 100%;
+}
+
+:global(.reveal .slides) {
+  text-align: left;
+}
+
+:global(.reveal h1),
+:global(.reveal h2) {
+  color: var(--primary, #2563eb);
+}
+
+:global(.workflow-stats),
+:global(.node-details) {
+  background-color: var(--secondary, #f5f5f5);
+  padding: 15px;
+  border-radius: 4px;
+  margin: 20px 0;
+}
+
+:global(.node-visualization) {
+  margin: 30px 0;
+}
+
+:global(.node-type-start) {
+  background-color: #dcfce7 !important;
+}
+
+:global(.node-type-action) {
+  background-color: #dbeafe !important;
+}
+
+:global(.node-type-condition) {
+  background-color: #fef3c7 !important;
+}
+
+:global(.node-type-end) {
+  background-color: #fee2e2 !important;
+}
+
+/* Simulation Styles */
+.simulationControls {
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.simulationStatus {
+  background-color: var(--secondary, #f5f5f5);
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.simulationProgress {
+  width: 100%;
+  height: 8px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.simulationProgressBar {
+  height: 100%;
+  background-color: var(--primary, #2563eb);
+  transition: width 0.3s ease;
+}
+
+.simulationContainer {
+  margin: 20px 0;
+  height: 300px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.placeholderSimulation {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--muted-foreground, #64748b);
+  background-color: var(--secondary-light, #f9fafb);
+}
+
+.simulationView {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.simulationSvg {
+  background-color: var(--background-light, #ffffff);
+}
+
+/* Animation for active node */
+.pulsingNode {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
