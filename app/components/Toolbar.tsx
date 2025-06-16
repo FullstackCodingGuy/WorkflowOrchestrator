@@ -100,17 +100,61 @@ export default function Toolbar() {
     window.dispatchEvent(event);
   }, [settings.hideMinimap]);
 
-  const handleToggleAnimation = () => {
-    toggleEdgeAnimation();
-    setIsAnimating((prev) => {
-      const next = !prev;
-      if (next) setStopEnabled(true);
-      return next;
-    });
+  // Animation control logic split into separate functions
+  const playAnimation = () => {
+    const edges = useWorkflowStore.getState().edges;
+    // Play: if all edges are completed or this is the first play, reset all completed and start from first edge
+    const allCompleted = edges.every(e => e.data && e.data.completed);
+    if (allCompleted || edges.every(e => !e.animated && !(e.data && e.data.completed))) {
+      setEdges(
+        edges.map((e, i) => ({
+          ...e,
+          animated: i === 0,
+          data: {
+            ...(e.data || {}),
+            completed: false,
+          },
+        }))
+      );
+    } else {
+      // Resume: find first incomplete edge and animate it
+      const firstIncompleteIdx = edges.findIndex(e => !(e.data && e.data.completed));
+      const playIdx = firstIncompleteIdx === -1 ? 0 : firstIncompleteIdx;
+      setEdges(
+        edges.map((e, i) => ({
+          ...e,
+          animated: i === playIdx,
+        }))
+      );
+    }
+    setIsAnimating(true);
+    setStopEnabled(true);
   };
 
-  const handleRestart = () => {
-    // Find all start nodes
+  const pauseAnimation = () => {
+    const edges = useWorkflowStore.getState().edges;
+    setEdges(
+      edges.map(e => ({
+        ...e,
+        animated: false,
+      }))
+    );
+    setIsAnimating(false);
+  };
+
+  const stopAnimation = () => {
+    const edges = useWorkflowStore.getState().edges;
+    setEdges(
+      edges.map(e => ({
+        ...e,
+        animated: false,
+      }))
+    );
+    setIsAnimating(false);
+    setStopEnabled(false);
+  };
+
+  const restartAnimation = () => {
     const nodes = useWorkflowStore.getState().nodes;
     const edges = useWorkflowStore.getState().edges;
     const startNodeIds = nodes.filter(n => n.type === 'start').map(n => n.id);
@@ -126,6 +170,23 @@ export default function Toolbar() {
     );
     setIsAnimating(false);
     setStopEnabled(true);
+  };
+
+  // Button handlers call the split logic
+  const handleToggleAnimation = () => {
+    if (!isAnimating) {
+      playAnimation();
+    } else {
+      pauseAnimation();
+    }
+  };
+
+  const handleStop = () => {
+    stopAnimation();
+  };
+
+  const handleRestart = () => {
+    restartAnimation();
   };
 
   const handleSave = () => {
@@ -272,18 +333,6 @@ export default function Toolbar() {
       reader.readAsText(file);
       if(fileInputRef.current) fileInputRef.current.value = '';
     }
-  };
-
-  const handleStop = () => {
-    const edges = useWorkflowStore.getState().edges;
-    setEdges(
-      edges.map(e => ({
-        ...e,
-        animated: false,
-      }))
-    );
-    setIsAnimating(false);
-    setStopEnabled(false);
   };
 
   // Define base styles for buttons
