@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import useWorkflowStore from '../store/workflowStore';
-import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon, SettingsIcon, PresentationIcon, VisualEditorIcon } from './Icons';
+import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, StopIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon, SettingsIcon, PresentationIcon, VisualEditorIcon } from './Icons';
 import html2canvas from 'html2canvas';
 import GIF from 'gif.js';
 import dynamic from 'next/dynamic';
@@ -67,6 +67,7 @@ export default function Toolbar() {
   const [settings, setSettings] = useState<AppSettings>(() => loadSettingsFromStorage());
   const [showRevealEditor, setShowRevealEditor] = useState(false);
   const [showPresentationEditor, setShowPresentationEditor] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // Persist settings to localStorage whenever they change
   useEffect(() => {
@@ -100,6 +101,7 @@ export default function Toolbar() {
 
   const handleToggleAnimation = () => {
     toggleEdgeAnimation();
+    setIsAnimating((prev) => !prev);
   };
 
   const handleRestart = () => {
@@ -117,6 +119,7 @@ export default function Toolbar() {
         },
       }))
     );
+    setIsAnimating(false);
   };
 
   const handleSave = () => {
@@ -273,6 +276,7 @@ export default function Toolbar() {
         animated: false,
       }))
     );
+    setIsAnimating(false);
   };
 
   // Define base styles for buttons
@@ -288,15 +292,15 @@ export default function Toolbar() {
   const toolbarActions: ToolbarButtonConfig[] = [
     {
       id: 'animate',
-      label: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop" : "Start",
-      icon: areEdgesAnimated ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />,
+      label: () => isAnimating ? "Pause" : "Play",
+      icon: isAnimating ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />,
       onClick: handleToggleAnimation,
-      title: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop Edge Animation" : "Start Edge Animation",
+      title: () => isAnimating ? "Pause Edge Animation" : "Play Edge Animation",
     },
     {
       id: 'stop',
       label: 'Stop',
-      icon: <PauseIcon className="w-5 h-5" />, // You may want a different icon
+      icon: <StopIcon className="w-5 h-5" />, // Use a stop icon for clarity
       onClick: handleStop,
       title: 'Stop All Edge Animations',
     },
@@ -306,7 +310,6 @@ export default function Toolbar() {
       icon: <RestartIcon className="w-5 h-5" />,
       onClick: handleRestart,
       title: "Restart Workflow",
-      // No 'style' prop here, commonButtonStyle will be applied
     },
     {
       id: 'layout-dropdown',
