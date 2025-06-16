@@ -107,12 +107,10 @@ export default function Toolbar() {
     const nodes = useWorkflowStore.getState().nodes;
     const edges = useWorkflowStore.getState().edges;
     const startNodeIds = nodes.filter(n => n.type === 'start').map(n => n.id);
-    // Find the first edge whose source is a start node
-    const firstEdgeIdx = edges.findIndex(e => startNodeIds.includes(e.source));
     setEdges(
-      edges.map((e, i) => ({
+      edges.map(e => ({
         ...e,
-        animated: i === firstEdgeIdx,
+        animated: startNodeIds.includes(e.source),
         data: {
           ...(e.data || {}),
           completed: false,
