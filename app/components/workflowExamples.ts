@@ -1,4 +1,5 @@
 import { Node, Edge } from 'reactflow';
+import { APP_COLORS, NODE_DIMENSIONS } from '../config/appConfig';
 
 export interface WorkflowExample {
   name: string;
@@ -8,11 +9,11 @@ export interface WorkflowExample {
   layoutDirection: 'TB' | 'LR';
 }
 
-const defaultBgColor = '#f5f5f5';
-const defaultWidth = 180;
-const defaultHeight = 70; // Slightly increased default height for better label visibility
-const conditionHeight = 80;
-const wideWidth = 220;
+const defaultBgColor = APP_COLORS.defaultBg;
+const defaultWidth = NODE_DIMENSIONS.defaultWidth;
+const defaultHeight = NODE_DIMENSIONS.defaultHeight;
+const conditionHeight = NODE_DIMENSIONS.conditionHeight;
+const wideWidth = NODE_DIMENSIONS.wideWidth;
 
 
 export const workflowExamples: WorkflowExample[] = [
@@ -47,8 +48,8 @@ export const workflowExamples: WorkflowExample[] = [
       },
     ],
     edges: [
-      { id: 'slf-e-start-action1', type: 'dotFlow', source: 'slf-start', target: 'slf-action1', animated: false },
-      { id: 'slf-e-action1-end', type: 'dotFlow', source: 'slf-action1', target: 'slf-end', animated: false },
+      { id: 'slf-e-start-action1', type: 'dotFlow', source: 'slf-start', target: 'slf-action1', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
+      { id: 'slf-e-action1-end', type: 'dotFlow', source: 'slf-action1', target: 'slf-end', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
     ],
   },
   {
@@ -70,17 +71,17 @@ export const workflowExamples: WorkflowExample[] = [
       { id: 'itu-end-rejected-hr', type: 'end', data: { id: 'itu-end-rejected-hr', label: 'Onboarding Rejected (HR)', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: wideWidth, height: 60 },
     ],
     edges: [
-      { id: 'itu-e-start-hr', source: 'itu-start', target: 'itu-action-hr', animated: false },
-      { id: 'itu-e-hr-cond', source: 'itu-action-hr', target: 'itu-cond-hr', animated: false },
-      { id: 'itu-e-condhr-setup', source: 'itu-cond-hr', sourceHandle: 'itu-cond-hr-source-true', target: 'itu-action-it-setup', label: 'Yes', animated: false },
-      { id: 'itu-e-condhr-reject', source: 'itu-cond-hr', sourceHandle: 'itu-cond-hr-source-false', target: 'itu-action-reject-hr', label: 'No', animated: false },
-      { id: 'itu-e-rejecthr-end', source: 'itu-action-reject-hr', target: 'itu-end-rejected-hr', animated: false },
-      { id: 'itu-e-setup-condit', source: 'itu-action-it-setup', target: 'itu-cond-it-setup-ok', animated: false },
-      { id: 'itu-e-condit-resource', source: 'itu-cond-it-setup-ok', sourceHandle: 'itu-cond-it-setup-ok-source-true', target: 'itu-action-resource', label: 'Yes', animated: false },
-      { id: 'itu-e-resource-notify', source: 'itu-action-resource', target: 'itu-action-notify', animated: false },
-      { id: 'itu-e-notify-complete', source: 'itu-action-notify', target: 'itu-end-complete', animated: false },
-      { id: 'itu-e-condit-logissue', source: 'itu-cond-it-setup-ok', sourceHandle: 'itu-cond-it-setup-ok-source-false', target: 'itu-action-log-issue', label: 'No', animated: false },
-      { id: 'itu-e-logissue-delayed', source: 'itu-action-log-issue', target: 'itu-end-delayed', animated: false },
+      { id: 'itu-e-start-hr', type: 'dotFlow', source: 'itu-start', target: 'itu-action-hr', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'itu-e-hr-cond', type: 'dotFlow', source: 'itu-action-hr', target: 'itu-cond-hr', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'itu-e-condhr-setup', type: 'dotFlow', source: 'itu-cond-hr', sourceHandle: 'itu-cond-hr-source-true', target: 'itu-action-it-setup', label: 'Yes', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'itu-e-condhr-reject', type: 'dotFlow', source: 'itu-cond-hr', sourceHandle: 'itu-cond-hr-source-false', target: 'itu-action-reject-hr', label: 'No', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'itu-e-rejecthr-end', type: 'dotFlow', source: 'itu-action-reject-hr', target: 'itu-end-rejected-hr', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'itu-e-setup-condit', type: 'dotFlow', source: 'itu-action-it-setup', target: 'itu-cond-it-setup-ok', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'itu-e-condit-resource', type: 'dotFlow', source: 'itu-cond-it-setup-ok', sourceHandle: 'itu-cond-it-setup-ok-source-true', target: 'itu-action-resource', label: 'Yes', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'itu-e-resource-notify', type: 'dotFlow', source: 'itu-action-resource', target: 'itu-action-notify', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'itu-e-notify-complete', type: 'dotFlow', source: 'itu-action-notify', target: 'itu-end-complete', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'itu-e-condit-logissue', type: 'dotFlow', source: 'itu-cond-it-setup-ok', sourceHandle: 'itu-cond-it-setup-ok-source-false', target: 'itu-action-log-issue', label: 'No', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'itu-e-logissue-delayed', type: 'dotFlow', source: 'itu-action-log-issue', target: 'itu-end-delayed', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
     ],
   },
   {
@@ -103,19 +104,19 @@ export const workflowExamples: WorkflowExample[] = [
       { id: 'bla-end-rejected', type: 'end', data: { id: 'bla-end-rejected', label: 'Loan Rejected', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: defaultWidth, height: 60 },
     ],
     edges: [
-      { id: 'bla-e-start-docs', source: 'bla-start', target: 'bla-action-docs', animated: false },
-      { id: 'bla-e-docs-cond', source: 'bla-action-docs', target: 'bla-cond-docs', animated: false },
-      { id: 'bla-e-conddocs-credit', source: 'bla-cond-docs', sourceHandle: 'bla-cond-docs-source-true', target: 'bla-action-credit', label: 'Yes', animated: false },
-      { id: 'bla-e-conddocs-reqinfo', source: 'bla-cond-docs', sourceHandle: 'bla-cond-docs-source-false', target: 'bla-action-request-info', label: 'No', animated: false },
-      { id: 'bla-e-reqinfo-endinc', source: 'bla-action-request-info', target: 'bla-end-incomplete', animated: false },
-      { id: 'bla-e-credit-cond', source: 'bla-action-credit', target: 'bla-cond-credit', animated: false },
-      { id: 'bla-e-condcred-risk', source: 'bla-cond-credit', sourceHandle: 'bla-cond-credit-source-true', target: 'bla-action-risk', label: 'Yes', animated: false },
-      { id: 'bla-e-condcred-reject', source: 'bla-cond-credit', sourceHandle: 'bla-cond-credit-source-false', target: 'bla-action-reject', label: 'No', animated: false },
-      { id: 'bla-e-risk-cond', source: 'bla-action-risk', target: 'bla-cond-risk', animated: false },
-      { id: 'bla-e-condrisk-approve', source: 'bla-cond-risk', sourceHandle: 'bla-cond-risk-source-true', target: 'bla-action-approve', label: 'Yes', animated: false },
-      { id: 'bla-e-condrisk-reject', source: 'bla-cond-risk', sourceHandle: 'bla-cond-risk-source-false', target: 'bla-action-reject', label: 'No', animated: false },
-      { id: 'bla-e-approve-end', source: 'bla-action-approve', target: 'bla-end-approved', animated: false },
-      { id: 'bla-e-reject-end', source: 'bla-action-reject', target: 'bla-end-rejected', animated: false },
+      { id: 'bla-e-start-docs', type: 'dotFlow', source: 'bla-start', target: 'bla-action-docs', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-docs-cond', type: 'dotFlow', source: 'bla-action-docs', target: 'bla-cond-docs', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-conddocs-credit', type: 'dotFlow', source: 'bla-cond-docs', sourceHandle: 'bla-cond-docs-source-true', target: 'bla-action-credit', label: 'Yes', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-conddocs-reqinfo', type: 'dotFlow', source: 'bla-cond-docs', sourceHandle: 'bla-cond-docs-source-false', target: 'bla-action-request-info', label: 'No', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-reqinfo-endinc', type: 'dotFlow', source: 'bla-action-request-info', target: 'bla-end-incomplete', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-credit-cond', type: 'dotFlow', source: 'bla-action-credit', target: 'bla-cond-credit', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-condcred-risk', type: 'dotFlow', source: 'bla-cond-credit', sourceHandle: 'bla-cond-credit-source-true', target: 'bla-action-risk', label: 'Yes', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-condcred-reject', type: 'dotFlow', source: 'bla-cond-credit', sourceHandle: 'bla-cond-credit-source-false', target: 'bla-action-reject', label: 'No', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-risk-cond', type: 'dotFlow', source: 'bla-action-risk', target: 'bla-cond-risk', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-condrisk-approve', type: 'dotFlow', source: 'bla-cond-risk', sourceHandle: 'bla-cond-risk-source-true', target: 'bla-action-approve', label: 'Yes', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-condrisk-reject', type: 'dotFlow', source: 'bla-cond-risk', sourceHandle: 'bla-cond-risk-source-false', target: 'bla-action-reject', label: 'No', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-approve-end', type: 'dotFlow', source: 'bla-action-approve', target: 'bla-end-approved', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-reject-end', type: 'dotFlow', source: 'bla-action-reject', target: 'bla-end-rejected', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
     ],
   },
   {
@@ -139,19 +140,49 @@ export const workflowExamples: WorkflowExample[] = [
       { id: 'smt-end-failed-validation', type: 'end', data: { id: 'smt-end-failed-validation', label: 'Trade Invalid', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: defaultWidth, height: 60 },
     ],
     edges: [
-      { id: 'smt-e-start-validate', source: 'smt-start', target: 'smt-action-validate', animated: false },
-      { id: 'smt-e-validate-cond', source: 'smt-action-validate', target: 'smt-cond-valid', animated: false },
-      { id: 'smt-e-condvalid-exchange', source: 'smt-cond-valid', sourceHandle: 'smt-cond-valid-source-true', target: 'smt-action-exchange', label: 'Yes', animated: false },
-      { id: 'smt-e-condvalid-failval', source: 'smt-cond-valid', sourceHandle: 'smt-cond-valid-source-false', target: 'smt-action-failed-validation', label: 'No', animated: false },
-      { id: 'smt-e-failval-end', source: 'smt-action-failed-validation', target: 'smt-end-failed-validation', animated: false },
-      { id: 'smt-e-exchange-condexe', source: 'smt-action-exchange', target: 'smt-cond-executed', animated: false },
-      { id: 'smt-e-condexe-confirmfull', source: 'smt-cond-executed', sourceHandle: 'smt-cond-executed-source-true', target: 'smt-action-confirm-full', label: 'Yes (Full)', animated: false },
-      { id: 'smt-e-confirmfull-endsuccess', source: 'smt-action-confirm-full', target: 'smt-end-success', animated: false },
-      { id: 'smt-e-condexe-condpartial', source: 'smt-cond-executed', sourceHandle: 'smt-cond-executed-source-false', target: 'smt-cond-partial-fill', label: 'No (Not Full)', animated: false },
-      { id: 'smt-e-condpartial-notifypartial', source: 'smt-cond-partial-fill', sourceHandle: 'smt-cond-partial-fill-source-true', target: 'smt-action-notify-partial', label: 'Yes (Partial)', animated: false },
-      { id: 'smt-e-notifypartial-endpartial', source: 'smt-action-notify-partial', target: 'smt-end-partial', animated: false },
-      { id: 'smt-e-condpartial-failexchange', source: 'smt-cond-partial-fill', sourceHandle: 'smt-cond-partial-fill-source-false', target: 'smt-action-failed-exchange', label: 'No (Complete Fail)', animated: false },
-      { id: 'smt-e-failexchange-end', source: 'smt-action-failed-exchange', target: 'smt-end-failed-exchange', animated: false },
+      { id: 'smt-e-start-validate', type: 'dotFlow', source: 'smt-start', target: 'smt-action-validate', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'smt-e-validate-cond', type: 'dotFlow', source: 'smt-action-validate', target: 'smt-cond-valid', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'smt-e-condvalid-exchange', type: 'dotFlow', source: 'smt-cond-valid', sourceHandle: 'smt-cond-valid-source-true', target: 'smt-action-exchange', label: 'Yes', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'smt-e-condvalid-failval', type: 'dotFlow', source: 'smt-cond-valid', sourceHandle: 'smt-cond-valid-source-false', target: 'smt-action-failed-validation', label: 'No', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'smt-e-failval-end', type: 'dotFlow', source: 'smt-action-failed-validation', target: 'smt-end-failed-validation', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'smt-e-exchange-condexe', type: 'dotFlow', source: 'smt-action-exchange', target: 'smt-cond-executed', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'smt-e-condexe-confirmfull', type: 'dotFlow', source: 'smt-cond-executed', sourceHandle: 'smt-cond-executed-source-true', target: 'smt-action-confirm-full', label: 'Yes (Full)', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'smt-e-confirmfull-endsuccess', type: 'dotFlow', source: 'smt-action-confirm-full', target: 'smt-end-success', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'smt-e-condexe-condpartial', type: 'dotFlow', source: 'smt-cond-executed', sourceHandle: 'smt-cond-executed-source-false', target: 'smt-cond-partial-fill', label: 'No (Not Full)', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'smt-e-condpartial-notifypartial', type: 'dotFlow', source: 'smt-cond-partial-fill', sourceHandle: 'smt-cond-partial-fill-source-true', target: 'smt-action-notify-partial', label: 'Yes (Partial)', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'smt-e-notifypartial-endpartial', type: 'dotFlow', source: 'smt-action-notify-partial', target: 'smt-end-partial', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'smt-e-condpartial-failexchange', type: 'dotFlow', source: 'smt-cond-partial-fill', sourceHandle: 'smt-cond-partial-fill-source-false', target: 'smt-action-failed-exchange', label: 'No (Complete Fail)', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'smt-e-failexchange-end', type: 'dotFlow', source: 'smt-action-failed-exchange', target: 'smt-end-failed-exchange', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+    ],
+  },
+  {
+    name: 'ML Model Building',
+    description: 'Workflow for building a machine learning model: from data collection to deployment.',
+    layoutDirection: 'TB',
+    nodes: [
+      { id: 'ml-start', type: 'start', data: { id: 'ml-start', label: 'Start ML Pipeline', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: defaultWidth, height: 60 },
+      { id: 'ml-data-collection', type: 'action', data: { id: 'ml-data-collection', label: 'Data Collection', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: wideWidth, height: defaultHeight },
+      { id: 'ml-data-cleaning', type: 'action', data: { id: 'ml-data-cleaning', label: 'Data Cleaning', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: wideWidth, height: defaultHeight },
+      { id: 'ml-feature-eng', type: 'action', data: { id: 'ml-feature-eng', label: 'Feature Engineering', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: wideWidth, height: defaultHeight },
+      { id: 'ml-correlation', type: 'action', data: { id: 'ml-correlation', label: 'Correlation Analysis', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: wideWidth, height: defaultHeight },
+      { id: 'ml-clustering', type: 'action', data: { id: 'ml-clustering', label: 'Clustering', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: wideWidth, height: defaultHeight },
+      { id: 'ml-model-training', type: 'action', data: { id: 'ml-model-training', label: 'Model Training', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: wideWidth, height: defaultHeight },
+      { id: 'ml-model-fitting', type: 'action', data: { id: 'ml-model-fitting', label: 'Model Fitting', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: wideWidth, height: defaultHeight },
+      { id: 'ml-evaluation', type: 'action', data: { id: 'ml-evaluation', label: 'Model Evaluation', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: wideWidth, height: defaultHeight },
+      { id: 'ml-deployment', type: 'action', data: { id: 'ml-deployment', label: 'Model Deployment', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: wideWidth, height: defaultHeight },
+      { id: 'ml-end', type: 'end', data: { id: 'ml-end', label: 'End ML Pipeline', backgroundColor: defaultBgColor }, position: { x: 0, y: 0 }, width: defaultWidth, height: 60 },
+    ],
+    edges: [
+      { id: 'ml-e-start-collection', type: 'dotFlow', source: 'ml-start', target: 'ml-data-collection', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
+      { id: 'ml-e-collection-cleaning', type: 'dotFlow', source: 'ml-data-collection', target: 'ml-data-cleaning', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
+      { id: 'ml-e-cleaning-featureeng', type: 'dotFlow', source: 'ml-data-cleaning', target: 'ml-feature-eng', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
+      { id: 'ml-e-featureeng-correlation', type: 'dotFlow', source: 'ml-feature-eng', target: 'ml-correlation', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
+      { id: 'ml-e-correlation-clustering', type: 'dotFlow', source: 'ml-correlation', target: 'ml-clustering', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
+      { id: 'ml-e-clustering-training', type: 'dotFlow', source: 'ml-clustering', target: 'ml-model-training', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
+      { id: 'ml-e-training-fitting', type: 'dotFlow', source: 'ml-model-training', target: 'ml-model-fitting', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
+      { id: 'ml-e-fitting-eval', type: 'dotFlow', source: 'ml-model-fitting', target: 'ml-evaluation', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
+      { id: 'ml-e-eval-deploy', type: 'dotFlow', source: 'ml-evaluation', target: 'ml-deployment', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
+      { id: 'ml-e-deploy-end', type: 'dotFlow', source: 'ml-deployment', target: 'ml-end', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
     ],
   },
 ];

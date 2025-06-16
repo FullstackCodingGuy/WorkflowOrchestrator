@@ -1,4 +1,4 @@
-import { create, StateCreator } from 'zustand';
+import { create, StateCreator } from "zustand";
 import {
   Node,
   Edge,
@@ -6,9 +6,10 @@ import {
   applyEdgeChanges,
   NodeChange,
   EdgeChange,
-  Position
-} from 'reactflow';
-import dagre from 'dagre';
+  Position,
+} from "reactflow";
+import dagre from "dagre";
+import { APP_COLORS, NODE_DIMENSIONS, STORAGE_KEYS } from '../config/appConfig';
 
 // Define a more specific type for node data
 export interface NodeData {
@@ -28,10 +29,13 @@ export interface WorkflowState {
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
   addNode: (node: Node) => void;
-  importWorkflow: (workflow: { nodes: Node[]; edges: Edge[] }, layoutDirection?: 'TB' | 'LR') => void;
+  importWorkflow: (
+    workflow: { nodes: Node[]; edges: Edge[] },
+    layoutDirection?: "TB" | "LR"
+  ) => void;
   exportWorkflow: () => { nodes: Node[]; edges: Edge[] };
   toggleEdgeAnimation: () => void;
-  applyLayout: (direction: 'TB' | 'LR') => void;
+  applyLayout: (direction: "TB" | "LR") => void;
   saveWorkflowToLocalStorage: () => void;
   loadWorkflowFromLocalStorage: () => boolean;
   // Actions for NodeToolbar
@@ -45,14 +49,18 @@ export interface WorkflowState {
   stopMessageFlow: () => void;
 }
 
-const LOCAL_STORAGE_KEY = 'reactflow_workflow';
+const LOCAL_STORAGE_KEY = STORAGE_KEYS.workflow;
 
 // Dagre layout logic
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const getLayoutedElements = (nodes: Node[], edges: Edge[], direction: 'TB' | 'LR' = 'TB') => {
-  const isHorizontal = direction === 'LR';
+const getLayoutedElements = (
+  nodes: Node[],
+  edges: Edge[],
+  direction: "TB" | "LR" = "TB"
+) => {
+  const isHorizontal = direction === "LR";
   dagreGraph.setGraph({ rankdir: direction, nodesep: 100, ranksep: 100 }); // Increased separation
 
   nodes.forEach((node) => {
@@ -84,16 +92,15 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction: 'TB' | 'LR
   return { nodes: layoutedNodes, edges };
 };
 
-
 const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   nodes: [
     {
-      id: 'startNode1',
-      type: 'start',
-      data: { id: 'startNode1', label: 'Start', backgroundColor: '#f5f5f5' }, // Added default backgroundColor
+      id: "startNode1",
+      type: "start",
+      data: { id: "startNode1", label: "Start", backgroundColor: APP_COLORS.defaultBg }, // Added default backgroundColor
       position: { x: 250, y: 5 },
-      width: 180, // Provide initial dimensions
-      height: 60,
+      width: NODE_DIMENSIONS.defaultWidth, // Provide initial dimensions
+      height: NODE_DIMENSIONS.startEndHeight,
     },
   ],
   edges: [],
@@ -102,11 +109,13 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   isMessageFlowing: false, // Initialize message flow state
 
   onNodesChange: (changes: NodeChange[]) => {
+    console.log('Node changes: ', changes)
     set((state) => ({
       nodes: applyNodeChanges(changes, state.nodes),
     }));
   },
   onEdgesChange: (changes: EdgeChange[]) => {
+    console.log("Edge changes:", changes); // Debugging log
     set((state) => ({
       edges: applyEdgeChanges(changes, state.edges),
     }));
@@ -116,35 +125,42 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   addNode: (node: Node) => {
     const newNode = {
       ...node,
-      data: { 
-        ...node.data, 
-        id: node.id, 
-        backgroundColor: node.data.backgroundColor || '#f5f5f5' // Ensure default bg for new nodes
-      }, 
-      width: node.width || 180, // Default width for new nodes
-      height: node.height || 60, // Default height for new nodes
+      data: {
+        ...node.data,
+        id: node.id,
+        backgroundColor: node.data.backgroundColor || APP_COLORS.defaultBg, // Ensure default bg for new nodes
+      },
+      width: node.width || NODE_DIMENSIONS.defaultWidth, // Default width for new nodes
+      height: node.height || NODE_DIMENSIONS.defaultHeight, // Default height for new nodes
     };
     set((state) => ({ nodes: [...state.nodes, newNode] }));
   },
-  importWorkflow: (workflow: { nodes: Node[]; edges: Edge[] }, layoutDirection: 'TB' | 'LR' = 'TB') => {
+  importWorkflow: (
+    workflow: { nodes: Node[]; edges: Edge[] },
+    layoutDirection: "TB" | "LR" = "TB"
+  ) => {
     const currentAnimatedState = get().areEdgesAnimated;
-    const nodesWithDataDefaults = workflow.nodes.map(n => ({
+    const nodesWithDataDefaults = workflow.nodes.map((n) => ({
       ...n,
-      data: { 
-        ...n.data, 
-        id: n.id, 
-        backgroundColor: n.data.backgroundColor || '#f5f5f5', // Ensure default bg for imported nodes
-        fontColor: n.data.fontColor // Preserve imported font color or undefined
+      data: {
+        ...n.data,
+        id: n.id,
+        backgroundColor: n.data.backgroundColor || APP_COLORS.defaultBg, // Ensure default bg for imported nodes
+        fontColor: n.data.fontColor, // Preserve imported font color or undefined
       },
-      width: n.width || 180,
-      height: n.height || 60,
+      width: n.width || NODE_DIMENSIONS.defaultWidth,
+      height: n.height || NODE_DIMENSIONS.defaultHeight,
     }));
-    const edgesWithAnimationState = workflow.edges.map(edge => ({
+    const edgesWithAnimationState = workflow.edges.map((edge) => ({
       ...edge,
       animated: currentAnimatedState,
     }));
 
-    const { nodes: layoutedNodes, edges } = getLayoutedElements(nodesWithDataDefaults, edgesWithAnimationState || [], layoutDirection);
+    const { nodes: layoutedNodes, edges } = getLayoutedElements(
+      nodesWithDataDefaults,
+      edgesWithAnimationState || [],
+      layoutDirection
+    );
     set({
       nodes: layoutedNodes,
       edges: edges,
@@ -154,36 +170,52 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
     return { nodes: get().nodes, edges: get().edges };
   },
   toggleEdgeAnimation: () => {
-    set((state) => ({
-      areEdgesAnimated: !state.areEdgesAnimated,
-      edges: state.edges.map(edge => ({ 
-        ...edge, 
-        animated: !state.areEdgesAnimated,
-        // Do not change edge type here, only animation style for default edges
-      })),
-    }));
+    // add a code block to disable the animation for first edge
+    set((state) => {
+      if (state.edges.length === 0) return {};
+      const updatedEdges = state.edges.map((edge, idx) =>
+        idx === 0 ? { ...edge, animated: true } : edge
+      );
+      return { edges: updatedEdges, areEdgesAnimated: !state.areEdgesAnimated };
+    });
+    // set((state) => ({
+    //   areEdgesAnimated: !state.areEdgesAnimated,
+    //   edges: state.edges.map(edge => ({
+    //     ...edge,
+    //     animated: !state.areEdgesAnimated,
+    //     // Do not change edge type here, only animation style for default edges
+    //   })),
+    // }));
   },
-  applyLayout: (direction: 'TB' | 'LR') => {
+  applyLayout: (direction: "TB" | "LR") => {
     const { nodes, edges, isMessageFlowing } = get(); // get isMessageFlowing
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges, direction);
-    set({ 
-      nodes: layoutedNodes, 
-      edges: layoutedEdges.map(edge => ({ 
-        ...edge, 
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+      nodes,
+      edges,
+      direction
+    );
+    set({
+      nodes: layoutedNodes,
+      edges: layoutedEdges.map((edge) => ({
+        ...edge,
         animated: get().areEdgesAnimated && !isMessageFlowing, // CSS animation only if not message flowing
-        type: isMessageFlowing ? 'dotFlow' : undefined, // Keep dotFlow if active
-      })) 
+        type: isMessageFlowing ? "dotFlow" : undefined, // Keep dotFlow if active
+      })),
     });
   },
 
   saveWorkflowToLocalStorage: () => {
     try {
       const { nodes, edges } = get().exportWorkflow();
-      const workflowToSave = { nodes, edges, timestamp: new Date().toISOString() }; // Add a timestamp
+      const workflowToSave = {
+        nodes,
+        edges,
+        timestamp: new Date().toISOString(),
+      }; // Add a timestamp
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(workflowToSave));
-      console.log('Workflow saved to LocalStorage.');
+      console.log("Workflow saved to LocalStorage.");
     } catch (error) {
-      console.error('Error saving workflow to LocalStorage:', error);
+      console.error("Error saving workflow to LocalStorage:", error);
     }
   },
 
@@ -195,13 +227,16 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
         if (savedWorkflow && savedWorkflow.nodes && savedWorkflow.edges) {
           // Use importWorkflow to correctly process and layout the loaded data
           // Defaulting to 'TB' layout, can be made configurable or saved with workflow
-          get().importWorkflow({ nodes: savedWorkflow.nodes, edges: savedWorkflow.edges }, 'TB');
-          console.log('Workflow loaded from LocalStorage.');
+          get().importWorkflow(
+            { nodes: savedWorkflow.nodes, edges: savedWorkflow.edges },
+            "TB"
+          );
+          console.log("Workflow loaded from LocalStorage.");
           return true;
         }
       }
     } catch (error) {
-      console.error('Error loading workflow from LocalStorage:', error);
+      console.error("Error loading workflow from LocalStorage:", error);
     }
     return false;
   },
@@ -211,10 +246,13 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
     set({ selectedNodeId: nodeId });
   },
 
-  updateNodeData: (nodeId: string, newData: Partial<NodeData>) => { // Use Partial<NodeData>
+  updateNodeData: (nodeId: string, newData: Partial<NodeData>) => {
+    // Use Partial<NodeData>
     set((state) => ({
       nodes: state.nodes.map((node) =>
-        node.id === nodeId ? { ...node, data: { ...node.data, ...newData } } : node
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, ...newData } }
+          : node
       ),
     }));
   },
@@ -222,8 +260,11 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   deleteNode: (nodeId: string) => {
     set((state) => ({
       nodes: state.nodes.filter((node) => node.id !== nodeId),
-      edges: state.edges.filter((edge) => edge.source !== nodeId && edge.target !== nodeId),
-      selectedNodeId: state.selectedNodeId === nodeId ? null : state.selectedNodeId, // Deselect if deleted
+      edges: state.edges.filter(
+        (edge) => edge.source !== nodeId && edge.target !== nodeId
+      ),
+      selectedNodeId:
+        state.selectedNodeId === nodeId ? null : state.selectedNodeId, // Deselect if deleted
     }));
   },
 
@@ -251,10 +292,10 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
     set((state) => ({
       isMessageFlowing: true,
       areEdgesAnimated: false, // Turn off default CSS animation
-      edges: state.edges.map(edge => ({ 
-        ...edge, 
-        type: 'dotFlow', 
-        animated: false // Ensure CSS animation is off for custom edge
+      edges: state.edges.map((edge) => ({
+        ...edge,
+        type: "dotFlow",
+        animated: false, // Ensure CSS animation is off for custom edge
       })),
     }));
   },
@@ -266,11 +307,11 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
       // For now, let's assume we want to turn off all animations when stopping message flow.
       // If toggleEdgeAnimation was used before starting message flow, its state is lost here.
       // A more robust solution might store the pre-message-flow animation state.
-      areEdgesAnimated: false, 
-      edges: state.edges.map(edge => ({ 
-        ...edge, 
+      areEdgesAnimated: false,
+      edges: state.edges.map((edge) => ({
+        ...edge,
         type: undefined, // Revert to default edge type
-        animated: false // Ensure CSS animation is off
+        animated: false, // Ensure CSS animation is off
       })),
     }));
   },

@@ -2,22 +2,15 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import useWorkflowStore from '../store/workflowStore';
-import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon, SettingsIcon } from './Icons';
+import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, StopIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon, SettingsIcon, PresentationIcon, VisualEditorIcon } from './Icons';
 import html2canvas from 'html2canvas';
 import GIF from 'gif.js';
+import dynamic from 'next/dynamic';
+import { APP_COLORS } from '../config/appConfig';
 
-interface ToolbarButtonConfig {
-  id: string;
-  label?: string | ((isExportingGif?: boolean, areEdgesAnimated?: boolean) => string);
-  icon?: React.ReactElement;
-  onClick?: () => void;
-  title?: string | ((isExportingGif?: boolean, areEdgesAnimated?: boolean) => string);
-  isDisabled?: boolean | ((isExportingGif?: boolean) => boolean);
-  style?: React.CSSProperties;
-  className?: string | ((isExportingGif?: boolean) => string); // Allow function for className
-  type?: 'button' | 'separator' | 'dropdown';
-  dropdownActions?: ToolbarButtonConfig[];
-}
+// Dynamically import RevealEditor to avoid SSR issues with reveal.js
+const RevealEditor = dynamic(() => import('./RevealEditor'), { ssr: false });
+const PresentationEditor = dynamic(() => import('./PresentationEditor'), { ssr: false });
 
 // Define a type for extensible app settings
 interface AppSettings {
@@ -41,6 +34,20 @@ function loadSettingsFromStorage(): AppSettings {
   return { hideMinimap: false };
 }
 
+// Interface for toolbar button configuration
+interface ToolbarButtonConfig {
+  id: string;
+  label?: string | ((isExportingGif?: boolean, areEdgesAnimated?: boolean) => string);
+  icon?: React.ReactElement;
+  onClick?: () => void;
+  title?: string | ((isExportingGif?: boolean, areEdgesAnimated?: boolean) => string);
+  isDisabled?: boolean | ((isExportingGif?: boolean) => boolean);
+  style?: React.CSSProperties;
+  className?: string | ((isExportingGif?: boolean) => string);
+  type?: 'button' | 'separator' | 'dropdown';
+  dropdownActions?: ToolbarButtonConfig[];
+}
+
 export default function Toolbar() {
   const { 
     exportWorkflow, 
@@ -58,6 +65,11 @@ export default function Toolbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(() => loadSettingsFromStorage());
+  const [showRevealEditor, setShowRevealEditor] = useState(false);
+  const [showPresentationEditor, setShowPresentationEditor] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [stopEnabled, setStopEnabled] = useState(false);
+  const [arrowType, setArrowType] = useState<'none' | 'arrow' | 'triangle'>('arrow');
 
   // Persist settings to localStorage whenever they change
   useEffect(() => {
@@ -89,23 +101,99 @@ export default function Toolbar() {
     window.dispatchEvent(event);
   }, [settings.hideMinimap]);
 
+  // Notify edge arrow type change
+  useEffect(() => {
+    const event = new CustomEvent('edgearrow:update', { detail: { arrowType } });
+    window.dispatchEvent(event);
+  }, [arrowType]);
+
+  // Animation control logic split into separate functions
+  const playAnimation = () => {
+    const edges = useWorkflowStore.getState().edges;
+    // Play: if all edges are completed or this is the first play, reset all completed and start from first edge
+    const allCompleted = edges.every(e => e.data && e.data.completed);
+    if (allCompleted || edges.every(e => !e.animated && !(e.data && e.data.completed))) {
+      setEdges(
+        edges.map((e, i) => ({
+          ...e,
+          animated: i === 0,
+          data: {
+            ...(e.data || {}),
+            completed: false,
+          },
+        }))
+      );
+    } else {
+      // Resume: find first incomplete edge and animate it
+      const firstIncompleteIdx = edges.findIndex(e => !(e.data && e.data.completed));
+      const playIdx = firstIncompleteIdx === -1 ? 0 : firstIncompleteIdx;
+      setEdges(
+        edges.map((e, i) => ({
+          ...e,
+          animated: i === playIdx,
+        }))
+      );
+    }
+    setIsAnimating(true);
+    setStopEnabled(true);
+  };
+
+  const pauseAnimation = () => {
+    const edges = useWorkflowStore.getState().edges;
+    setEdges(
+      edges.map(e => ({
+        ...e,
+        animated: false,
+      }))
+    );
+    setIsAnimating(false);
+  };
+
+  const stopAnimation = () => {
+    const edges = useWorkflowStore.getState().edges;
+    setEdges(
+      edges.map(e => ({
+        ...e,
+        animated: false,
+      }))
+    );
+    setIsAnimating(false);
+    setStopEnabled(false);
+  };
+
+  const restartAnimation = () => {
+    const nodes = useWorkflowStore.getState().nodes;
+    const edges = useWorkflowStore.getState().edges;
+    const startNodeIds = nodes.filter(n => n.type === 'start').map(n => n.id);
+    setEdges(
+      edges.map(e => ({
+        ...e,
+        animated: startNodeIds.includes(e.source),
+        data: {
+          ...(e.data || {}),
+          completed: false,
+        },
+      }))
+    );
+    setIsAnimating(false);
+    setStopEnabled(true);
+  };
+
+  // Button handlers call the split logic
   const handleToggleAnimation = () => {
-    toggleEdgeAnimation();
+    if (!isAnimating) {
+      playAnimation();
+    } else {
+      pauseAnimation();
+    }
+  };
+
+  const handleStop = () => {
+    stopAnimation();
   };
 
   const handleRestart = () => {
-    console.log('Restarting workflow');
-    setNodes([
-      {
-        id: 'startNode_reset_1',
-        type: 'start',
-        data: { id: 'startNode_reset_1', label: 'Start' },
-        position: { x: 250, y: 5 },
-        width: 180,
-        height: 60,
-      },
-    ]);
-    setEdges([]);
+    restartAnimation();
   };
 
   const handleSave = () => {
@@ -116,6 +204,14 @@ export default function Toolbar() {
   const handleLoad = () => {
     loadWorkflowFromLocalStorage();
     alert('Workflow loaded from LocalStorage!');
+  };
+
+  const handlePresentationClick = () => {
+    setShowRevealEditor(true);
+  };
+
+  const handleOpenPresentationEditor = () => {
+    setShowPresentationEditor(true);
   };
 
   const handleExportGif = async () => {
@@ -246,7 +342,6 @@ export default function Toolbar() {
     }
   };
 
-
   // Define base styles for buttons
   const buttonBaseStyle = "p-2 rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--background)] flex items-center justify-center gap-2 text-sm font-medium";
   
@@ -260,11 +355,18 @@ export default function Toolbar() {
   const toolbarActions: ToolbarButtonConfig[] = [
     {
       id: 'animate',
-      label: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop Animation" : "Start Animation",
-      icon: areEdgesAnimated ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />,
+      label: () => isAnimating ? "Pause" : "Play",
+      icon: isAnimating ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />,
       onClick: handleToggleAnimation,
-      title: (isExportingGif, areEdgesAnimated) => areEdgesAnimated ? "Stop Edge Animation" : "Start Edge Animation",
-      // No 'style' prop here, commonButtonStyle will be applied
+      title: () => isAnimating ? "Pause Edge Animation" : "Play Edge Animation",
+    },
+    {
+      id: 'stop',
+      label: 'Stop',
+      icon: <StopIcon className="w-5 h-5" />, // Use a stop icon for clarity
+      onClick: handleStop,
+      title: 'Stop All Edge Animations',
+      isDisabled: !stopEnabled,
     },
     {
       id: 'restart',
@@ -272,7 +374,6 @@ export default function Toolbar() {
       icon: <RestartIcon className="w-5 h-5" />,
       onClick: handleRestart,
       title: "Restart Workflow",
-      // No 'style' prop here, commonButtonStyle will be applied
     },
     {
       id: 'layout-dropdown',
@@ -351,13 +452,50 @@ export default function Toolbar() {
       // No 'style' prop here, commonButtonStyle will be applied
     },
     {
-      id: 'settings',
-      label: "Settings",
-      icon: <SettingsIcon className="w-5 h-5" />,
-      onClick: () => setShowSettings(true),
-      title: "Open Settings",
-      // No 'style' prop here, commonButtonStyle will be applied
+      id: 'arrow-dropdown',
+      label: 'Edge Arrow',
+      icon: <svg className="w-5 h-5" viewBox="0 0 24 24"><path d="M4 12h16m0 0l-4-4m4 4l-4 4" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+      type: 'dropdown',
+      title: 'Select Edge Arrow Style',
+      dropdownActions: [
+        {
+          id: 'arrow-none',
+          label: 'No Arrow',
+          icon: <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24"><line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="2"/></svg>,
+          onClick: () => setArrowType('none'),
+          title: 'No Arrow',
+        },
+        {
+          id: 'arrow-arrow',
+          label: 'Arrow',
+          icon: <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24"><path d="M4 12h16m0 0l-4-4m4 4l-4 4" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+          onClick: () => setArrowType('arrow'),
+          title: 'Arrow',
+        },
+        {
+          id: 'arrow-triangle',
+          label: 'Triangle',
+          icon: <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24"><path d="M4 12h16M20 12l-4-4M20 12l-4 4M20 12l-2 4l2-4l2 4z" stroke="currentColor" strokeWidth="2" fill="currentColor"/></svg>,
+          onClick: () => setArrowType('triangle'),
+          title: 'Triangle',
+        },
+      ]
     },
+    // {
+    //   id: 'presentation',
+    //   label: "Presentation",
+    //   icon: <PresentationIcon className="w-5 h-5" />,
+    //   onClick: handlePresentationClick,
+    //   title: "Open Presentation Editor",
+    //   // No 'style' prop here, commonButtonStyle will be applied
+    // },
+    // {
+    //   id: 'visual-editor',
+    //   label: "Visual Editor",
+    //   icon: <VisualEditorIcon className="w-5 h-5" />,
+    //   onClick: handleOpenPresentationEditor,
+    //   title: "Open Visual Presentation Editor",
+    // },
   ];
 
   return (
@@ -374,15 +512,16 @@ export default function Toolbar() {
               className="relative" 
               ref={openDropdown === action.id ? dropdownContainerRef : null} // Assign ref to the active dropdown's container
             >
-              <button
+                <button
                 onClick={() => setOpenDropdown(openDropdown === action.id ? null : action.id)}
                 className={commonButtonStyle} // Dropdown trigger uses common button style
                 title={typeof action.title === 'function' ? action.title(isExportingGif, areEdgesAnimated) : action.title}
-              >
+                disabled={typeof action.isDisabled === 'function' ? action.isDisabled(isExportingGif) : action.isDisabled}
+                >
                 {action.icon}
                 <span className="hidden sm:inline">{typeof action.label === 'function' ? action.label(isExportingGif, areEdgesAnimated) : action.label}</span>
                 <ChevronDownIcon className="w-4 h-4 ml-1 hidden sm:inline" />
-              </button>
+                </button>
               {openDropdown === action.id && action.dropdownActions && (
                 <div 
                   className={`absolute ${action.id === 'export-dropdown' || action.id === 'layout-dropdown' ? 'left-0' : 'right-0'} mt-2 w-56 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-md shadow-lg z-50 py-1`}
@@ -444,19 +583,26 @@ export default function Toolbar() {
           </button>
         );
       })}
-      <input 
-        type="file"
-        accept=".json"
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        onChange={handleFileChange}
-      />
+      {/* Render uploaded file input (hidden) */}
+      <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".json" onChange={handleFileChange} />
+      
+      {/* Render Settings Modal if needed */}
       {showSettings && (
         <ProfileModal 
-          onClose={() => setShowSettings(false)} 
+          onClose={() => setShowSettings(false)}
           settings={settings}
           setSettings={setSettings}
         />
+      )}
+
+      {/* Render RevealEditor if needed */}
+      {showRevealEditor && (
+        <RevealEditor onClose={() => setShowRevealEditor(false)} />
+      )}
+
+      {/* Render PresentationEditor if needed */}
+      {showPresentationEditor && (
+        <PresentationEditor onClose={() => setShowPresentationEditor(false)} />
       )}
     </nav>
   );

@@ -25,6 +25,7 @@ import PropertiesPanel from './PropertiesPanel';
 import useWorkflowStore from '../store/workflowStore';
 import { connectionRules } from '../config/workflowConfig'; // Import connection rules from the new config file
 import DotFlowEdge from './DotFlowEdge';
+import { Edge } from 'reactflow';
 
 // --- Persistence Layer ---
 type PersistenceCallback<T> = (value: T) => void;
@@ -310,6 +311,44 @@ export default function WorkflowCanvas() {
     [nodes, edges, setEdges, areEdgesAnimated]
   );
 
+  // Callback for edge animation end
+  const onEdgeAnimationEnd = useCallback((edgeId: string) => {
+    // Use the latest edges from the store
+    const idx = edges.findIndex((e) => e.id === edgeId);
+    if (idx === -1) return;
+    // Mark current edge as not animated and completed
+    const updatedEdges = edges.map((e, i) => {
+      if (i === idx) {
+        return {
+          ...e,
+          animated: false,
+          data: { ...(e.data || {}), completed: true },
+        };
+      }
+      return e;
+    });
+    // Find next edge (by order in array)
+    const nextIdx = idx + 1 < edges.length ? idx + 1 : 0;
+    if (edges.length > 1) {
+      updatedEdges[nextIdx] = {
+        ...updatedEdges[nextIdx],
+        animated: true,
+        // Optionally, clear completed for next edge if you want to allow re-run
+        // data: { ...(updatedEdges[nextIdx].data || {}), completed: false },
+      };
+    }
+    setEdges(updatedEdges);
+  }, [edges, setEdges]);
+
+  // Inject onEdgeAnimationEnd into each edge's data
+  const edgesWithCallback = edges.map(edge => ({
+    ...edge,
+    data: {
+      ...(edge.data || {}),
+      onEdgeAnimationEnd,
+    },
+  }));
+
   const proOptions = { hideAttribution: true };
 
   return (
@@ -318,7 +357,7 @@ export default function WorkflowCanvas() {
         <ReactFlow
           proOptions={proOptions}
           nodes={nodes}
-          edges={edges}
+          edges={edgesWithCallback}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnectCustom}
