@@ -69,6 +69,7 @@ export default function Toolbar() {
   const [showPresentationEditor, setShowPresentationEditor] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [stopEnabled, setStopEnabled] = useState(false);
+  const [arrowType, setArrowType] = useState<'none' | 'arrow' | 'triangle'>('arrow');
 
   // Persist settings to localStorage whenever they change
   useEffect(() => {
@@ -99,6 +100,12 @@ export default function Toolbar() {
     const event = new CustomEvent('appsettings:update', { detail: { hideMinimap: settings.hideMinimap } });
     window.dispatchEvent(event);
   }, [settings.hideMinimap]);
+
+  // Notify edge arrow type change
+  useEffect(() => {
+    const event = new CustomEvent('edgearrow:update', { detail: { arrowType } });
+    window.dispatchEvent(event);
+  }, [arrowType]);
 
   // Animation control logic split into separate functions
   const playAnimation = () => {
@@ -444,7 +451,36 @@ export default function Toolbar() {
       title: "Import Workflow from JSON",
       // No 'style' prop here, commonButtonStyle will be applied
     },
-    // { id: 'separator3', type: 'separator' },
+    {
+      id: 'arrow-dropdown',
+      label: 'Edge Arrow',
+      icon: <svg className="w-5 h-5" viewBox="0 0 24 24"><path d="M4 12h16m0 0l-4-4m4 4l-4 4" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+      type: 'dropdown',
+      title: 'Select Edge Arrow Style',
+      dropdownActions: [
+        {
+          id: 'arrow-none',
+          label: 'No Arrow',
+          icon: <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24"><line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="2"/></svg>,
+          onClick: () => setArrowType('none'),
+          title: 'No Arrow',
+        },
+        {
+          id: 'arrow-arrow',
+          label: 'Arrow',
+          icon: <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24"><path d="M4 12h16m0 0l-4-4m4 4l-4 4" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+          onClick: () => setArrowType('arrow'),
+          title: 'Arrow',
+        },
+        {
+          id: 'arrow-triangle',
+          label: 'Triangle',
+          icon: <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24"><path d="M4 12h16M20 12l-4-4M20 12l-4 4M20 12l-2 4l2-4l2 4z" stroke="currentColor" strokeWidth="2" fill="currentColor"/></svg>,
+          onClick: () => setArrowType('triangle'),
+          title: 'Triangle',
+        },
+      ]
+    },
     // {
     //   id: 'presentation',
     //   label: "Presentation",
