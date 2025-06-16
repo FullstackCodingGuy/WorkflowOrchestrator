@@ -68,6 +68,7 @@ export default function Toolbar() {
   const [showRevealEditor, setShowRevealEditor] = useState(false);
   const [showPresentationEditor, setShowPresentationEditor] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [stopEnabled, setStopEnabled] = useState(false);
 
   // Persist settings to localStorage whenever they change
   useEffect(() => {
@@ -101,7 +102,11 @@ export default function Toolbar() {
 
   const handleToggleAnimation = () => {
     toggleEdgeAnimation();
-    setIsAnimating((prev) => !prev);
+    setIsAnimating((prev) => {
+      const next = !prev;
+      if (next) setStopEnabled(true);
+      return next;
+    });
   };
 
   const handleRestart = () => {
@@ -120,6 +125,7 @@ export default function Toolbar() {
       }))
     );
     setIsAnimating(false);
+    setStopEnabled(true);
   };
 
   const handleSave = () => {
@@ -277,6 +283,7 @@ export default function Toolbar() {
       }))
     );
     setIsAnimating(false);
+    setStopEnabled(false);
   };
 
   // Define base styles for buttons
@@ -303,6 +310,7 @@ export default function Toolbar() {
       icon: <StopIcon className="w-5 h-5" />, // Use a stop icon for clarity
       onClick: handleStop,
       title: 'Stop All Edge Animations',
+      isDisabled: !stopEnabled,
     },
     {
       id: 'restart',
@@ -387,22 +395,22 @@ export default function Toolbar() {
       title: "Import Workflow from JSON",
       // No 'style' prop here, commonButtonStyle will be applied
     },
-    { id: 'separator3', type: 'separator' },
-    {
-      id: 'presentation',
-      label: "Presentation",
-      icon: <PresentationIcon className="w-5 h-5" />,
-      onClick: handlePresentationClick,
-      title: "Open Presentation Editor",
-      // No 'style' prop here, commonButtonStyle will be applied
-    },
-    {
-      id: 'visual-editor',
-      label: "Visual Editor",
-      icon: <VisualEditorIcon className="w-5 h-5" />,
-      onClick: handleOpenPresentationEditor,
-      title: "Open Visual Presentation Editor",
-    },
+    // { id: 'separator3', type: 'separator' },
+    // {
+    //   id: 'presentation',
+    //   label: "Presentation",
+    //   icon: <PresentationIcon className="w-5 h-5" />,
+    //   onClick: handlePresentationClick,
+    //   title: "Open Presentation Editor",
+    //   // No 'style' prop here, commonButtonStyle will be applied
+    // },
+    // {
+    //   id: 'visual-editor',
+    //   label: "Visual Editor",
+    //   icon: <VisualEditorIcon className="w-5 h-5" />,
+    //   onClick: handleOpenPresentationEditor,
+    //   title: "Open Visual Presentation Editor",
+    // },
   ];
 
   return (
@@ -419,15 +427,16 @@ export default function Toolbar() {
               className="relative" 
               ref={openDropdown === action.id ? dropdownContainerRef : null} // Assign ref to the active dropdown's container
             >
-              <button
+                <button
                 onClick={() => setOpenDropdown(openDropdown === action.id ? null : action.id)}
                 className={commonButtonStyle} // Dropdown trigger uses common button style
                 title={typeof action.title === 'function' ? action.title(isExportingGif, areEdgesAnimated) : action.title}
-              >
+                disabled={typeof action.isDisabled === 'function' ? action.isDisabled(isExportingGif) : action.isDisabled}
+                >
                 {action.icon}
                 <span className="hidden sm:inline">{typeof action.label === 'function' ? action.label(isExportingGif, areEdgesAnimated) : action.label}</span>
                 <ChevronDownIcon className="w-4 h-4 ml-1 hidden sm:inline" />
-              </button>
+                </button>
               {openDropdown === action.id && action.dropdownActions && (
                 <div 
                   className={`absolute ${action.id === 'export-dropdown' || action.id === 'layout-dropdown' ? 'left-0' : 'right-0'} mt-2 w-56 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-md shadow-lg z-50 py-1`}
