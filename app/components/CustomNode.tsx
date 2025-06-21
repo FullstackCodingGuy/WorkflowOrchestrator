@@ -7,6 +7,7 @@ interface DiagramNodeData {
   color?: string;
   icon?: string;
   properties?: Record<string, unknown>;
+  isExecuting?: boolean;
 }
 
 export const CustomNode = memo(({ data, selected }: NodeProps<DiagramNodeData>) => {
@@ -15,6 +16,7 @@ export const CustomNode = memo(({ data, selected }: NodeProps<DiagramNodeData>) 
     description,
     color = '#64748b',
     icon = '📋',
+    isExecuting = false,
   } = data;
 
   return (
@@ -23,10 +25,15 @@ export const CustomNode = memo(({ data, selected }: NodeProps<DiagramNodeData>) 
         relative bg-white rounded-lg shadow-md border-2 min-w-[150px] p-3
         transition-all duration-200 hover:shadow-lg
         ${selected ? 'border-blue-500 shadow-lg' : 'border-gray-200'}
+        ${isExecuting ? 'shadow-xl border-blue-400 bg-blue-50 animate-pulse' : ''}
       `}
       style={{
         borderLeftColor: color,
         borderLeftWidth: '4px',
+        ...(isExecuting && {
+          boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)',
+          backgroundColor: '#eff6ff',
+        }),
       }}
     >
       {/* Input Handle */}
@@ -47,8 +54,14 @@ export const CustomNode = memo(({ data, selected }: NodeProps<DiagramNodeData>) 
         {/* Content */}
         <div className="flex-1 min-w-0">
           {/* Title */}
-          <div className="font-semibold text-gray-900 text-sm leading-tight mb-1">
-            {label}
+          <div className="font-semibold text-gray-900 text-sm leading-tight mb-1 flex items-center justify-between">
+            <span>{label}</span>
+            {isExecuting && (
+              <div className="flex items-center text-blue-600">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-ping mr-1"></div>
+                <span className="text-xs font-medium">Running</span>
+              </div>
+            )}
           </div>
 
           {/* Description */}

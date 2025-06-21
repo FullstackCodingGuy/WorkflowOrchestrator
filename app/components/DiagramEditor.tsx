@@ -39,6 +39,7 @@ export interface DiagramNodeData {
   color?: string;
   icon?: string;
   properties?: Record<string, unknown>;
+  isExecuting?: boolean;
 }
 
 export type DiagramNode = Node<DiagramNodeData>;
@@ -167,6 +168,12 @@ export default function DiagramEditor() {
   const [backgroundVariant, setBackgroundVariant] = useState<BackgroundVariant>(BackgroundVariant.Dots);
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
   const [showMiniMap, setShowMiniMap] = useState(true);
+
+  // Workflow state
+  const [workflowState, setWorkflowState] = useState<'idle' | 'playing' | 'paused' | 'debugging'>('idle');
+  const [workflowSequence, setWorkflowSequence] = useState<string[]>([]);
+  const [workflowStep, setWorkflowStep] = useState(0);
+  const workflowTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Refs
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -404,6 +411,183 @@ export default function DiagramEditor() {
     [setEdges]
   );
 
+  // Workflow handlers
+  const buildWorkflowSequence = useCallback(() => {
+    // Find the starting node (first node or node with no incoming edges)
+    const startNode = nodes.find(node => 
+      node.data.label.toLowerCase().includes('start') || 
+      !edges.some(edge => edge.target === node.id)
+    );
+    
+    if (!startNode) return [];
+    
+    const sequence: string[] = [];
+    const visited = new Set<string>();
+    
+    const traverse = (nodeId: string) => {
+      if (visited.has(nodeId)) return;
+      visited.add(nodeId);
+      sequence.push(nodeId);
+      
+      // Find all edges from this node
+      const outgoingEdges = edges.filter(edge => edge.source === nodeId);
+      outgoingEdges.forEach(edge => {
+        if (edge.target) {
+          traverse(edge.target);
+        }
+      });
+    };
+    
+    traverse(startNode.id);
+    return sequence;
+  }, [nodes, edges]);
+
+  const highlightNode = useCallback((nodeId: string | null) => {
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          isExecuting: node.id === nodeId,
+        },
+        style: node.id === nodeId ? {
+          ...node.style,
+          boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)',
+          border: '2px solid #3b82f6',
+          backgroundColor: '#eff6ff',
+        } : {
+          ...node.style,
+          boxShadow: undefined,
+          border: undefined,
+          backgroundColor: undefined,
+        },
+      }))
+    );
+  }, [setNodes]);
+
+  const animateEdge = useCallback((sourceId: string, targetId: string) => {
+    const edgeId = `${sourceId}->${targetId}`;
+    setEdges((eds) =>
+      eds.map((edge) => ({
+        ...edge,
+        data: {
+          ...edge.data,
+          animated: edge.id === edgeId ? true : edge.data?.animated || false,
+        },
+        className: edge.id === edgeId ? 'animate-pulse' : '',
+      }))
+    );
+
+    // Reset edge animation after a delay
+    setTimeout(() => {
+      setEdges((eds) =>
+        eds.map((edge) => ({
+          ...edge,
+          className: '',
+        }))
+      );
+    }, 2000);
+  }, [setEdges]);
+
+  const executeWorkflowStep = useCallback(async () => {
+    if (workflowStep >= workflowSequence.length) {
+      // Workflow completed
+      setWorkflowState('idle');
+      highlightNode(null);
+      setWorkflowStep(0);
+      return;
+    }
+
+    const currentNodeId = workflowSequence[workflowStep];
+    highlightNode(currentNodeId);
+
+    // Animate edges to next nodes
+    const nextNodeId = workflowSequence[workflowStep + 1];
+    if (nextNodeId) {
+      animateEdge(currentNodeId, nextNodeId);
+    }
+
+    setWorkflowStep(prev => prev + 1);
+
+    // Continue to next step if workflow is still playing
+    if (workflowState === 'playing' || workflowState === 'debugging') {
+      workflowTimerRef.current = setTimeout(() => {
+        executeWorkflowStep();
+      }, workflowState === 'debugging' ? 3000 : 1500); // Slower in debug mode
+    }
+  }, [workflowStep, workflowSequence, workflowState, highlightNode, animateEdge]);
+
+  const handlePlayWorkflow = useCallback(() => {
+    if (workflowState === 'paused') {
+      // Resume from current step
+      setWorkflowState('playing');
+      executeWorkflowStep();
+    } else {
+      // Start new workflow
+      const sequence = buildWorkflowSequence();
+      if (sequence.length === 0) {
+        alert('No workflow to execute. Please add nodes with connections.');
+        return;
+      }
+      
+      setWorkflowSequence(sequence);
+      setWorkflowStep(0);
+      setWorkflowState('playing');
+      executeWorkflowStep();
+    }
+  }, [workflowState, buildWorkflowSequence, executeWorkflowStep]);
+
+  const handlePauseWorkflow = useCallback(() => {
+    setWorkflowState('paused');
+    if (workflowTimerRef.current) {
+      clearTimeout(workflowTimerRef.current);
+      workflowTimerRef.current = null;
+    }
+  }, []);
+
+  const handleRestartWorkflow = useCallback(() => {
+    setWorkflowState('idle');
+    setWorkflowStep(0);
+    highlightNode(null);
+    if (workflowTimerRef.current) {
+      clearTimeout(workflowTimerRef.current);
+      workflowTimerRef.current = null;
+    }
+  }, [highlightNode]);
+
+  const handleDebugWorkflow = useCallback(() => {
+    if (workflowState === 'debugging') {
+      // Stop debugging
+      setWorkflowState('idle');
+      highlightNode(null);
+      if (workflowTimerRef.current) {
+        clearTimeout(workflowTimerRef.current);
+        workflowTimerRef.current = null;
+      }
+    } else {
+      // Start debugging
+      const sequence = buildWorkflowSequence();
+      if (sequence.length === 0) {
+        alert('No workflow to debug. Please add nodes with connections.');
+        return;
+      }
+      
+      setWorkflowSequence(sequence);
+      setWorkflowStep(0);
+      setWorkflowState('debugging');
+      executeWorkflowStep();
+    }
+  }, [workflowState, buildWorkflowSequence, executeWorkflowStep, highlightNode]);
+
+  // Cleanup workflow timer on unmount
+  useEffect(() => {
+    return () => {
+      if (workflowTimerRef.current) {
+        clearTimeout(workflowTimerRef.current);
+      }
+    };
+  }, []);
+
   // Configure left panel sections
   const leftPanelSections: PanelSection[] = [
     {
@@ -533,6 +717,11 @@ export default function DiagramEditor() {
         showPropertiesPanel={rightPanelOpen}
         showMiniMap={showMiniMap}
         onMiniMapToggle={setShowMiniMap}
+        onPlayWorkflow={handlePlayWorkflow}
+        onPauseWorkflow={handlePauseWorkflow}
+        onRestartWorkflow={handleRestartWorkflow}
+        onDebugWorkflow={handleDebugWorkflow}
+        workflowState={workflowState}
       />
 
       {/* Main Editor Area */}

@@ -31,6 +31,12 @@ interface DiagramToolbarProps {
   showPropertiesPanel: boolean;
   showMiniMap: boolean;
   onMiniMapToggle: (show: boolean) => void;
+  // Workflow controls
+  onPlayWorkflow: () => void;
+  onPauseWorkflow: () => void;
+  onRestartWorkflow: () => void;
+  onDebugWorkflow: () => void;
+  workflowState: 'idle' | 'playing' | 'paused' | 'debugging';
 }
 
 export function DiagramToolbar({
@@ -49,6 +55,11 @@ export function DiagramToolbar({
   showPropertiesPanel,
   showMiniMap,
   onMiniMapToggle,
+  onPlayWorkflow,
+  onPauseWorkflow,
+  onRestartWorkflow,
+  onDebugWorkflow,
+  workflowState,
 }: DiagramToolbarProps) {
   return (
     <div className="flex flex-col">
@@ -58,7 +69,7 @@ export function DiagramToolbar({
         <div className="flex items-center space-x-1.5">
           <button
             onClick={onAddNode}
-            className="btn btn-sm btn-primary"
+            className="btn btn-sm btn-outline"
             title="Add Node (Ctrl+N)"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,7 +81,7 @@ export function DiagramToolbar({
           <button
             onClick={onDeleteNode}
             disabled={!selectedNode}
-            className="btn btn-sm btn-destructive disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-sm btn-outline disabled:opacity-50 disabled:cursor-not-allowed"
             title="Delete Selected Node (Delete)"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,7 +94,7 @@ export function DiagramToolbar({
 
           <button
             onClick={onFitView}
-            className="btn btn-sm btn-secondary"
+            className="btn btn-sm btn-outline"
             title="Fit View (Ctrl+F)"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +105,7 @@ export function DiagramToolbar({
 
           <button
             onClick={onClear}
-            className="btn btn-sm btn-warning"
+            className="btn btn-sm btn-outline"
             title="Clear All"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,13 +113,66 @@ export function DiagramToolbar({
             </svg>
             <span>Clear</span>
           </button>
+
+          <div className="w-px h-5 bg-border mx-1" />
+
+          {/* Workflow Controls */}
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={onPlayWorkflow}
+              disabled={workflowState === 'playing'}
+              className={`btn btn-sm ${
+                workflowState === 'playing' ? 'btn-success' : 'btn-outline'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              title="Play Workflow"
+            >
+              <svg className="w-4 h-4" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+
+            <button
+              onClick={onPauseWorkflow}
+              disabled={workflowState !== 'playing'}
+              className={`btn btn-sm ${
+                workflowState === 'paused' ? 'btn-warning' : 'btn-outline'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              title="Pause Workflow"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
+              </svg>
+            </button>
+
+            <button
+              onClick={onRestartWorkflow}
+              className="btn btn-sm btn-outline"
+              title="Restart Workflow"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+
+            <button
+              onClick={onDebugWorkflow}
+              className={`btn btn-sm ${
+                workflowState === 'debugging' ? 'btn-accent' : 'btn-outline'
+              }`}
+              title="Debug Workflow"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Right Section - File Operations & Properties */}
         <div className="flex items-center space-x-1.5">
           <button
             onClick={onLoad}
-            className="btn btn-sm btn-accent"
+            className="btn btn-sm btn-outline"
             title="Load Diagram (Ctrl+O)"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +183,7 @@ export function DiagramToolbar({
 
           <button
             onClick={onSave}
-            className="btn btn-sm btn-success"
+            className="btn btn-sm btn-outline"
             title="Save Diagram (Ctrl+S)"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
