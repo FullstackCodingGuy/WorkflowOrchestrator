@@ -383,7 +383,7 @@ export default function DiagramEditor() {
       />
 
       {/* Main Editor Area */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex relative">
         {/* ReactFlow Canvas */}
         <div 
           className={`flex-1 transition-all duration-300 ${
@@ -433,13 +433,15 @@ export default function DiagramEditor() {
           </ReactFlow>
         </div>
 
-        {/* Properties Panel */}
+        {/* Properties Panel - Absolutely positioned */}
         {showPropertiesPanel && (
-          <NodePropertiesPanel
-            selectedNode={selectedNode}
-            onUpdateNode={updateNodeProperties}
-            onClose={() => setShowPropertiesPanel(false)}
-          />
+          <div className="absolute top-0 right-0 h-full w-80 z-10">
+            <NodePropertiesPanel
+              selectedNode={selectedNode}
+              onUpdateNode={updateNodeProperties}
+              onClose={() => setShowPropertiesPanel(false)}
+            />
+          </div>
         )}
       </div>
 
