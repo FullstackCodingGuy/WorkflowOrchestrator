@@ -53,7 +53,7 @@ export function SidePanel({
       <div
         className={`
           fixed top-0 ${side === 'left' ? 'left-0' : 'right-0'} h-full
-          bg-gray-50 border-${side === 'left' ? 'r' : 'l'} border-gray-200
+          panel border-${side === 'left' ? 'r' : 'l'}
           transition-all duration-300 ease-in-out z-40
           ${isOpen ? 'translate-x-0' : side === 'left' ? '-translate-x-full' : 'translate-x-full'}
           ${className}
@@ -61,22 +61,22 @@ export function SidePanel({
         style={{ width: `${width}px` }}
       >
         {/* Panel Header */}
-        <div className="h-14 flex items-center justify-between px-3 bg-gray-100 border-b border-gray-200">
+        <div className="panel-header h-12 flex items-center justify-between px-3">
           <div className="flex items-center space-x-2">
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+            <h2 className="text-xs font-semibold uppercase tracking-wide">
               {side === 'left' ? 'Explorer' : 'Properties'}
             </h2>
           </div>
           
           {/* Header Actions */}
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-0.5">
             {/* Collapse All */}
             <button
               onClick={collapseAllSections}
-              className="p-1 rounded hover:bg-gray-200 transition-colors"
+              className="btn btn-icon btn-xs btn-ghost"
               title="Collapse All"
             >
-              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
               </svg>
             </button>
@@ -84,10 +84,10 @@ export function SidePanel({
             {/* Expand All */}
             <button
               onClick={expandAllSections}
-              className="p-1 rounded hover:bg-gray-200 transition-colors"
+              className="btn btn-icon btn-xs btn-ghost"
               title="Expand All"
             >
-              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </button>
@@ -95,7 +95,7 @@ export function SidePanel({
             {/* Close Panel */}
             <button
               onClick={onToggle}
-              className="p-1 rounded hover:bg-gray-200 transition-colors"
+              className="btn btn-icon btn-xs btn-ghost"
               title="Close Panel"
             >
               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

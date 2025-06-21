@@ -316,3 +316,196 @@ body {
 .accordion-content {
   transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
+
+/* Button Component System */
+.btn {
+  @apply inline-flex items-center justify-center rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+}
+
+/* Button Sizes - Responsive */
+.btn-xs {
+  @apply h-6 px-2 text-xs gap-1;
+}
+
+.btn-sm {
+  @apply h-8 px-3 text-xs-plus gap-1.5;
+}
+
+.btn-md {
+  @apply h-9 px-4 text-sm gap-2;
+}
+
+.btn-lg {
+  @apply h-10 px-5 text-sm gap-2;
+}
+
+.btn-xl {
+  @apply h-12 px-6 text-base gap-2.5;
+}
+
+/* Button Variants */
+.btn-primary {
+  @apply bg-primary text-primary-foreground hover:bg-primary-hover shadow-soft;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary-hover border border-border shadow-soft;
+}
+
+.btn-accent {
+  @apply bg-accent text-accent-foreground hover:bg-accent-hover shadow-soft;
+}
+
+.btn-ghost {
+  @apply hover:bg-secondary hover:text-secondary-foreground;
+}
+
+.btn-outline {
+  @apply border border-border bg-background hover:bg-secondary hover:text-secondary-foreground;
+}
+
+.btn-destructive {
+  @apply bg-red-500 text-white hover:bg-red-600 shadow-soft;
+}
+
+.btn-success {
+  @apply bg-green-500 text-white hover:bg-green-600 shadow-soft;
+}
+
+.btn-warning {
+  @apply bg-orange-500 text-white hover:bg-orange-600 shadow-soft;
+}
+
+/* Responsive Button Adjustments */
+@screen sm {
+  .btn-responsive {
+    @apply btn-sm;
+  }
+}
+
+@screen md {
+  .btn-responsive {
+    @apply btn-md;
+  }
+}
+
+@screen lg {
+  .btn-responsive {
+    @apply btn-md;
+  }
+}
+
+/* Icon Button Specific */
+.btn-icon {
+  @apply aspect-square p-0;
+}
+
+.btn-icon.btn-xs {
+  @apply w-6 h-6;
+}
+
+.btn-icon.btn-sm {
+  @apply w-8 h-8;
+}
+
+.btn-icon.btn-md {
+  @apply w-9 h-9;
+}
+
+.btn-icon.btn-lg {
+  @apply w-10 h-10;
+}
+
+/* Card Components */
+.card {
+  @apply bg-card text-card-foreground rounded-lg-plus border border-border shadow-soft;
+}
+
+.card-header {
+  @apply p-4 border-b border-border;
+}
+
+.card-content {
+  @apply p-4;
+}
+
+.card-footer {
+  @apply p-4 border-t border-border;
+}
+
+/* Panel Components */
+.panel {
+  @apply bg-card border-r border-border shadow-soft-lg;
+}
+
+.panel-header {
+  @apply p-3 border-b border-border bg-header text-header-foreground;
+}
+
+.panel-content {
+  @apply p-3;
+}
+
+/* Input Components */
+.input {
+  @apply flex h-9 w-full rounded-md border border-input-border bg-input px-3 py-1 text-sm shadow-soft transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.input-sm {
+  @apply h-8 px-2 py-1 text-xs-plus;
+}
+
+.input-lg {
+  @apply h-10 px-4 py-2 text-sm;
+}
+
+/* Select Components */
+.select {
+  @apply flex h-9 w-full items-center justify-between rounded-md border border-input-border bg-input px-3 py-2 text-sm shadow-soft ring-offset-background placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+/* Checkbox Components */
+.checkbox {
+  @apply h-4 w-4 shrink-0 rounded-sm border border-border shadow-soft focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.checkbox:checked {
+  @apply bg-primary text-primary-foreground;
+}
+
+/* Label Components */
+.label {
+  @apply text-sm font-medium leading-none;
+}
+
+/* Utility Classes */
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.border-subtle {
+  @apply border-border;
+}
+
+.bg-subtle {
+  @apply bg-secondary;
+}
+
+/* Responsive Typography */
+@screen sm {
+  .text-responsive {
+    @apply text-xs-plus;
+  }
+}
+
+@screen md {
+  .text-responsive {
+    @apply text-sm;
+  }
+}
+
+@screen lg {
+  .text-responsive {
+    @apply text-sm;
+  }
+}

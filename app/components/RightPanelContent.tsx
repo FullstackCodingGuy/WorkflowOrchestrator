@@ -28,7 +28,7 @@ export function PropertiesContent({
       <div className="text-center py-8 text-gray-500">
         <div className="text-3xl mb-2">📄</div>
         <div className="text-sm">No node selected</div>
-        <div className="text-xs mt-1 text-gray-400">
+        <div className="text-xs mt-1 text-muted">
           Click on a node to edit properties
         </div>
       </div>
@@ -41,11 +41,11 @@ export function PropertiesContent({
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Node Info */}
-      <div className="bg-gray-50 p-3 rounded-md">
-        <div className="text-xs font-semibold text-gray-600 uppercase mb-2">Node Info</div>
-        <div className="text-xs text-gray-600 space-y-1">
+      <div className="card card-content p-2.5">
+        <div className="text-xs font-semibold text-muted uppercase mb-2">Node Info</div>
+        <div className="text-xs text-muted space-y-1">
           <div>ID: {selectedNode.id}</div>
           <div>Type: {selectedNode.type || 'default'}</div>
           <div>Position: ({Math.round(selectedNode.position.x)}, {Math.round(selectedNode.position.y)})</div>

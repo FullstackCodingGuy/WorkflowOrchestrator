@@ -522,7 +522,7 @@ export default function DiagramEditor() {
   );
 
   return (
-    <div className="h-screen w-full flex flex-col bg-gray-50 relative">
+    <div className="h-screen w-full flex flex-col bg-background relative">
       {/* Toolbar */}
       <DiagramToolbar
         onAddNode={addNewNode}
@@ -572,21 +572,22 @@ export default function DiagramEditor() {
             snapGrid={[15, 15]}
             fitView
             attributionPosition="bottom-left"
-            className="bg-white"
+            className="bg-background"
           >
             <Controls 
               position="bottom-right"
               showZoom={true}
               showFitView={true}
               showInteractive={true}
+              className="bg-card border border-border rounded-lg shadow-soft"
             />
             {showMiniMap && (
               <MiniMap 
                 position="top-right"
-                nodeStrokeColor="#64748b"
-                nodeColor={(node: Node) => (node.data as DiagramNodeData).color || '#64748b'}
+                nodeStrokeColor="var(--border-color)"
+                nodeColor={(node: Node) => (node.data as DiagramNodeData).color || 'var(--secondary)'}
                 nodeBorderRadius={8}
-                className="bg-white border border-gray-200 rounded-lg shadow-sm"
+                className="bg-card border border-border rounded-lg shadow-soft"
               />
             )}
             <Background 
@@ -635,18 +636,18 @@ export default function DiagramEditor() {
       />
 
       {/* Status Bar */}
-      <div className="h-8 bg-gray-100 border-t border-gray-200 flex items-center justify-between px-4 text-sm text-gray-600 relative z-10">
-        <div className="flex items-center space-x-4">
+      <div className="h-7 bg-sidebar border-t border-border flex items-center justify-between px-3 text-xs text-muted relative z-10">
+        <div className="flex items-center space-x-3">
           <span>Nodes: {nodes.length}</span>
           <span>Edges: {edges.length}</span>
-          {selectedNode && <span>Selected Node: {selectedNode.data.label}</span>}
+          {selectedNode && <span>Selected: {selectedNode.data.label}</span>}
           {selectedEdge && <span>Selected Edge: {selectedEdge.id}</span>}
         </div>
-        <div className="flex items-center space-x-4">
-          <span>Ctrl+N: New Node</span>
+        <div className="flex items-center space-x-3 text-[10px]">
+          <span>Ctrl+N: New</span>
           <span>Ctrl+S: Save</span>
-          <span>Ctrl+F: Fit View</span>
-          <span>Ctrl+M: Toggle Map</span>
+          <span>Ctrl+F: Fit</span>
+          <span>Ctrl+M: Map</span>
           <span>Del: Delete</span>
         </div>
       </div>
