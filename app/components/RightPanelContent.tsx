@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BackgroundVariant } from 'reactflow';
 import { DiagramNode } from './DiagramEditor';
+import { useTheme } from '../hooks/useTheme';
 
 export function PropertiesContent({ 
   selectedNode, 
@@ -133,8 +134,10 @@ export function SettingsContent({
   isAnimationEnabled: boolean;
   onAnimationToggle: (enabled: boolean) => void;
 }) {
+  const { currentTheme, changeTheme } = useTheme();
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Background */}
       <div>
         <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
@@ -171,17 +174,53 @@ export function SettingsContent({
 
       {/* Theme */}
       <div>
-        <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+        <label className="block text-xs font-semibold text-muted uppercase mb-2">
           Theme
         </label>
-        <div className="grid grid-cols-2 gap-2">
-          <button className="flex items-center justify-center space-x-1 py-2 px-3 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">
-            <span>☀️</span>
+        <div className="grid grid-cols-2 gap-1.5">
+          <button 
+            onClick={() => changeTheme('light')}
+            className={`btn btn-xs ${
+              currentTheme === 'light' ? 'btn-primary' : 'btn-outline'
+            }`}
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
             <span>Light</span>
           </button>
-          <button className="flex items-center justify-center space-x-1 py-2 px-3 bg-gray-800 text-white rounded text-sm hover:bg-gray-700 transition-colors">
-            <span>🌙</span>
+          <button 
+            onClick={() => changeTheme('dark')}
+            className={`btn btn-xs ${
+              currentTheme === 'dark' ? 'btn-primary' : 'btn-outline'
+            }`}
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
             <span>Dark</span>
+          </button>
+          <button 
+            onClick={() => changeTheme('professional')}
+            className={`btn btn-xs ${
+              currentTheme === 'professional' ? 'btn-primary' : 'btn-outline'
+            }`}
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z" />
+            </svg>
+            <span>Pro</span>
+          </button>
+          <button 
+            onClick={() => changeTheme('creative')}
+            className={`btn btn-xs ${
+              currentTheme === 'creative' ? 'btn-primary' : 'btn-outline'
+            }`}
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+            </svg>
+            <span>Creative</span>
           </button>
         </div>
       </div>
