@@ -27,6 +27,11 @@ import { CustomNode } from './CustomNode';
 import { DiagramToolbar } from './DiagramToolbar';
 import { NodePropertiesPanel } from './NodePropertiesPanel';
 
+// Import side panel components
+import { SidePanel, PanelToggleButton, PanelSection } from './SidePanel';
+import { ExplorerPanel, OutlinePanel, FileExplorer } from './PanelContent';
+import { PropertiesContent, SettingsContent, DiagramStatsContent } from './RightPanelContent';
+
 // Types
 export interface DiagramNodeData {
   label: string;
@@ -161,6 +166,10 @@ export default function DiagramEditor() {
   // Refs
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+
+  // Side panel states
+  const [leftPanelOpen, setLeftPanelOpen] = useState(false);
+  const [rightPanelOpen, setRightPanelOpen] = useState(false);
 
   // Connection handler
   const onConnect = useCallback(
@@ -363,8 +372,108 @@ export default function DiagramEditor() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [saveDiagram, loadDiagram, addNewNode, fitView, deleteSelectedNode, selectedNode]);
 
+  // Configure left panel sections
+  const leftPanelSections: PanelSection[] = [
+    {
+      id: 'explorer',
+      title: 'Explorer',
+      icon: '📁',
+      defaultOpen: true,
+      content: (
+        <ExplorerPanel
+          nodes={nodes}
+          edges={edges}
+          selectedNode={selectedNode}
+          onNodeSelect={(node) => {
+            setSelectedNode(node);
+            setRightPanelOpen(true);
+          }}
+          onNodeDelete={(nodeId) => {
+            setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+            setEdges((eds) =>
+              eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
+            );
+          }}
+          onAddNode={addNewNode}
+        />
+      ),
+    },
+    {
+      id: 'outline',
+      title: 'Outline',
+      icon: '📋',
+      defaultOpen: false,
+      content: (
+        <OutlinePanel
+          nodes={nodes}
+          edges={edges}
+          onNodeSelect={(node) => {
+            setSelectedNode(node);
+            setRightPanelOpen(true);
+          }}
+          onFitView={fitView}
+        />
+      ),
+    },
+    {
+      id: 'files',
+      title: 'Files',
+      icon: '💾',
+      defaultOpen: false,
+      content: (
+        <FileExplorer
+          onSave={saveDiagram}
+          onLoad={loadDiagram}
+          onClear={clearDiagram}
+        />
+      ),
+    },
+  ];
+
+  // Configure right panel sections
+  const rightPanelSections: PanelSection[] = [
+    {
+      id: 'properties',
+      title: 'Properties',
+      icon: '⚙️',
+      defaultOpen: true,
+      content: (
+        <PropertiesContent
+          selectedNode={selectedNode}
+          onUpdateNode={updateNodeProperties}
+        />
+      ),
+    },
+    {
+      id: 'settings',
+      title: 'Settings',
+      icon: '🔧',
+      defaultOpen: false,
+      content: (
+        <SettingsContent
+          backgroundVariant={backgroundVariant}
+          onBackgroundVariantChange={setBackgroundVariant}
+          isAnimationEnabled={isAnimationEnabled}
+          onAnimationToggle={handleAnimationToggle}
+        />
+      ),
+    },
+    {
+      id: 'stats',
+      title: 'Diagram Stats',
+      icon: '📊',
+      defaultOpen: false,
+      content: (
+        <DiagramStatsContent
+          totalNodes={nodes.length}
+          totalEdges={edges.length}
+        />
+      ),
+    },
+  ];
+
   return (
-    <div className="h-screen w-full flex flex-col bg-gray-50">
+    <div className="h-screen w-full flex flex-col bg-gray-50 relative">
       {/* Toolbar */}
       <DiagramToolbar
         onAddNode={addNewNode}
@@ -378,8 +487,8 @@ export default function DiagramEditor() {
         onBackgroundVariantChange={setBackgroundVariant}
         isAnimationEnabled={isAnimationEnabled}
         onAnimationToggle={handleAnimationToggle}
-        onTogglePropertiesPanel={() => setShowPropertiesPanel(!showPropertiesPanel)}
-        showPropertiesPanel={showPropertiesPanel}
+        onTogglePropertiesPanel={() => setRightPanelOpen(!rightPanelOpen)}
+        showPropertiesPanel={rightPanelOpen}
       />
 
       {/* Main Editor Area */}
@@ -387,7 +496,9 @@ export default function DiagramEditor() {
         {/* ReactFlow Canvas */}
         <div 
           className={`flex-1 transition-all duration-300 ${
-            showPropertiesPanel ? 'mr-80' : 'mr-0'
+            leftPanelOpen ? 'ml-80' : 'ml-0'
+          } ${
+            rightPanelOpen ? 'mr-80' : 'mr-0'
           }`} 
           ref={reactFlowWrapper}
         >
@@ -432,21 +543,45 @@ export default function DiagramEditor() {
             />
           </ReactFlow>
         </div>
-
-        {/* Properties Panel - Absolutely positioned */}
-        {showPropertiesPanel && (
-          <div className="absolute top-0 right-0 h-full w-80 z-10">
-            <NodePropertiesPanel
-              selectedNode={selectedNode}
-              onUpdateNode={updateNodeProperties}
-              onClose={() => setShowPropertiesPanel(false)}
-            />
-          </div>
-        )}
       </div>
 
+      {/* Left Side Panel */}
+      <SidePanel
+        side="left"
+        isOpen={leftPanelOpen}
+        onToggle={() => setLeftPanelOpen(!leftPanelOpen)}
+        sections={leftPanelSections}
+        width={280}
+      />
+
+      {/* Right Side Panel */}
+      <SidePanel
+        side="right"
+        isOpen={rightPanelOpen}
+        onToggle={() => setRightPanelOpen(!rightPanelOpen)}
+        sections={rightPanelSections}
+        width={280}
+      />
+
+      {/* Panel Toggle Buttons */}
+      <PanelToggleButton
+        side="left"
+        isOpen={leftPanelOpen}
+        onToggle={() => setLeftPanelOpen(!leftPanelOpen)}
+        icon="📁"
+        label="Explorer"
+      />
+
+      <PanelToggleButton
+        side="right"
+        isOpen={rightPanelOpen}
+        onToggle={() => setRightPanelOpen(!rightPanelOpen)}
+        icon="⚙️"
+        label="Properties"
+      />
+
       {/* Status Bar */}
-      <div className="h-8 bg-gray-100 border-t border-gray-200 flex items-center justify-between px-4 text-sm text-gray-600">
+      <div className="h-8 bg-gray-100 border-t border-gray-200 flex items-center justify-between px-4 text-sm text-gray-600 relative z-10">
         <div className="flex items-center space-x-4">
           <span>Nodes: {nodes.length}</span>
           <span>Edges: {edges.length}</span>

@@ -257,3 +257,62 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted-foreground);
 }
+
+/* VSCode-like Side Panel Utilities */
+.writing-mode-vertical-lr {
+  writing-mode: vertical-lr;
+}
+
+.writing-mode-vertical-rl {
+  writing-mode: vertical-rl;
+}
+
+/* Custom scrollbar for panels */
+.panel-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.panel-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.panel-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.panel-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Panel animations */
+.panel-slide-in-left {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+.panel-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Accordion animations */
+.accordion-content {
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
