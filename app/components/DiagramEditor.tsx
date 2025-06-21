@@ -121,10 +121,10 @@ const initialEdges: DiagramEdge[] = [
   },
   {
     id: '2->3',
-    type: 'smoothstep',
+    type: 'animatedSvg',
     source: '2',
     target: '3',
-    data: { label: 'Process', color: '#3b82f6' },
+    data: { label: 'Process', animated: true, color: '#3b82f6' },
     markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
   },
   {
@@ -257,6 +257,32 @@ export default function DiagramEditor() {
     [setNodes]
   );
 
+  // Toggle animation for all edges
+  const toggleAllEdgesAnimation = useCallback(
+    (enabled: boolean) => {
+      setEdges((eds) =>
+        eds.map((edge) => ({
+          ...edge,
+          type: enabled ? 'animatedSvg' : 'smoothstep',
+          data: {
+            ...edge.data,
+            animated: enabled,
+          },
+        }))
+      );
+    },
+    [setEdges]
+  );
+
+  // Enhanced animation toggle handler
+  const handleAnimationToggle = useCallback(
+    (enabled: boolean) => {
+      setIsAnimationEnabled(enabled);
+      toggleAllEdgesAnimation(enabled);
+    },
+    [toggleAllEdgesAnimation]
+  );
+
   // Fit view to all nodes
   const fitView = useCallback(() => {
     if (reactFlowInstance) {
@@ -351,7 +377,7 @@ export default function DiagramEditor() {
         backgroundVariant={backgroundVariant}
         onBackgroundVariantChange={setBackgroundVariant}
         isAnimationEnabled={isAnimationEnabled}
-        onAnimationToggle={setIsAnimationEnabled}
+        onAnimationToggle={handleAnimationToggle}
         onTogglePropertiesPanel={() => setShowPropertiesPanel(!showPropertiesPanel)}
         showPropertiesPanel={showPropertiesPanel}
       />

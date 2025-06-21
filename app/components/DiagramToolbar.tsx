@@ -111,13 +111,14 @@ export function DiagramToolbar({
           <label className="text-sm font-medium text-gray-700">Animations:</label>
           <button
             onClick={() => onAnimationToggle(!isAnimationEnabled)}
-            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+            className={`px-3 py-1 rounded-md text-sm font-medium transition-all duration-200 ${
               isAnimationEnabled
-                ? 'bg-green-100 text-green-800 border border-green-300'
+                ? 'bg-green-100 text-green-800 border border-green-300 shadow-sm'
                 : 'bg-gray-100 text-gray-800 border border-gray-300'
             }`}
+            title={`${isAnimationEnabled ? 'Disable' : 'Enable'} edge animations`}
           >
-            {isAnimationEnabled ? '✅ On' : '❌ Off'}
+            {isAnimationEnabled ? '🎬 On' : '⏸️ Off'}
           </button>
         </div>
       </div>

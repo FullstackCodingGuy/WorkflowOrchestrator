@@ -34,7 +34,7 @@ export function AnimatedSVGEdge({
 
   // Get color from data or use default
   const edgeColor = data?.color || '#64748b';
-  const isAnimated = data?.animated ?? true;
+  const isAnimated = data?.animated ?? false; // Default to false for better UX
 
   return (
     <>
@@ -74,6 +74,7 @@ export function AnimatedSVGEdge({
           stroke: isAnimated ? `url(#${gradientId})` : edgeColor,
           strokeWidth: data?.strokeWidth || 2,
           strokeDasharray: selected ? '5,5' : 'none',
+          transition: 'stroke 0.3s ease-in-out', // Smooth transition when toggling
         }}
       />
 
