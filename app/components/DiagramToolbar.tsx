@@ -29,6 +29,8 @@ interface DiagramToolbarProps {
   onAnimationToggle: (enabled: boolean) => void;
   onTogglePropertiesPanel: () => void;
   showPropertiesPanel: boolean;
+  showMiniMap: boolean;
+  onMiniMapToggle: (show: boolean) => void;
 }
 
 export function DiagramToolbar({
@@ -45,9 +47,13 @@ export function DiagramToolbar({
   onAnimationToggle,
   onTogglePropertiesPanel,
   showPropertiesPanel,
+  showMiniMap,
+  onMiniMapToggle,
 }: DiagramToolbarProps) {
   return (
-    <div className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 shadow-sm">
+    <div className="flex flex-col">
+      {/* Main Toolbar */}
+      <div className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 shadow-sm">
       {/* Left Section - Main Actions */}
       <div className="flex items-center space-x-2">
         <button
@@ -157,6 +163,22 @@ export function DiagramToolbar({
           <span className="text-sm">⚙️</span>
           <span className="text-sm font-medium">Properties</span>
         </button>
+      </div>
+      </div>
+
+      {/* Footer Toolbar */}
+      <div className="h-8 bg-gray-50 border-t border-gray-200 flex items-center justify-end px-4">
+        <div className="flex items-center space-x-2">
+          <label className="flex items-center space-x-2 text-xs text-gray-600 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showMiniMap}
+              onChange={(e) => onMiniMapToggle(e.target.checked)}
+              className="w-3 h-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-1"
+            />
+            <span>Show MiniMap</span>
+          </label>
+        </div>
       </div>
     </div>
   );

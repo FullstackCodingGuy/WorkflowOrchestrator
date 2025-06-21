@@ -126,7 +126,7 @@ export function SettingsContent({
   backgroundVariant, 
   onBackgroundVariantChange, 
   isAnimationEnabled, 
-  onAnimationToggle 
+  onAnimationToggle
 }: {
   backgroundVariant: BackgroundVariant;
   onBackgroundVariantChange: (variant: BackgroundVariant) => void;

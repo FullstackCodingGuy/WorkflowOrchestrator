@@ -166,6 +166,7 @@ export default function DiagramEditor() {
   const [selectedEdge, setSelectedEdge] = useState<DiagramEdge | null>(null);
   const [backgroundVariant, setBackgroundVariant] = useState<BackgroundVariant>(BackgroundVariant.Dots);
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
+  const [showMiniMap, setShowMiniMap] = useState(true);
 
   // Refs
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -363,6 +364,10 @@ export default function DiagramEditor() {
             event.preventDefault();
             fitView();
             break;
+          case 'm':
+            event.preventDefault();
+            setShowMiniMap(!showMiniMap);
+            break;
         }
       }
       if (event.key === 'Delete' && selectedNode) {
@@ -376,7 +381,7 @@ export default function DiagramEditor() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [saveDiagram, loadDiagram, addNewNode, fitView, deleteSelectedNode, selectedNode]);
+  }, [saveDiagram, loadDiagram, addNewNode, fitView, deleteSelectedNode, selectedNode, showMiniMap]);
 
   // Update edge properties
   const updateEdgeProperties = useCallback(
@@ -533,6 +538,8 @@ export default function DiagramEditor() {
         onAnimationToggle={handleAnimationToggle}
         onTogglePropertiesPanel={() => setRightPanelOpen(!rightPanelOpen)}
         showPropertiesPanel={rightPanelOpen}
+        showMiniMap={showMiniMap}
+        onMiniMapToggle={setShowMiniMap}
       />
 
       {/* Main Editor Area */}
@@ -573,13 +580,15 @@ export default function DiagramEditor() {
               showFitView={true}
               showInteractive={true}
             />
-            <MiniMap 
-              position="top-right"
-              nodeStrokeColor="#64748b"
-              nodeColor={(node: Node) => (node.data as DiagramNodeData).color || '#64748b'}
-              nodeBorderRadius={8}
-              className="bg-white border border-gray-200 rounded-lg shadow-sm"
-            />
+            {showMiniMap && (
+              <MiniMap 
+                position="top-right"
+                nodeStrokeColor="#64748b"
+                nodeColor={(node: Node) => (node.data as DiagramNodeData).color || '#64748b'}
+                nodeBorderRadius={8}
+                className="bg-white border border-gray-200 rounded-lg shadow-sm"
+              />
+            )}
             <Background 
               variant={backgroundVariant}
               gap={20}
@@ -637,6 +646,7 @@ export default function DiagramEditor() {
           <span>Ctrl+N: New Node</span>
           <span>Ctrl+S: Save</span>
           <span>Ctrl+F: Fit View</span>
+          <span>Ctrl+M: Toggle Map</span>
           <span>Del: Delete</span>
         </div>
       </div>
