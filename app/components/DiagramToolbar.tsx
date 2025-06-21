@@ -64,7 +64,7 @@ export function DiagramToolbar({
   return (
     <div className="flex flex-col">
       {/* Main Toolbar */}
-      <div className="h-12 bg-header border-b border-border flex items-center justify-between px-3 shadow-soft">
+      <div className="h-12 bg-header border-b border-border flex items-center px-3 shadow-soft">
         {/* Left Section - Main Actions */}
         <div className="flex items-center space-x-1.5">
           <button
@@ -113,11 +113,11 @@ export function DiagramToolbar({
             </svg>
             <span>Clear</span>
           </button>
+        </div>
 
-          <div className="w-px h-5 bg-border mx-1" />
-
-          {/* Workflow Controls */}
-          <div className="flex items-center space-x-1">
+        {/* Center Section - Workflow Controls */}
+        <div className="flex-1 flex justify-center">
+          <div className="flex items-center space-x-1 bg-card border border-border rounded-lg px-2 py-1">
             <button
               onClick={onPlayWorkflow}
               disabled={workflowState === 'playing'}

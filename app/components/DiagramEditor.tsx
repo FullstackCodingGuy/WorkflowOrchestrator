@@ -166,7 +166,7 @@ export default function DiagramEditor() {
   const [selectedNode, setSelectedNode] = useState<DiagramNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<DiagramEdge | null>(null);
   const [backgroundVariant, setBackgroundVariant] = useState<BackgroundVariant>(BackgroundVariant.Dots);
-  const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
+  const [isAnimationEnabled, setIsAnimationEnabled] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(true);
 
   // Workflow state
@@ -444,52 +444,90 @@ export default function DiagramEditor() {
 
   const highlightNode = useCallback((nodeId: string | null) => {
     setNodes((nds) =>
-      nds.map((node) => ({
-        ...node,
-        data: {
-          ...node.data,
-          isExecuting: node.id === nodeId,
-        },
-        style: node.id === nodeId ? {
-          ...node.style,
-          boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)',
-          border: '2px solid #3b82f6',
-          backgroundColor: '#eff6ff',
-        } : {
-          ...node.style,
-          boxShadow: undefined,
-          border: undefined,
-          backgroundColor: undefined,
-        },
-      }))
+      nds.map((node) => {
+        // Ensure node has proper structure
+        if (!node || !node.id || !node.data) {
+          return node;
+        }
+        
+        if (node.id === nodeId) {
+          // Node is executing - ONLY modify data, never style
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              isExecuting: true,
+            },
+            // NEVER modify style - let CustomNode handle visual feedback
+          };
+        } else if (node.data.isExecuting) {
+          // Node was executing but no longer is - ONLY modify data
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              isExecuting: false,
+            },
+            // NEVER modify style - preserve original ReactFlow positioning
+          };
+        } else {
+          // Node is not being highlighted - return unchanged
+          return node;
+        }
+      })
     );
   }, [setNodes]);
 
   const animateEdge = useCallback((sourceId: string, targetId: string) => {
-    const edgeId = `${sourceId}->${targetId}`;
+    // Try multiple edge ID patterns to find the correct edge
+    const possibleEdgeIds = [
+      `${sourceId}->${targetId}`, // Our standard format
+      `${sourceId}-${targetId}`,  // Alternative format
+      `reactflow__edge-${sourceId}${targetId}`, // ReactFlow auto-generated format
+    ];
+    
     setEdges((eds) =>
-      eds.map((edge) => ({
-        ...edge,
-        data: {
-          ...edge.data,
-          animated: edge.id === edgeId ? true : edge.data?.animated || false,
-        },
-        className: edge.id === edgeId ? 'animate-pulse' : '',
-      }))
+      eds.map((edge) => {
+        // Check if this edge matches any of the possible patterns
+        const isTargetEdge = possibleEdgeIds.includes(edge.id) || 
+                           (edge.source === sourceId && edge.target === targetId);
+        
+        if (isTargetEdge) {
+          return {
+            ...edge,
+            data: {
+              ...edge.data,
+              animated: true,
+            },
+          };
+        }
+        return edge; // Don't modify other edges
+      })
     );
 
     // Reset edge animation after a delay
     setTimeout(() => {
       setEdges((eds) =>
-        eds.map((edge) => ({
-          ...edge,
-          className: '',
-        }))
+        eds.map((edge) => {
+          const isTargetEdge = possibleEdgeIds.includes(edge.id) || 
+                             (edge.source === sourceId && edge.target === targetId);
+          
+          if (isTargetEdge) {
+            return {
+              ...edge,
+              data: {
+                ...edge.data,
+                animated: false,
+              },
+            };
+          }
+          return edge;
+        })
       );
     }, 2000);
   }, [setEdges]);
 
-  const executeWorkflowStep = useCallback(async () => {
+  const executeWorkflowStep = useCallback(() => {
     if (workflowStep >= workflowSequence.length) {
       // Workflow completed
       setWorkflowState('idle');
@@ -508,23 +546,42 @@ export default function DiagramEditor() {
     }
 
     setWorkflowStep(prev => prev + 1);
+  }, [workflowStep, workflowSequence, highlightNode, animateEdge]);
 
-    // Continue to next step if workflow is still playing
+  // Separate effect to handle workflow stepping
+  useEffect(() => {
     if (workflowState === 'playing' || workflowState === 'debugging') {
-      workflowTimerRef.current = setTimeout(() => {
-        executeWorkflowStep();
-      }, workflowState === 'debugging' ? 3000 : 1500); // Slower in debug mode
+      if (workflowStep < workflowSequence.length && workflowSequence.length > 0) {
+        // Clear any existing timeout before setting a new one
+        if (workflowTimerRef.current) {
+          clearTimeout(workflowTimerRef.current);
+        }
+        
+        workflowTimerRef.current = setTimeout(() => {
+          // Double-check the state before executing to prevent race conditions
+          if (workflowState === 'playing' || workflowState === 'debugging') {
+            executeWorkflowStep();
+          }
+        }, workflowState === 'debugging' ? 3000 : 1500);
+      }
     }
-  }, [workflowStep, workflowSequence, workflowState, highlightNode, animateEdge]);
+
+    return () => {
+      if (workflowTimerRef.current) {
+        clearTimeout(workflowTimerRef.current);
+        workflowTimerRef.current = null;
+      }
+    };
+  }, [workflowState, workflowStep, workflowSequence.length, executeWorkflowStep]);
 
   const handlePlayWorkflow = useCallback(() => {
     if (workflowState === 'paused') {
       // Resume from current step
       setWorkflowState('playing');
-      executeWorkflowStep();
     } else {
       // Start new workflow
       const sequence = buildWorkflowSequence();
+      
       if (sequence.length === 0) {
         alert('No workflow to execute. Please add nodes with connections.');
         return;
@@ -533,9 +590,8 @@ export default function DiagramEditor() {
       setWorkflowSequence(sequence);
       setWorkflowStep(0);
       setWorkflowState('playing');
-      executeWorkflowStep();
     }
-  }, [workflowState, buildWorkflowSequence, executeWorkflowStep]);
+  }, [workflowState, buildWorkflowSequence]);
 
   const handlePauseWorkflow = useCallback(() => {
     setWorkflowState('paused');
@@ -575,9 +631,8 @@ export default function DiagramEditor() {
       setWorkflowSequence(sequence);
       setWorkflowStep(0);
       setWorkflowState('debugging');
-      executeWorkflowStep();
     }
-  }, [workflowState, buildWorkflowSequence, executeWorkflowStep, highlightNode]);
+  }, [workflowState, buildWorkflowSequence, highlightNode]);
 
   // Cleanup workflow timer on unmount
   useEffect(() => {

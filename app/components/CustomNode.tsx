@@ -23,19 +23,22 @@ export const CustomNode = memo(({ data, selected }: NodeProps<DiagramNodeData>) 
     <div
       className={`
         relative bg-white rounded-lg shadow-md border-2 min-w-[150px] p-3
-        transition-all duration-200 hover:shadow-lg
+        transition-all duration-300 hover:shadow-lg
         ${selected ? 'border-blue-500 shadow-lg' : 'border-gray-200'}
-        ${isExecuting ? 'shadow-xl border-blue-400 bg-blue-50 animate-pulse' : ''}
+        ${isExecuting ? 'border-blue-400 shadow-xl bg-blue-50 shadow-blue-200/50 scale-[1.02]' : ''}
       `}
       style={{
         borderLeftColor: color,
         borderLeftWidth: '4px',
-        ...(isExecuting && {
-          boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)',
-          backgroundColor: '#eff6ff',
-        }),
       }}
     >
+      {/* Execution glow effect - positioned absolutely to avoid layout shift */}
+      {isExecuting && (
+        <div 
+          className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-400/20 via-blue-500/30 to-blue-400/20 animate-pulse pointer-events-none"
+          style={{ zIndex: -1 }}
+        />
+      )}
       {/* Input Handle */}
       <Handle
         type="target"
