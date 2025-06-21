@@ -51,9 +51,66 @@ export interface WorkflowState {
 
 const LOCAL_STORAGE_KEY = STORAGE_KEYS.workflow;
 
-// Dagre layout logic
+// Dagre layout logic with improved tree organization
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
+
+// Enhanced layout calculation with adaptive spacing
+const calculateOptimalSpacing = (nodeCount: number, direction: "TB" | "LR") => {
+  // Use configuration values
+  const baseNodeSep = NODE_DIMENSIONS.minNodeSeparation;
+  const baseRankSep = NODE_DIMENSIONS.minRankSeparation;
+  const maxNodeSep = NODE_DIMENSIONS.maxNodeSeparation;
+  const maxRankSep = NODE_DIMENSIONS.maxRankSeparation;
+  
+  // Adjust spacing based on workflow complexity
+  let nodeSeparation = baseNodeSep;
+  let rankSeparation = baseRankSep;
+  
+  if (nodeCount > 10) {
+    // For complex workflows, increase spacing
+    nodeSeparation = baseNodeSep + (nodeCount - 10) * 5;
+    rankSeparation = baseRankSep + (nodeCount - 10) * 8;
+  }
+  
+  // Apply maximum spacing limits
+  nodeSeparation = Math.min(nodeSeparation, maxNodeSep);
+  rankSeparation = Math.min(rankSeparation, maxRankSep);
+  
+  return { nodeSeparation, rankSeparation };
+};
+
+// Calculate node hierarchy depth for better positioning
+const calculateNodeHierarchy = (nodes: Node[], edges: Edge[]) => {
+  const hierarchy: { [nodeId: string]: number } = {};
+  const visited = new Set<string>();
+  
+  // Find root nodes (nodes with no incoming edges)
+  const incomingEdges = new Set(edges.map(e => e.target));
+  const rootNodes = nodes.filter(n => !incomingEdges.has(n.id));
+  
+  // BFS to assign hierarchy levels
+  const queue: Array<{ nodeId: string; depth: number }> = 
+    rootNodes.map(n => ({ nodeId: n.id, depth: 0 }));
+  
+  while (queue.length > 0) {
+    const { nodeId, depth } = queue.shift()!;
+    
+    if (visited.has(nodeId)) continue;
+    visited.add(nodeId);
+    hierarchy[nodeId] = depth;
+    
+    // Add children to queue
+    const childEdges = edges.filter(e => e.source === nodeId);
+    childEdges.forEach(edge => {
+      if (!visited.has(edge.target)) {
+        queue.push({ nodeId: edge.target, depth: depth + 1 });
+      }
+    });
+  }
+  
+  return hierarchy;
+};
 
 const getLayoutedElements = (
   nodes: Node[],
@@ -61,31 +118,64 @@ const getLayoutedElements = (
   direction: "TB" | "LR" = "TB"
 ) => {
   const isHorizontal = direction === "LR";
-  dagreGraph.setGraph({ rankdir: direction, nodesep: 100, ranksep: 100 }); // Increased separation
+  const { nodeSeparation, rankSeparation } = calculateOptimalSpacing(nodes.length, direction);
+  const hierarchy = calculateNodeHierarchy(nodes, edges);
+  
+  // Configure dagre with adaptive spacing and improved algorithms
+  dagreGraph.setGraph({ 
+    rankdir: direction, 
+    nodesep: nodeSeparation, 
+    ranksep: rankSeparation,
+    marginx: NODE_DIMENSIONS.layoutMargin,
+    marginy: NODE_DIMENSIONS.layoutMargin,
+    // Use better ranking algorithm for complex graphs
+    ranker: nodes.length > 8 ? 'tight-tree' : 'network-simplex'
+  });
 
   nodes.forEach((node) => {
-    // Estimate node dimensions if not present (important for layout)
-    const nodeWidth = node.width || 180; // Default width
-    const nodeHeight = node.height || 60; // Default height
+    // Get actual node dimensions, with smart defaults based on node type
+    let nodeWidth = node.width || NODE_DIMENSIONS.defaultWidth;
+    let nodeHeight = node.height || NODE_DIMENSIONS.defaultHeight;
+    
+    // Adjust dimensions based on node type for better visual hierarchy
+    if (node.type === 'condition') {
+      nodeHeight = NODE_DIMENSIONS.conditionHeight;
+    } else if (node.type === 'start' || node.type === 'end') {
+      nodeHeight = NODE_DIMENSIONS.startEndHeight;
+    }
+    
+    // Wider nodes for complex labels
+    if (node.data.label && node.data.label.length > 20) {
+      nodeWidth = NODE_DIMENSIONS.wideWidth;
+    }
+    
     dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
   });
 
   edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
+    // Add edge weight based on importance (main flow vs conditional branches)
+    const weight = edge.label ? 1 : 2; // Main flow edges get higher weight
+    dagreGraph.setEdge(edge.source, edge.target, { weight });
   });
 
   dagre.layout(dagreGraph);
 
   const layoutedNodes = nodes.map((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
+    const nodeWidth = node.width || NODE_DIMENSIONS.defaultWidth;
+    const nodeHeight = node.height || NODE_DIMENSIONS.defaultHeight;
+    
     return {
       ...node,
       targetPosition: isHorizontal ? Position.Left : Position.Top,
       sourcePosition: isHorizontal ? Position.Right : Position.Bottom,
       position: {
-        x: nodeWithPosition.x - (node.width || 180) / 2,
-        y: nodeWithPosition.y - (node.height || 60) / 2,
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2,
       },
+      // Ensure dimensions are set for consistent rendering
+      width: nodeWidth,
+      height: nodeHeight,
     };
   });
 

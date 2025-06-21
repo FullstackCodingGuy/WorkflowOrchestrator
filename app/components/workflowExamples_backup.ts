@@ -15,6 +15,7 @@ const defaultHeight = NODE_DIMENSIONS.defaultHeight;
 const conditionHeight = NODE_DIMENSIONS.conditionHeight;
 const wideWidth = NODE_DIMENSIONS.wideWidth;
 
+
 export const workflowExamples: WorkflowExample[] = [
   {
     name: 'Simple Linear Flow',
@@ -111,6 +112,29 @@ export const workflowExamples: WorkflowExample[] = [
       { id: 'bla-cond-risk', type: 'condition', data: { id: 'bla-cond-risk', label: 'Risk Low?', backgroundColor: defaultBgColor }, position: { x: 1600, y: 300 }, width: defaultWidth, height: conditionHeight },
       
       // Final approval path - upper branch
+      { id: 'bla-action-approve', type: 'action', data: { id: 'bla-action-approve', label: 'Approve Loan & Disburse', backgroundColor: defaultBgColor }, position: { x: 1600, y: 150 }, width: wideWidth, height: defaultHeight },
+      { id: 'bla-end-approved', type: 'end', data: { id: 'bla-end-approved', label: 'Loan Approved', backgroundColor: defaultBgColor }, position: { x: 1900, y: 150 }, width: defaultWidth, height: 60 },
+      
+      // Rejection path - lower branch
+      { id: 'bla-action-reject', type: 'action', data: { id: 'bla-action-reject', label: 'Notify Rejection', backgroundColor: defaultBgColor }, position: { x: 1350, y: 450 }, width: defaultWidth, height: defaultHeight },
+      { id: 'bla-end-rejected', type: 'end', data: { id: 'bla-end-rejected', label: 'Loan Rejected', backgroundColor: defaultBgColor }, position: { x: 1600, y: 450 }, width: defaultWidth, height: 60 },
+    ],
+    edges: [
+      { id: 'bla-e-start-docs', type: 'dotFlow', source: 'bla-start', target: 'bla-action-docs', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-docs-cond', type: 'dotFlow', source: 'bla-action-docs', target: 'bla-cond-docs', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-conddocs-credit', type: 'dotFlow', source: 'bla-cond-docs', sourceHandle: 'bla-cond-docs-source-true', target: 'bla-action-credit', label: 'Yes', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-conddocs-reqinfo', type: 'dotFlow', source: 'bla-cond-docs', sourceHandle: 'bla-cond-docs-source-false', target: 'bla-action-request-info', label: 'No', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-reqinfo-endinc', type: 'dotFlow', source: 'bla-action-request-info', target: 'bla-end-incomplete', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-credit-cond', type: 'dotFlow', source: 'bla-action-credit', target: 'bla-cond-credit', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-condcred-risk', type: 'dotFlow', source: 'bla-cond-credit', sourceHandle: 'bla-cond-credit-source-true', target: 'bla-action-risk', label: 'Yes', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-condcred-reject', type: 'dotFlow', source: 'bla-cond-credit', sourceHandle: 'bla-cond-credit-source-false', target: 'bla-action-reject', label: 'No', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-risk-cond', type: 'dotFlow', source: 'bla-action-risk', target: 'bla-cond-risk', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-condrisk-approve', type: 'dotFlow', source: 'bla-cond-risk', sourceHandle: 'bla-cond-risk-source-true', target: 'bla-action-approve', label: 'Yes', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-condrisk-reject', type: 'dotFlow', source: 'bla-cond-risk', sourceHandle: 'bla-cond-risk-source-false', target: 'bla-action-reject', label: 'No', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-approve-end', type: 'dotFlow', source: 'bla-action-approve', target: 'bla-end-approved', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+      { id: 'bla-e-reject-end', type: 'dotFlow', source: 'bla-action-reject', target: 'bla-end-rejected', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
+    ],
+  },
       { id: 'bla-action-approve', type: 'action', data: { id: 'bla-action-approve', label: 'Approve Loan & Disburse', backgroundColor: defaultBgColor }, position: { x: 1600, y: 150 }, width: wideWidth, height: defaultHeight },
       { id: 'bla-end-approved', type: 'end', data: { id: 'bla-end-approved', label: 'Loan Approved', backgroundColor: defaultBgColor }, position: { x: 1900, y: 150 }, width: defaultWidth, height: 60 },
       

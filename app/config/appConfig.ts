@@ -14,6 +14,12 @@ export const NODE_DIMENSIONS = {
   startEndHeight: 60,
   conditionHeight: 80,
   wideWidth: 220,
+  // Layout spacing configurations
+  minNodeSeparation: 120,
+  minRankSeparation: 150,
+  maxNodeSeparation: 200,
+  maxRankSeparation: 250,
+  layoutMargin: 50,
 };
 
 export const ANIMATION = {
