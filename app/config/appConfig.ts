@@ -28,6 +28,15 @@ export const ANIMATION = {
   dotRadius: 9,
 };
 
+export const VIEWPORT = {
+  autoZoomEnabled: true,
+  autoZoomPadding: 0.1, // 10% padding around the workflow
+  autoZoomMaxZoom: 1.2,
+  autoZoomMinZoom: 0.1,
+  autoZoomDuration: 800, // Animation duration in ms
+  fitViewPadding: 50, // Padding in pixels
+};
+
 export const STORAGE_KEYS = {
   workflow: 'reactflow_workflow',
   settings: 'workflow_app_settings',

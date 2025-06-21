@@ -47,6 +47,10 @@ export interface WorkflowState {
   isMessageFlowing: boolean;
   startMessageFlow: () => void;
   stopMessageFlow: () => void;
+  // Viewport and auto-zoom state
+  shouldAutoZoom: boolean;
+  setShouldAutoZoom: (shouldAutoZoom: boolean) => void;
+  calculateWorkflowBounds: () => { minX: number; minY: number; maxX: number; maxY: number; width: number; height: number } | null;
 }
 
 const LOCAL_STORAGE_KEY = STORAGE_KEYS.workflow;
@@ -197,6 +201,7 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   areEdgesAnimated: false, // Initialize animation state
   selectedNodeId: null, // Initialize selectedNodeId
   isMessageFlowing: false, // Initialize message flow state
+  shouldAutoZoom: true, // Initialize auto-zoom state
 
   onNodesChange: (changes: NodeChange[]) => {
     console.log('Node changes: ', changes)
@@ -223,7 +228,10 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
       width: node.width || NODE_DIMENSIONS.defaultWidth, // Default width for new nodes
       height: node.height || NODE_DIMENSIONS.defaultHeight, // Default height for new nodes
     };
-    set((state) => ({ nodes: [...state.nodes, newNode] }));
+    set((state) => ({ 
+      nodes: [...state.nodes, newNode],
+      shouldAutoZoom: true, // Trigger auto-zoom when adding nodes
+    }));
   },
   importWorkflow: (
     workflow: { nodes: Node[]; edges: Edge[] },
@@ -254,6 +262,7 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
     set({
       nodes: layoutedNodes,
       edges: edges,
+      shouldAutoZoom: true, // Trigger auto-zoom after import
     });
   },
   exportWorkflow: () => {
@@ -291,6 +300,7 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
         animated: get().areEdgesAnimated && !isMessageFlowing, // CSS animation only if not message flowing
         type: isMessageFlowing ? "dotFlow" : undefined, // Keep dotFlow if active
       })),
+      shouldAutoZoom: true, // Trigger auto-zoom after layout
     });
   },
 
@@ -374,6 +384,7 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
         selected: false, // Ensure duplicated node is not selected initially
       };
       addNode(duplicatedNode);
+      // Note: addNode already sets shouldAutoZoom to true
     }
   },
 
@@ -404,6 +415,42 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
         animated: false, // Ensure CSS animation is off
       })),
     }));
+  },
+
+  // Viewport and auto-zoom methods
+  setShouldAutoZoom: (shouldAutoZoom: boolean) => {
+    set({ shouldAutoZoom });
+  },
+
+  calculateWorkflowBounds: () => {
+    const { nodes } = get();
+    if (nodes.length === 0) return null;
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    nodes.forEach((node) => {
+      const nodeWidth = node.width || NODE_DIMENSIONS.defaultWidth;
+      const nodeHeight = node.height || NODE_DIMENSIONS.defaultHeight;
+      const x = node.position.x;
+      const y = node.position.y;
+
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x + nodeWidth);
+      maxY = Math.max(maxY, y + nodeHeight);
+    });
+
+    return {
+      minX,
+      minY,
+      maxX,
+      maxY,
+      width: maxX - minX,
+      height: maxY - minY,
+    };
   },
 });
 

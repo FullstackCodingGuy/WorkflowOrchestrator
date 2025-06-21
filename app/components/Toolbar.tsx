@@ -2,11 +2,10 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import useWorkflowStore from '../store/workflowStore';
-import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, StopIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon, SettingsIcon, PresentationIcon, VisualEditorIcon } from './Icons';
+import { ImportIcon, ExportIcon, PlayIcon, PauseIcon, StopIcon, RestartIcon, SaveIcon, GifIcon, LayoutTreeIcon, LayoutHorizontalIcon, LoadIcon, ChevronDownIcon } from './Icons';
 import html2canvas from 'html2canvas';
 import GIF from 'gif.js';
 import dynamic from 'next/dynamic';
-import { APP_COLORS } from '../config/appConfig';
 
 // Dynamically import RevealEditor to avoid SSR issues with reveal.js
 const RevealEditor = dynamic(() => import('./RevealEditor'), { ssr: false });
@@ -15,6 +14,7 @@ const PresentationEditor = dynamic(() => import('./PresentationEditor'), { ssr: 
 // Define a type for extensible app settings
 interface AppSettings {
   hideMinimap: boolean;
+  autoZoomEnabled: boolean;
   // Add more settings here as needed
 }
 
@@ -31,7 +31,7 @@ function loadSettingsFromStorage(): AppSettings {
       }
     }
   }
-  return { hideMinimap: false };
+  return { hideMinimap: false, autoZoomEnabled: true };
 }
 
 // Interface for toolbar button configuration
@@ -52,10 +52,8 @@ export default function Toolbar() {
   const { 
     exportWorkflow, 
     importWorkflow, 
-    setNodes, 
     setEdges, 
     areEdgesAnimated, 
-    toggleEdgeAnimation,
     applyLayout,
     saveWorkflowToLocalStorage,
     loadWorkflowFromLocalStorage,
@@ -97,9 +95,9 @@ export default function Toolbar() {
 
   // In Toolbar, fire a custom event when settings change
   useEffect(() => {
-    const event = new CustomEvent('appsettings:update', { detail: { hideMinimap: settings.hideMinimap } });
+    const event = new CustomEvent('appsettings:update', { detail: { hideMinimap: settings.hideMinimap, autoZoomEnabled: settings.autoZoomEnabled } });
     window.dispatchEvent(event);
-  }, [settings.hideMinimap]);
+  }, [settings.hideMinimap, settings.autoZoomEnabled]);
 
   // Notify edge arrow type change
   useEffect(() => {
@@ -672,6 +670,20 @@ const ProfileModal = ({ onClose, settings, setSettings }: { onClose: () => void,
                   />
                   <span className="text-sm">Hide Minimap</span>
                 </label>
+              </div>
+              <div className="mb-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings.autoZoomEnabled}
+                    onChange={e => setSettings(prev => ({ ...prev, autoZoomEnabled: e.target.checked }))}
+                    className="form-checkbox h-4 w-4 text-[var(--primary)] border-[var(--border-color)] rounded"
+                  />
+                  <span className="text-sm">Auto Zoom to Fit</span>
+                </label>
+                <div className="text-xs text-[var(--muted-foreground)] mt-1 ml-6">
+                  Automatically zoom and center the diagram after layout changes
+                </div>
               </div>
               {/* Add more boolean switches or settings here for extensibility */}
             </div>

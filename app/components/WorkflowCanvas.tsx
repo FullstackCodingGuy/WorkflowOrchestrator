@@ -24,8 +24,8 @@ import EndNode from './EndNode';
 import PropertiesPanel from './PropertiesPanel';
 import useWorkflowStore from '../store/workflowStore';
 import { connectionRules } from '../config/workflowConfig'; // Import connection rules from the new config file
+import { VIEWPORT } from '../config/appConfig'; // Import viewport configuration
 import DotFlowEdge from './DotFlowEdge';
-import { Edge } from 'reactflow';
 
 // --- Persistence Layer ---
 type PersistenceCallback<T> = (value: T) => void;
@@ -81,6 +81,9 @@ export default function WorkflowCanvas() {
     setEdges,
     areEdgesAnimated,
     setSelectedNodeId, // Added to use for onNodeClick and onPaneClick
+    shouldAutoZoom,
+    setShouldAutoZoom,
+    calculateWorkflowBounds,
   } = useWorkflowStore();
 
   const { project } = useReactFlow(); // For projecting screen to flow coordinates
@@ -95,26 +98,32 @@ export default function WorkflowCanvas() {
   // Collapsible panel state, now controlled by persistence
   // Use undefined as initial state to avoid rendering until hydrated
   const [isPanelOpen, setIsPanelOpen] = useState<boolean | undefined>(undefined);
+  const [autoZoomEnabled, setAutoZoomEnabled] = useState(true); // Default to enabled
 
   // Hydrate minimap and panel state from persistence on client mount
   useEffect(() => {
     // Minimap
-    const settings = persistence.get<{ hideMinimap: boolean }>(SETTINGS_STORAGE_KEY, { hideMinimap: false });
+    const settings = persistence.get<{ hideMinimap: boolean; autoZoomEnabled: boolean }>(SETTINGS_STORAGE_KEY, { hideMinimap: false, autoZoomEnabled: true });
     setShowMiniMap(!settings.hideMinimap);
+    setAutoZoomEnabled(settings.autoZoomEnabled);
     // Collapsible panel
     const panelState = persistence.get<{ isPanelOpen: boolean }>(PANEL_STATE_KEY, { isPanelOpen: true });
     setIsPanelOpen(panelState.isPanelOpen);
 
     // Minimap listeners
     const handler = (e: Event) => {
-      const customEvent = e as CustomEvent<{ hideMinimap?: boolean }>;
+      const customEvent = e as CustomEvent<{ hideMinimap?: boolean; autoZoomEnabled?: boolean }>;
       if (typeof customEvent.detail?.hideMinimap === 'boolean') {
         setShowMiniMap(!customEvent.detail.hideMinimap);
       }
+      if (typeof customEvent.detail?.autoZoomEnabled === 'boolean') {
+        setAutoZoomEnabled(customEvent.detail.autoZoomEnabled);
+      }
     };
     window.addEventListener('appsettings:update', handler as EventListener);
-    const unsub = persistence.subscribe<{ hideMinimap: boolean }>(SETTINGS_STORAGE_KEY, (settings) => {
+    const unsub = persistence.subscribe<{ hideMinimap: boolean; autoZoomEnabled: boolean }>(SETTINGS_STORAGE_KEY, (settings) => {
       setShowMiniMap(!(settings?.hideMinimap ?? false));
+      setAutoZoomEnabled(settings?.autoZoomEnabled ?? true);
     });
     // Collapsible panel listeners (multi-tab)
     const panelUnsub = persistence.subscribe<{ isPanelOpen: boolean }>(PANEL_STATE_KEY, (panelState) => {
@@ -126,6 +135,25 @@ export default function WorkflowCanvas() {
       panelUnsub();
     };
   }, []);
+
+  // Auto-zoom effect - triggers when shouldAutoZoom is true
+  useEffect(() => {
+    if (shouldAutoZoom && reactFlowInstance && nodes.length > 0 && autoZoomEnabled) {
+      const bounds = calculateWorkflowBounds();
+      if (bounds) {
+        // Use fitView for optimal workflow display with smooth animation
+        reactFlowInstance.fitView({
+          padding: VIEWPORT.autoZoomPadding,
+          maxZoom: VIEWPORT.autoZoomMaxZoom,
+          minZoom: VIEWPORT.autoZoomMinZoom,
+          duration: VIEWPORT.autoZoomDuration,
+        });
+        
+        // Reset the auto-zoom flag
+        setShouldAutoZoom(false);
+      }
+    }
+  }, [shouldAutoZoom, reactFlowInstance, nodes, calculateWorkflowBounds, setShouldAutoZoom, autoZoomEnabled]);
 
   // Collapsible panel toggle handler (to be passed to PropertiesPanel)
   const handlePanelToggle = (open: boolean) => {
@@ -365,8 +393,6 @@ export default function WorkflowCanvas() {
           onConnectEnd={onConnectEnd}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
-          fitView
-          fitViewOptions={{ maxZoom: 0.75 }}
           attributionPosition="top-right"
           connectionLineStyle={{ stroke: 'var(--foreground)', strokeWidth: 2 }}
           defaultEdgeOptions={{ style: { strokeWidth: 2, stroke: 'var(--foreground)' } }}
