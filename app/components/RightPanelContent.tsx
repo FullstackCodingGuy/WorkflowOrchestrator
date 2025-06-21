@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { BackgroundVariant } from 'reactflow';
 import { DiagramNode } from './DiagramEditor';
 import { useTheme } from '../hooks/useTheme';
 
@@ -123,55 +122,11 @@ export function PropertiesContent({
   );
 }
 
-export function SettingsContent({ 
-  backgroundVariant, 
-  onBackgroundVariantChange, 
-  isAnimationEnabled, 
-  onAnimationToggle
-}: {
-  backgroundVariant: BackgroundVariant;
-  onBackgroundVariantChange: (variant: BackgroundVariant) => void;
-  isAnimationEnabled: boolean;
-  onAnimationToggle: (enabled: boolean) => void;
-}) {
+export function SettingsContent() {
   const { currentTheme, changeTheme } = useTheme();
 
   return (
     <div className="space-y-3">
-      {/* Background */}
-      <div>
-        <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
-          Background Pattern
-        </label>
-        <select
-          value={backgroundVariant}
-          onChange={(e) => onBackgroundVariantChange(e.target.value as BackgroundVariant)}
-          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-        >
-          <option value={BackgroundVariant.Dots}>Dots</option>
-          <option value={BackgroundVariant.Lines}>Lines</option>
-          <option value={BackgroundVariant.Cross}>Cross</option>
-        </select>
-      </div>
-
-      {/* Animation */}
-      <div>
-        <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
-          Edge Animations
-        </label>
-        <button
-          onClick={() => onAnimationToggle(!isAnimationEnabled)}
-          className={`w-full flex items-center justify-center space-x-2 py-2 px-3 rounded-md transition-colors text-sm ${
-            isAnimationEnabled
-              ? 'bg-green-100 text-green-800 border border-green-300'
-              : 'bg-gray-100 text-gray-800 border border-gray-300'
-          }`}
-        >
-          <span>{isAnimationEnabled ? '🎬' : '⏸️'}</span>
-          <span>{isAnimationEnabled ? 'Enabled' : 'Disabled'}</span>
-        </button>
-      </div>
-
       {/* Theme */}
       <div>
         <label className="block text-xs font-semibold text-muted uppercase mb-2">

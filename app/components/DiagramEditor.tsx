@@ -488,14 +488,7 @@ export default function DiagramEditor() {
       title: 'Settings',
       icon: '🔧',
       defaultOpen: false,
-      content: (
-        <SettingsContent
-          backgroundVariant={backgroundVariant}
-          onBackgroundVariantChange={setBackgroundVariant}
-          isAnimationEnabled={isAnimationEnabled}
-          onAnimationToggle={handleAnimationToggle}
-        />
-      ),
+      content: <SettingsContent />,
     },
     {
       id: 'stats',

@@ -104,48 +104,6 @@ export function DiagramToolbar({
           </button>
         </div>
 
-        {/* Center Section - Background & Animation Controls */}
-        <div className="flex items-center space-x-3">
-          {/* Background Variant Selector */}
-          <div className="flex items-center space-x-2">
-            <label className="label text-xs text-muted">Background:</label>
-            <select
-              value={backgroundVariant}
-              onChange={(e) => onBackgroundVariantChange(e.target.value as BackgroundVariant)}
-              className="select h-8 min-w-0 w-20 px-2 text-xs"
-            >
-              <option value={BackgroundVariant.Dots}>Dots</option>
-              <option value={BackgroundVariant.Lines}>Lines</option>
-              <option value={BackgroundVariant.Cross}>Cross</option>
-            </select>
-          </div>
-
-          {/* Animation Toggle */}
-          <div className="flex items-center space-x-2">
-            <label className="label text-xs text-muted">Animations:</label>
-            <button
-              onClick={() => onAnimationToggle(!isAnimationEnabled)}
-              className={`btn btn-sm ${
-                isAnimationEnabled
-                  ? 'btn-success'
-                  : 'btn-outline'
-              }`}
-              title={`${isAnimationEnabled ? 'Disable' : 'Enable'} edge animations`}
-            >
-              {isAnimationEnabled ? (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M15 14h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              ) : (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6M7 3h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7a4 4 0 014-4z" />
-                </svg>
-              )}
-              <span>{isAnimationEnabled ? 'On' : 'Off'}</span>
-            </button>
-          </div>
-        </div>
-
         {/* Right Section - File Operations & Properties */}
         <div className="flex items-center space-x-1.5">
           <button
@@ -190,7 +148,73 @@ export function DiagramToolbar({
       </div>
 
       {/* Footer Toolbar */}
-      <div className="h-7 bg-sidebar border-t border-border flex items-center justify-end px-3">
+      <div className="h-7 bg-sidebar border-t border-border flex items-center justify-between px-3">
+        {/* Left Section - Background & Animation Controls */}
+        <div className="flex items-center space-x-2">
+          {/* Background Variant Buttons */}
+          <div className="flex items-center bg-card border border-border rounded-sm overflow-hidden">
+            <button
+              onClick={() => onBackgroundVariantChange(BackgroundVariant.Dots)}
+              className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${
+                backgroundVariant === BackgroundVariant.Dots ? 'bg-accent' : ''
+              }`}
+              title="Dots Background"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="1" fill="currentColor" />
+                <circle cx="6" cy="6" r="1" fill="currentColor" />
+                <circle cx="18" cy="6" r="1" fill="currentColor" />
+                <circle cx="6" cy="18" r="1" fill="currentColor" />
+                <circle cx="18" cy="18" r="1" fill="currentColor" />
+              </svg>
+            </button>
+            <button
+              onClick={() => onBackgroundVariantChange(BackgroundVariant.Lines)}
+              className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${
+                backgroundVariant === BackgroundVariant.Lines ? 'bg-accent' : ''
+              }`}
+              title="Lines Background"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12h18M3 6h18M3 18h18" />
+              </svg>
+            </button>
+            <button
+              onClick={() => onBackgroundVariantChange(BackgroundVariant.Cross)}
+              className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${
+                backgroundVariant === BackgroundVariant.Cross ? 'bg-accent' : ''
+              }`}
+              title="Cross Background"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 3v18M3 12h18" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Animation Toggle */}
+          <button
+            onClick={() => onAnimationToggle(!isAnimationEnabled)}
+            className={`btn btn-xs ${
+              isAnimationEnabled
+                ? 'btn-success'
+                : 'btn-outline'
+            }`}
+            title={`${isAnimationEnabled ? 'Disable' : 'Enable'} edge animations`}
+          >
+            {isAnimationEnabled ? (
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M15 14h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            ) : (
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6M7 3h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7a4 4 0 014-4z" />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {/* Right Section - MiniMap Toggle */}
         <div className="flex items-center space-x-2">
           <label className="flex items-center space-x-1.5 text-xs text-muted cursor-pointer hover:text-foreground transition-colors">
             <input
