@@ -345,7 +345,7 @@ body {
 
 /* Button Variants */
 .btn-primary {
-  @apply bg-primary text-primary-foreground hover:bg-primary-hover shadow-soft;
+  @apply bg-primary text-primary-foreground hover:bg-primary-hover shadow-soft border border-primary;
 }
 
 .btn-secondary {
@@ -353,27 +353,27 @@ body {
 }
 
 .btn-accent {
-  @apply bg-accent text-accent-foreground hover:bg-accent-hover shadow-soft;
+  @apply bg-blue-500 text-white hover:bg-blue-600 shadow-soft border border-blue-600;
 }
 
 .btn-ghost {
-  @apply hover:bg-secondary hover:text-secondary-foreground;
+  @apply hover:bg-secondary hover:text-secondary-foreground border border-transparent;
 }
 
 .btn-outline {
-  @apply border border-border bg-background hover:bg-secondary hover:text-secondary-foreground;
+  @apply border border-border bg-background hover:bg-secondary hover:text-secondary-foreground shadow-soft;
 }
 
 .btn-destructive {
-  @apply bg-red-500 text-white hover:bg-red-600 shadow-soft;
+  @apply bg-red-500 text-white hover:bg-red-600 shadow-soft border border-red-600;
 }
 
 .btn-success {
-  @apply bg-green-500 text-white hover:bg-green-600 shadow-soft;
+  @apply bg-emerald-500 text-white hover:bg-emerald-600 shadow-soft border border-emerald-600;
 }
 
 .btn-warning {
-  @apply bg-orange-500 text-white hover:bg-orange-600 shadow-soft;
+  @apply bg-amber-500 text-white hover:bg-amber-600 shadow-soft border border-amber-600;
 }
 
 /* Responsive Button Adjustments */

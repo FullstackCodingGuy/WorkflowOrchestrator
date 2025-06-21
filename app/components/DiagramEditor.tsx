@@ -623,7 +623,6 @@ export default function DiagramEditor() {
         side="left"
         isOpen={leftPanelOpen}
         onToggle={() => setLeftPanelOpen(!leftPanelOpen)}
-        icon="📁"
         label="Explorer"
       />
 
@@ -631,7 +630,6 @@ export default function DiagramEditor() {
         side="right"
         isOpen={rightPanelOpen}
         onToggle={() => setRightPanelOpen(!rightPanelOpen)}
-        icon="⚙️"
         label="Properties"
       />
 

@@ -98,7 +98,7 @@ export function SidePanel({
               className="btn btn-icon btn-xs btn-ghost"
               title="Close Panel"
             >
-              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -108,22 +108,22 @@ export function SidePanel({
         {/* Panel Content - Scrollable */}
         <div className="flex-1 overflow-y-auto panel-scrollbar">
           {sections.map((section) => (
-            <div key={section.id} className="border-b border-gray-200 last:border-b-0">
+            <div key={section.id} className="border-b border-border last:border-b-0">
               {/* Section Header */}
               <button
                 onClick={() => toggleSection(section.id)}
-                className="w-full px-3 py-2 flex items-center justify-between text-left hover:bg-gray-100 transition-colors"
+                className="w-full px-3 py-2 flex items-center justify-between text-left hover:bg-secondary/50 transition-colors group"
               >
                 <div className="flex items-center space-x-2">
                   <span className="text-sm">{section.icon}</span>
-                  <span className="text-sm font-medium text-gray-700 uppercase tracking-wide">
+                  <span className="text-xs font-medium text-muted group-hover:text-foreground uppercase tracking-wide">
                     {section.title}
                   </span>
                 </div>
                 
                 {/* Chevron */}
                 <svg
-                  className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
+                  className={`w-3 h-3 text-muted group-hover:text-foreground transition-all duration-200 ${
                     expandedSections.has(section.id) ? 'rotate-90' : 'rotate-0'
                   }`}
                   fill="none"
@@ -173,7 +173,6 @@ interface PanelToggleButtonProps {
   side: 'left' | 'right';
   isOpen: boolean;
   onToggle: () => void;
-  icon?: string;
   label?: string;
 }
 
@@ -181,9 +180,24 @@ export function PanelToggleButton({
   side, 
   isOpen, 
   onToggle, 
-  icon = '📋', 
   label = 'Panel' 
 }: PanelToggleButtonProps) {
+  const getIcon = () => {
+    if (side === 'left') {
+      return (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      );
+    } else {
+      return (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+        </svg>
+      );
+    }
+  };
+
   return (
     <button
       onClick={onToggle}
@@ -191,14 +205,13 @@ export function PanelToggleButton({
         fixed top-1/2 -translate-y-1/2 z-50
         ${side === 'left' ? 'left-2' : 'right-2'}
         ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}
-        bg-white border border-gray-300 rounded-lg shadow-lg
-        px-2 py-3 hover:bg-gray-50 transition-all duration-200
-        flex flex-col items-center space-y-1
+        btn btn-sm btn-secondary shadow-soft-lg
+        flex flex-col items-center space-y-1 min-h-[60px] w-8
       `}
       title={`${isOpen ? 'Close' : 'Open'} ${label}`}
     >
-      <span className="text-lg">{icon}</span>
-      <span className="text-xs font-medium text-gray-600 writing-mode-vertical-lr transform rotate-180">
+      {getIcon()}
+      <span className="text-[9px] font-medium text-muted writing-mode-vertical-lr transform rotate-180 leading-none">
         {label}
       </span>
     </button>
