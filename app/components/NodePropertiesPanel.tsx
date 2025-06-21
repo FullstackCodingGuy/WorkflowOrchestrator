@@ -5,7 +5,7 @@ interface DiagramNodeData {
   description?: string;
   color?: string;
   icon?: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 }
 
 interface DiagramNode {
@@ -40,7 +40,7 @@ export function NodePropertiesPanel({
   }, [selectedNode]);
 
   // Handle input changes
-  const handleInputChange = (field: keyof DiagramNodeData, value: any) => {
+  const handleInputChange = (field: keyof DiagramNodeData, value: unknown) => {
     if (!localData || !selectedNode) return;
 
     const updatedData = { ...localData, [field]: value };
@@ -49,7 +49,7 @@ export function NodePropertiesPanel({
   };
 
   // Handle property changes
-  const handlePropertyChange = (key: string, value: any) => {
+  const handlePropertyChange = (key: string, value: unknown) => {
     if (!localData || !selectedNode) return;
 
     const updatedProperties = { ...localData.properties, [key]: value };

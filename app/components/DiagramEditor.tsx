@@ -25,12 +25,12 @@ import 'reactflow/dist/style.css';
 import { AnimatedSVGEdge } from './AnimatedSVGEdge';
 import { CustomNode } from './CustomNode';
 import { DiagramToolbar } from './DiagramToolbar';
-import { NodePropertiesPanel } from './NodePropertiesPanel';
 
 // Import side panel components
 import { SidePanel, PanelToggleButton, PanelSection } from './SidePanel';
 import { ExplorerPanel, OutlinePanel, FileExplorer } from './PanelContent';
 import { PropertiesContent, SettingsContent, DiagramStatsContent } from './RightPanelContent';
+import { EdgePropertiesPanel } from './EdgePropertiesPanel';
 
 // Types
 export interface DiagramNodeData {
@@ -38,7 +38,7 @@ export interface DiagramNodeData {
   description?: string;
   color?: string;
   icon?: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 }
 
 export type DiagramNode = Node<DiagramNodeData>;
@@ -48,6 +48,10 @@ export interface DiagramEdgeData {
   animated?: boolean;
   color?: string;
   strokeWidth?: number;
+  strokeStyle?: 'solid' | 'dashed' | 'dotted';
+  animationSpeed?: 'slow' | 'normal' | 'fast';
+  markerEnd?: 'arrow' | 'none';
+  edgeType?: string;
 }
 
 export type DiagramEdge = Edge<DiagramEdgeData>;
@@ -159,7 +163,7 @@ export default function DiagramEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<DiagramNode | null>(null);
-  const [showPropertiesPanel, setShowPropertiesPanel] = useState(false);
+  const [selectedEdge, setSelectedEdge] = useState<DiagramEdge | null>(null);
   const [backgroundVariant, setBackgroundVariant] = useState<BackgroundVariant>(BackgroundVariant.Dots);
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
 
@@ -197,7 +201,8 @@ export default function DiagramEditor() {
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
       setSelectedNode(node as DiagramNode);
-      setShowPropertiesPanel(true);
+      setSelectedEdge(null); // Clear edge selection
+      setRightPanelOpen(true);
     },
     []
   );
@@ -205,7 +210,8 @@ export default function DiagramEditor() {
   // Pane click handler (deselect)
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
-    setShowPropertiesPanel(false);
+    setSelectedEdge(null);
+    setRightPanelOpen(false);
   }, []);
 
   // Add new node
@@ -249,7 +255,7 @@ export default function DiagramEditor() {
       eds.filter((edge) => edge.source !== selectedNode.id && edge.target !== selectedNode.id)
     );
     setSelectedNode(null);
-    setShowPropertiesPanel(false);
+    setRightPanelOpen(false);
   }, [selectedNode, setNodes, setEdges]);
 
   // Update node properties
@@ -304,7 +310,7 @@ export default function DiagramEditor() {
     setNodes([]);
     setEdges([]);
     setSelectedNode(null);
-    setShowPropertiesPanel(false);
+    setRightPanelOpen(false);
   }, [setNodes, setEdges]);
 
   // Save diagram to localStorage
@@ -364,13 +370,34 @@ export default function DiagramEditor() {
       }
       if (event.key === 'Escape') {
         setSelectedNode(null);
-        setShowPropertiesPanel(false);
+        setRightPanelOpen(false);
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [saveDiagram, loadDiagram, addNewNode, fitView, deleteSelectedNode, selectedNode]);
+
+  // Update edge properties
+  const updateEdgeProperties = useCallback(
+    (edgeId: string, updates: Partial<DiagramEdgeData | undefined>) => {
+      if (!updates) return;
+      
+      setEdges((eds) =>
+        eds.map((edge) =>
+          edge.id === edgeId
+            ? { 
+                ...edge, 
+                data: { ...edge.data, ...updates },
+                // Handle edge type changes
+                ...(updates.edgeType && updates.edgeType !== edge.type ? { type: updates.edgeType } : {})
+              }
+            : edge
+        )
+      );
+    },
+    [setEdges]
+  );
 
   // Configure left panel sections
   const leftPanelSections: PanelSection[] = [
@@ -434,13 +461,20 @@ export default function DiagramEditor() {
   const rightPanelSections: PanelSection[] = [
     {
       id: 'properties',
-      title: 'Properties',
-      icon: '⚙️',
+      title: selectedEdge ? 'Edge Properties' : 'Node Properties',
+      icon: selectedEdge ? '🔗' : '⚙️',
       defaultOpen: true,
-      content: (
+      content: selectedEdge ? (
+        <EdgePropertiesPanel
+          selectedEdge={selectedEdge}
+          onUpdateEdge={updateEdgeProperties}
+        />
+      ) : (
         <PropertiesContent
           selectedNode={selectedNode}
-          onUpdateNode={updateNodeProperties}
+          onUpdateNode={(nodeId: string, updates: unknown) => 
+            updateNodeProperties(nodeId, updates as Partial<DiagramNode['data']>)
+          }
         />
       ),
     },
@@ -471,6 +505,16 @@ export default function DiagramEditor() {
       ),
     },
   ];
+
+  // Edge click handler
+  const onEdgeClick = useCallback(
+    (event: React.MouseEvent, edge: DiagramEdge) => {
+      setSelectedEdge(edge);
+      setSelectedNode(null); // Clear node selection
+      setRightPanelOpen(true);
+    },
+    []
+  );
 
   return (
     <div className="h-screen w-full flex flex-col bg-gray-50 relative">
@@ -511,6 +555,7 @@ export default function DiagramEditor() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onEdgeClick={onEdgeClick}
             onPaneClick={onPaneClick}
             onInit={setReactFlowInstance}
             connectionMode={ConnectionMode.Loose}
@@ -531,7 +576,7 @@ export default function DiagramEditor() {
             <MiniMap 
               position="top-right"
               nodeStrokeColor="#64748b"
-              nodeColor={(node: Node) => (node.data as any).color || '#64748b'}
+              nodeColor={(node: Node) => (node.data as DiagramNodeData).color || '#64748b'}
               nodeBorderRadius={8}
               className="bg-white border border-gray-200 rounded-lg shadow-sm"
             />
@@ -585,7 +630,8 @@ export default function DiagramEditor() {
         <div className="flex items-center space-x-4">
           <span>Nodes: {nodes.length}</span>
           <span>Edges: {edges.length}</span>
-          {selectedNode && <span>Selected: {selectedNode.data.label}</span>}
+          {selectedNode && <span>Selected Node: {selectedNode.data.label}</span>}
+          {selectedEdge && <span>Selected Edge: {selectedEdge.id}</span>}
         </div>
         <div className="flex items-center space-x-4">
           <span>Ctrl+N: New Node</span>

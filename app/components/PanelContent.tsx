@@ -12,7 +12,6 @@ interface ExplorerPanelProps {
 
 export function ExplorerPanel({ 
   nodes, 
-  edges, 
   selectedNode, 
   onNodeSelect, 
   onNodeDelete, 

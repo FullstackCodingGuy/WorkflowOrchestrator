@@ -60,7 +60,7 @@ const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 // Enhanced layout calculation with adaptive spacing
-const calculateOptimalSpacing = (nodeCount: number, direction: "TB" | "LR") => {
+const calculateOptimalSpacing = (nodeCount: number) => {
   // Use configuration values
   const baseNodeSep = NODE_DIMENSIONS.minNodeSeparation;
   const baseRankSep = NODE_DIMENSIONS.minRankSeparation;
@@ -85,6 +85,7 @@ const calculateOptimalSpacing = (nodeCount: number, direction: "TB" | "LR") => {
 };
 
 // Calculate node hierarchy depth for better positioning
+/*
 const calculateNodeHierarchy = (nodes: Node[], edges: Edge[]) => {
   const hierarchy: { [nodeId: string]: number } = {};
   const visited = new Set<string>();
@@ -115,6 +116,7 @@ const calculateNodeHierarchy = (nodes: Node[], edges: Edge[]) => {
   
   return hierarchy;
 };
+*/
 
 const getLayoutedElements = (
   nodes: Node[],
@@ -122,8 +124,7 @@ const getLayoutedElements = (
   direction: "TB" | "LR" = "TB"
 ) => {
   const isHorizontal = direction === "LR";
-  const { nodeSeparation, rankSeparation } = calculateOptimalSpacing(nodes.length, direction);
-  const hierarchy = calculateNodeHierarchy(nodes, edges);
+  const { nodeSeparation, rankSeparation } = calculateOptimalSpacing(nodes.length);
   
   // Configure dagre with adaptive spacing and improved algorithms
   dagreGraph.setGraph({ 

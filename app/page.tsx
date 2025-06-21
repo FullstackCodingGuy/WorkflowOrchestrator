@@ -1,15 +1,8 @@
 "use client";
-import Sidebar from "./components/Sidebar";
-import Toolbar from "./components/Toolbar";
-import WorkflowCanvas from "./components/WorkflowCanvas";
-import ThemeSwitcher from "./components/ThemeSwitcher";
-import { useState } from 'react'; 
-import { MenuIcon, XIcon } from './components/Icons';
-import { ReactFlowProvider } from 'reactflow'; // <-- Import ReactFlowProvider
+import { ReactFlowProvider } from 'reactflow';
 import DiagramEditorPage from "./diagram-editor/page";
 
 export default function Home() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
     <ReactFlowProvider> {/* <-- Wrap the entire content with ReactFlowProvider */}

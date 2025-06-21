@@ -6,7 +6,7 @@ interface DiagramNodeData {
   description?: string;
   color?: string;
   icon?: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 }
 
 export const CustomNode = memo(({ data, selected }: NodeProps<DiagramNodeData>) => {

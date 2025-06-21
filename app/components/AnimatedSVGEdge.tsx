@@ -32,9 +32,29 @@ export function AnimatedSVGEdge({
   const pathId = `path-${id}`;
   const gradientId = `gradient-${id}`;
 
-  // Get color from data or use default
+  // Get styling properties from data
   const edgeColor = data?.color || '#64748b';
-  const isAnimated = data?.animated ?? false; // Default to false for better UX
+  const isAnimated = data?.animated ?? false;
+  const strokeWidth = data?.strokeWidth || 2;
+  const strokeStyle = data?.strokeStyle || 'solid';
+  const animationSpeed = data?.animationSpeed || 'normal';
+  const markerEndType = data?.markerEnd || 'arrow';
+
+  // Animation duration based on speed
+  const animationDurations = {
+    slow: '3s',
+    normal: '2s',
+    fast: '1s'
+  };
+  const animationDuration = animationDurations[animationSpeed as keyof typeof animationDurations] || '2s';
+
+  // Stroke dash array based on style
+  const strokeDashArrays = {
+    solid: 'none',
+    dashed: '8,4',
+    dotted: '2,2'
+  };
+  const strokeDashArray = strokeDashArrays[strokeStyle as keyof typeof strokeDashArrays] || 'none';
 
   return (
     <>
@@ -49,7 +69,7 @@ export function AnimatedSVGEdge({
               attributeName="gradientTransform"
               type="translate"
               values="-100,0;100,0;-100,0"
-              dur="2s"
+              dur={animationDuration}
               repeatCount="indefinite"
             />
           )}
@@ -68,12 +88,12 @@ export function AnimatedSVGEdge({
       <BaseEdge
         id={id}
         path={edgePath}
-        markerEnd={markerEnd}
+        markerEnd={markerEndType !== 'none' ? markerEnd : undefined}
         style={{
           ...style,
           stroke: isAnimated ? `url(#${gradientId})` : edgeColor,
-          strokeWidth: data?.strokeWidth || 2,
-          strokeDasharray: selected ? '5,5' : 'none',
+          strokeWidth: strokeWidth,
+          strokeDasharray: selected ? '5,5' : strokeDashArray,
           transition: 'stroke 0.3s ease-in-out', // Smooth transition when toggling
         }}
       />
@@ -86,7 +106,7 @@ export function AnimatedSVGEdge({
           opacity="0.8"
         >
           <animateMotion
-            dur="2s"
+            dur={animationDuration}
             repeatCount="indefinite"
             path={edgePath}
           />

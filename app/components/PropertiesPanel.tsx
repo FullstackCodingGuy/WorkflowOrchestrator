@@ -20,12 +20,11 @@ interface PropertiesPanelProps {
 }
 
 export default function PropertiesPanel({ isPanelOpen, onPanelToggle }: PropertiesPanelProps) {
-  const { selectedNodeId, nodes, updateNodeData, setSelectedNodeId: deselectNode } = useWorkflowStore(
+  const { selectedNodeId, nodes, updateNodeData } = useWorkflowStore(
     useShallow(state => ({
       selectedNodeId: state.selectedNodeId,
       nodes: state.nodes,
       updateNodeData: state.updateNodeData,
-      setSelectedNodeId: state.setSelectedNodeId, // Fetch setSelectedNodeId for deselecting
     }))
   );
 

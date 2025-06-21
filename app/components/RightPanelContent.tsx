@@ -2,23 +2,12 @@ import React, { useState } from 'react';
 import { BackgroundVariant } from 'reactflow';
 import { DiagramNode } from './DiagramEditor';
 
-interface RightPanelContentProps {
-  selectedNode: DiagramNode | null;
-  onUpdateNode: (nodeId: string, updates: any) => void;
-  backgroundVariant: BackgroundVariant;
-  onBackgroundVariantChange: (variant: BackgroundVariant) => void;
-  isAnimationEnabled: boolean;
-  onAnimationToggle: (enabled: boolean) => void;
-  totalNodes: number;
-  totalEdges: number;
-}
-
 export function PropertiesContent({ 
   selectedNode, 
   onUpdateNode 
 }: { 
   selectedNode: DiagramNode | null; 
-  onUpdateNode: (nodeId: string, updates: any) => void; 
+  onUpdateNode: (nodeId: string, updates: unknown) => void; 
 }) {
   const [localData, setLocalData] = useState(selectedNode?.data || null);
 
@@ -26,7 +15,7 @@ export function PropertiesContent({
     setLocalData(selectedNode?.data || null);
   }, [selectedNode]);
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: unknown) => {
     if (!selectedNode || !localData) return;
     
     const updatedData = { ...localData, [field]: value };

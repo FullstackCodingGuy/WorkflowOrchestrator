@@ -204,14 +204,6 @@ export default function Toolbar() {
     alert('Workflow loaded from LocalStorage!');
   };
 
-  const handlePresentationClick = () => {
-    setShowRevealEditor(true);
-  };
-
-  const handleOpenPresentationEditor = () => {
-    setShowPresentationEditor(true);
-  };
-
   const handleExportGif = async () => {
     setIsExportingGif(true);
     alert('Starting animated GIF export... This might take a moment and capture for a few seconds.');
