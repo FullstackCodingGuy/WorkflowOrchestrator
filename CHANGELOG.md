@@ -526,3 +526,56 @@ Start B → Process 2 ↗
 - **Toast Integration**: Context-aware completion messages
 
 **This implementation ensures that workflows are traversed correctly, all edges are animated properly, and users get accurate feedback about true workflow completion!**
+
+---
+
+# CHANGELOG
+
+## [v1.4.0] - 2025-06-22 - Enhanced Sidebar with Accordion Workflow Examples
+
+### Major Features Added
+- **Workflow Examples Accordion Panel**: Implemented a new accordion-style panel in the left sidebar displaying categorized workflow examples with enhanced UI/UX
+  - Automatically categorizes examples based on name patterns (Business Workflows, Approval Processes, Data Processing, User Workflows)
+  - Collapsible categories with expand/collapse functionality
+  - Enhanced example cards showing node/edge counts, descriptions, and load buttons
+  - Smooth loading with auto-fit view and selection clearing
+- **Improved Sidebar Layout**: Repositioned sidebars to fit properly under the top headerbar
+  - Sidebars now start below the toolbar (48px offset) instead of covering it
+  - Proper height calculation accounting for both toolbar and status bar
+  - Enhanced visual alignment and professional appearance
+- **Enhanced Panel Toggle Controls**: Moved expand/collapse buttons to bottom positioning
+  - Toggle buttons now positioned at bottom-8 instead of center-screen
+  - Improved accessibility and cleaner UI layout
+  - Independent toggle controls for left and right sidebars
+
+### Component Updates
+- **Created `WorkflowExamplesPanel.tsx`**: New dedicated component for displaying workflow examples
+  - Smart categorization system based on example names
+  - Accordion-style collapsible categories
+  - Enhanced card layout with statistics (node/edge counts)
+  - Integrated with existing workflow store for seamless loading
+- **Updated `DiagramEditor.tsx`**: Enhanced left sidebar configuration
+  - Added Workflow Examples as the primary panel (defaultOpen: true)
+  - Integrated WorkflowExamplesPanel with proper callbacks
+  - Improved canvas margin calculations for proper layout
+  - Enhanced example loading with auto-fit and state clearing
+- **Updated `SidePanel.tsx`**: Improved positioning and layout
+  - Modified panel positioning to start under headerbar (top: 48px)
+  - Adjusted height calculations for proper viewport usage
+  - Repositioned toggle buttons to bottom positioning (bottom-8)
+  - Enhanced visual consistency and professional appearance
+
+### UI/UX Improvements
+- Workflow examples are now prominently displayed as the primary left sidebar content
+- Categorized presentation makes it easier to find relevant workflow examples
+- Professional accordion-style interface with proper spacing and typography
+- Enhanced visual feedback with hover states and transitions
+- Improved layout alignment ensuring panels don't overlap the header toolbar
+- Better spatial organization with toggle controls positioned at the bottom
+
+### Technical Enhancements
+- Type-safe integration with existing WorkflowExample interface
+- Proper error handling and edge case management
+- Enhanced state management for sidebar visibility and panel expansion
+- Improved performance with proper callback optimization
+- Consistent naming conventions and code organization

@@ -31,6 +31,7 @@ import { SidePanel, PanelToggleButton, PanelSection } from './SidePanel';
 import { ExplorerPanel, OutlinePanel, FileExplorer } from './PanelContent';
 import { PropertiesContent, SettingsContent, DiagramStatsContent } from './RightPanelContent';
 import { EdgePropertiesPanel } from './EdgePropertiesPanel';
+import { WorkflowExamplesPanel } from './WorkflowExamplesPanel';
 
 // Types
 export type WorkflowNodeType = 'start' | 'process' | 'decision' | 'condition' | 'action' | 'end' | 'custom';
@@ -798,10 +799,33 @@ export default function DiagramEditor() {
   // Configure left panel sections
   const leftPanelSections: PanelSection[] = [
     {
+      id: 'examples',
+      title: 'Workflow Examples',
+      icon: '📚',
+      defaultOpen: true,
+      content: (
+        <WorkflowExamplesPanel
+          onLoadExample={(example) => {
+            setNodes(example.nodes);
+            setEdges(example.edges);
+            // Clear selections when loading new example
+            setSelectedNode(null);
+            setSelectedEdge(null);
+            // Auto-fit view after loading
+            setTimeout(() => {
+              if (reactFlowInstance) {
+                reactFlowInstance.fitView({ padding: 0.1, duration: 800 });
+              }
+            }, 100);
+          }}
+        />
+      ),
+    },
+    {
       id: 'explorer',
       title: 'Explorer',
       icon: '📁',
-      defaultOpen: true,
+      defaultOpen: false,
       content: (
         <ExplorerPanel
           nodes={nodes}
@@ -936,9 +960,9 @@ export default function DiagramEditor() {
         {/* ReactFlow Canvas */}
         <div 
           className={`flex-1 transition-all duration-300 ${
-            leftPanelOpen ? 'ml-80' : 'ml-0'
+            leftPanelOpen ? 'ml-[280px]' : 'ml-0'
           } ${
-            rightPanelOpen ? 'mr-80' : 'mr-0'
+            rightPanelOpen ? 'mr-[280px]' : 'mr-0'
           }`} 
           ref={reactFlowWrapper}
         >

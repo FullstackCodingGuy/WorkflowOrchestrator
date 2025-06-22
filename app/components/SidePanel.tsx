@@ -52,13 +52,17 @@ export function SidePanel({
       {/* Panel Container */}
       <div
         className={`
-          fixed top-0 ${side === 'left' ? 'left-0' : 'right-0'} h-full
+          fixed ${side === 'left' ? 'left-0' : 'right-0'} h-full
           panel border-${side === 'left' ? 'r' : 'l'}
           transition-all duration-300 ease-in-out z-40
           ${isOpen ? 'translate-x-0' : side === 'left' ? '-translate-x-full' : 'translate-x-full'}
           ${className}
         `}
-        style={{ width: `${width}px` }}
+        style={{ 
+          width: `${width}px`,
+          top: '48px', // Position under headerbar (toolbar height)
+          height: 'calc(100vh - 48px - 28px)', // Account for toolbar and status bar
+        }}
       >
         {/* Panel Header */}
         <div className="panel-header h-12 flex items-center justify-between px-3">
@@ -202,7 +206,7 @@ export function PanelToggleButton({
     <button
       onClick={onToggle}
       className={`
-        fixed top-1/2 -translate-y-1/2 z-50
+        fixed bottom-8 z-50
         ${side === 'left' ? 'left-2' : 'right-2'}
         ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}
         btn btn-sm btn-secondary shadow-soft-lg
