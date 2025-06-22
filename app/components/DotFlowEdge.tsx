@@ -11,7 +11,6 @@ export default function DotFlowEdge({
   sourcePosition,
   targetPosition,
   style = {},
-  markerEnd,
   animated, // Destructure animated prop
   data, // Accept data prop
 }: EdgeProps) {
@@ -56,11 +55,11 @@ export default function DotFlowEdge({
   const [arrowType, setArrowType] = useState<'none' | 'arrow' | 'triangle'>('arrow');
 
   useEffect(() => {
-    const handler = (e: any) => {
+    const handler = (e: CustomEvent) => {
       if (e.detail && e.detail.arrowType) setArrowType(e.detail.arrowType);
     };
-    window.addEventListener('edgearrow:update', handler);
-    return () => window.removeEventListener('edgearrow:update', handler);
+    window.addEventListener('edgearrow:update', handler as EventListener);
+    return () => window.removeEventListener('edgearrow:update', handler as EventListener);
   }, []);
 
   // SVG marker definitions

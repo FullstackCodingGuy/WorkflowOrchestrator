@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'; // Added useState
 import useWorkflowStore from '../store/workflowStore';
-import { workflowExamples, WorkflowExample } from './workflowExamples';
+import { workflowExamples, WorkflowExample } from './workflowExamples_new';
 import {
   PlayCircleIcon,
   CogIcon,
@@ -43,10 +43,10 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ title, children
   const [isSectionOpen, setIsSectionOpen] = useState(defaultOpen);
 
   return (
-    <div className="mb-4">
+    <div className="mb-3">
       <button
         onClick={() => setIsSectionOpen(!isSectionOpen)}
-        className="flex items-center justify-between w-full p-2 mb-2 text-left text-[var(--foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--ring-color)]"
+        className="btn btn-ghost w-full justify-between p-2 h-8 text-xs font-medium"
       >
         <h3 className="text-md font-semibold">{title}</h3>
         {isSectionOpen ? <ChevronDownIcon className="w-5 h-5" /> : <ChevronRightIcon className="w-5 h-5" />}
@@ -77,7 +77,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
       {isOpen && (
         <>
           <CollapsibleSection title="Controls" defaultOpen={true}>
-            <div className="grid grid-cols-2 gap-2 mt-2">
+            <div className="grid grid-cols-2 gap-1.5 mt-2">
               {controls.map((control) => {
                 const IconComponent = control.icon;
                 return (
@@ -85,11 +85,11 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                     key={control.id}
                     onDragStart={(event) => onDragStart(event, control.type, control.label)}
                     draggable
-                    className="flex flex-col items-center justify-center p-2 text-xs border border-[var(--border-color)] rounded-md cursor-grab hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] active:cursor-grabbing transition-all duration-150 shadow-sm hover:shadow-md bg-[var(--secondary)] text-[var(--secondary-foreground)] transform hover:scale-105 active:scale-95"
-                    title={control.label} // Tooltip for full label
+                    className="card flex flex-col items-center justify-center p-2 text-xs cursor-grab hover:bg-accent hover:text-accent-foreground active:cursor-grabbing transition-all duration-150 transform hover:scale-105 active:scale-95 min-h-[60px]"
+                    title={control.label}
                   >
-                    <IconComponent className="w-6 h-6 mb-1" />
-                    <span>{control.label}</span>
+                    <IconComponent className="w-5 h-5 mb-1" />
+                    <span className="text-[10px] font-medium leading-tight text-center">{control.label}</span>
                   </div>
                 );
               })}
@@ -97,20 +97,20 @@ export default function Sidebar({ isOpen }: SidebarProps) {
           </CollapsibleSection>
 
           <CollapsibleSection title="Workflow Examples" defaultOpen={true}>
-            <div className="space-y-2 mt-2">
+            <div className="space-y-1.5 mt-2">
               {workflowExamples.map((example) => (
                 <div 
                   key={example.name} 
-                  className="p-3 border border-[var(--border-color)] rounded-lg bg-[var(--card-bg)] shadow-sm text-[var(--card-foreground)] hover:shadow-md transition-shadow duration-150"
+                  className="card card-content p-2.5"
                 >
-                  <h4 className="font-semibold text-sm truncate">{example.name}</h4>
-                  <p className="text-xs text-[var(--muted-foreground)] mt-1 mb-2 truncate">{example.description}</p>
+                  <h4 className="font-semibold text-xs truncate">{example.name}</h4>
+                  <p className="text-[10px] text-muted mt-1 mb-2 truncate leading-tight">{example.description}</p>
                   <button
                     onClick={() => handleLoadExample(example)}
-                    className="w-full p-1.5 text-xs bg-[var(--primary)] text-[var(--primary-foreground)] rounded-md hover:bg-[var(--primary-hover)] transition-colors duration-150 focus:outline-none focus:ring-1 focus:ring-[var(--ring-color)] flex items-center justify-center space-x-1"
+                    className="btn btn-xs btn-primary w-full"
                     aria-label={`Load ${example.name} example`}
                   >
-                    <PlayCircleIcon className="w-4 h-4" />
+                    <PlayCircleIcon className="w-3 h-3" />
                     <span>Load</span>
                   </button>
                 </div>

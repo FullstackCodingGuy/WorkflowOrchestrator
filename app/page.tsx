@@ -1,18 +1,14 @@
 "use client";
-import Sidebar from "./components/Sidebar";
-import Toolbar from "./components/Toolbar";
-import WorkflowCanvas from "./components/WorkflowCanvas";
-import ThemeSwitcher from "./components/ThemeSwitcher";
-import { useState } from 'react'; 
-import { MenuIcon, XIcon } from './components/Icons';
-import { ReactFlowProvider } from 'reactflow'; // <-- Import ReactFlowProvider
+import { ReactFlowProvider } from 'reactflow';
+import DiagramEditorPage from "./diagram-editor/page";
 
 export default function Home() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
     <ReactFlowProvider> {/* <-- Wrap the entire content with ReactFlowProvider */}
-      <div className="flex flex-col h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <DiagramEditorPage />
+      
+      {/* <div className="flex flex-col h-screen bg-[var(--background)] text-[var(--foreground)]">
         <header 
           className="flex items-center justify-between p-4 shadow-md border-b border-[var(--border-color)] bg-[var(--header-bg)] text-[var(--header-foreground)] sticky top-0 z-50"
         >
@@ -24,11 +20,9 @@ export default function Home() {
             >
               {isSidebarOpen ? <XIcon className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}
             </button>
-            {/* <h1 className="text-xl font-semibold tracking-tight">Workflow Orchestrator</h1> */}
           </div>
           <div className="flex items-center gap-3">
             <Toolbar />
-            {/* ThemeSwitcher is now part of the Sidebar for better thematic consistency or can be placed in header as is */}
             <ThemeSwitcher /> 
           </div>
         </header>
@@ -38,7 +32,7 @@ export default function Home() {
             <WorkflowCanvas />
           </main>
         </div>
-      </div>
+      </div> */}
     </ReactFlowProvider>
   );
 }

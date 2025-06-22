@@ -15,7 +15,11 @@ interface RevealEditorProps {
 const RevealEditor: React.FC<RevealEditorProps> = ({ onClose }) => {
   const { nodes, edges } = useWorkflowStore();
   const revealRef = useRef<HTMLDivElement>(null);
-  const [revealInstance, setRevealInstance] = useState<any>(null);
+  const [revealInstance, setRevealInstance] = useState<{
+    prev?: () => void;
+    next?: () => void;
+    toggleOverview?: () => void;
+  } | null>(null);
   
   // Simulation state
   const [isSimulating, setIsSimulating] = useState(false);
@@ -23,7 +27,6 @@ const RevealEditor: React.FC<RevealEditorProps> = ({ onClose }) => {
   const [visitedNodes, setVisitedNodes] = useState<Set<string>>(new Set());
   const [visitedEdges, setVisitedEdges] = useState<Set<string>>(new Set());
   const [simulationProgress, setSimulationProgress] = useState(0);
-  const [simulationStep, setSimulationStep] = useState(0);
   const simulationInterval = useRef<NodeJS.Timeout | null>(null);
   
   // Find start nodes in the workflow
@@ -64,24 +67,18 @@ const RevealEditor: React.FC<RevealEditorProps> = ({ onClose }) => {
     setVisitedNodes(new Set());
     setVisitedEdges(new Set());
     setSimulationProgress(0);
-    setSimulationStep(0);
     
     // Start with a start node if available
     if (startNodes.length > 0) {
       const firstStartNode = startNodes[0];
       setCurrentNodeId(firstStartNode.id);
       setVisitedNodes(new Set([firstStartNode.id]));
-      setSimulationStep(1);
       
       // Start the simulation interval
       simulationInterval.current = setInterval(() => {
-        setSimulationStep(step => {
-          const newStep = step + 1;
-          // Calculate progress based on total nodes
-          const progress = Math.min((newStep / (nodes.length * 2)) * 100, 100);
-          setSimulationProgress(progress);
-          return newStep;
-        });
+        // Calculate progress based on visited nodes
+        const progress = Math.min((visitedNodes.size / nodes.length) * 100, 100);
+        setSimulationProgress(progress);
         
         setCurrentNodeId(currId => {
           if (currId) {
@@ -347,14 +344,14 @@ const RevealEditor: React.FC<RevealEditorProps> = ({ onClose }) => {
       <div className={styles.editControls}>
         <button 
           className={styles.controlButton} 
-          onClick={() => revealInstance?.prev()}
+          onClick={() => revealInstance?.prev?.()}
           disabled={!revealInstance}
         >
           Previous Slide
         </button>
         <button 
           className={styles.controlButton} 
-          onClick={() => revealInstance?.next()}
+          onClick={() => revealInstance?.next?.()}
           disabled={!revealInstance}
         >
           Next Slide
@@ -363,7 +360,7 @@ const RevealEditor: React.FC<RevealEditorProps> = ({ onClose }) => {
           className={styles.controlButton} 
           onClick={() => {
             if (revealInstance) {
-              revealInstance.toggleOverview();
+              revealInstance?.toggleOverview?.();
             }
           }}
           disabled={!revealInstance}

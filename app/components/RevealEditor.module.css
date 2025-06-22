@@ -62,44 +62,44 @@
 }
 
 /* Override Reveal.js styles for better integration */
-:global(.reveal) {
+.revealjsContainer :global(.reveal) {
   height: 100%;
 }
 
-:global(.reveal .slides) {
+.revealjsContainer :global(.reveal .slides) {
   text-align: left;
 }
 
-:global(.reveal h1),
-:global(.reveal h2) {
+.revealjsContainer :global(.reveal h1),
+.revealjsContainer :global(.reveal h2) {
   color: var(--primary, #2563eb);
 }
 
-:global(.workflow-stats),
-:global(.node-details) {
+.revealjsContainer :global(.workflow-stats),
+.revealjsContainer :global(.node-details) {
   background-color: var(--secondary, #f5f5f5);
   padding: 15px;
   border-radius: 4px;
   margin: 20px 0;
 }
 
-:global(.node-visualization) {
+.revealjsContainer :global(.node-visualization) {
   margin: 30px 0;
 }
 
-:global(.node-type-start) {
+.revealjsContainer :global(.node-type-start) {
   background-color: #dcfce7 !important;
 }
 
-:global(.node-type-action) {
+.revealjsContainer :global(.node-type-action) {
   background-color: #dbeafe !important;
 }
 
-:global(.node-type-condition) {
+.revealjsContainer :global(.node-type-condition) {
   background-color: #fef3c7 !important;
 }
 
-:global(.node-type-end) {
+.revealjsContainer :global(.node-type-end) {
   background-color: #fee2e2 !important;
 }
 
