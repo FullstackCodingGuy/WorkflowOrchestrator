@@ -24,7 +24,7 @@ export const workflowExamples: WorkflowExample[] = [
       {
         id: 'slf-start',
         type: 'start',
-        data: { id: 'slf-start', label: 'Start Process', backgroundColor: defaultBgColor },
+        data: { id: 'slf-start', label: 'Start Process', backgroundColor: defaultBgColor, nodeType: 'start' },
         position: { x: 300, y: 100 },
         width: defaultWidth,
         height: 60,
@@ -32,7 +32,7 @@ export const workflowExamples: WorkflowExample[] = [
       {
         id: 'slf-action1',
         type: 'action',
-        data: { id: 'slf-action1', label: 'Perform Task', backgroundColor: defaultBgColor },
+        data: { id: 'slf-action1', label: 'Perform Task', backgroundColor: defaultBgColor, nodeType: 'action' },
         position: { x: 300, y: 250 },
         width: defaultWidth,
         height: defaultHeight,
@@ -40,7 +40,7 @@ export const workflowExamples: WorkflowExample[] = [
       {
         id: 'slf-end',
         type: 'end',
-        data: { id: 'slf-end', label: 'End Process', backgroundColor: defaultBgColor },
+        data: { id: 'slf-end', label: 'End Process', backgroundColor: defaultBgColor, nodeType: 'end' },
         position: { x: 300, y: 400 },
         width: defaultWidth,
         height: 60,

@@ -33,11 +33,14 @@ import { PropertiesContent, SettingsContent, DiagramStatsContent } from './Right
 import { EdgePropertiesPanel } from './EdgePropertiesPanel';
 
 // Types
+export type WorkflowNodeType = 'start' | 'process' | 'decision' | 'condition' | 'action' | 'end' | 'custom';
+
 export interface DiagramNodeData {
   label: string;
   description?: string;
   color?: string;
   icon?: string;
+  nodeType?: WorkflowNodeType; // New node type attribute
   properties?: Record<string, unknown>;
   isExecuting?: boolean;
 }
@@ -68,6 +71,7 @@ const initialNodes: DiagramNode[] = [
       description: 'This is the starting point',
       color: '#4ade80',
       icon: '▶️',
+      nodeType: 'start',
       properties: { priority: 'high' }
     },
   },
@@ -80,6 +84,7 @@ const initialNodes: DiagramNode[] = [
       description: 'Processing step',
       color: '#3b82f6',
       icon: '⚙️',
+      nodeType: 'process',
       properties: { duration: '2 minutes' }
     },
   },
@@ -92,6 +97,7 @@ const initialNodes: DiagramNode[] = [
       description: 'Decision point',
       color: '#f59e0b',
       icon: '🔀',
+      nodeType: 'decision',
       properties: { condition: 'if x > 10' }
     },
   },
@@ -104,6 +110,7 @@ const initialNodes: DiagramNode[] = [
       description: 'Completion point',
       color: '#ef4444',
       icon: '🏁',
+      nodeType: 'end',
       properties: { result: 'success' }
     },
   },
@@ -172,6 +179,7 @@ export default function DiagramEditor() {
   // Workflow state
   const [workflowState, setWorkflowState] = useState<'idle' | 'playing' | 'paused' | 'debugging'>('idle');
   const [workflowSequence, setWorkflowSequence] = useState<string[]>([]);
+  const [workflowEndNodes, setWorkflowEndNodes] = useState<string[]>([]);
   const [workflowStep, setWorkflowStep] = useState(0);
   const workflowTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -245,6 +253,7 @@ export default function DiagramEditor() {
           description: 'Click to edit',
           color: '#64748b',
           icon: '📋',
+          nodeType: 'custom', // Default node type
           properties: {},
         },
       };
@@ -413,33 +422,70 @@ export default function DiagramEditor() {
 
   // Workflow handlers
   const buildWorkflowSequence = useCallback(() => {
-    // Find the starting node (first node or node with no incoming edges)
-    const startNode = nodes.find(node => 
-      node.data.label.toLowerCase().includes('start') || 
-      !edges.some(edge => edge.target === node.id)
+    // Find all start nodes (nodes with nodeType 'start' or no incoming edges)
+    const startNodes = nodes.filter(node => 
+      node.data.nodeType === 'start' || 
+      (!node.data.nodeType && !edges.some(edge => edge.target === node.id)) ||
+      (node.data.nodeType === undefined && node.data.label.toLowerCase().includes('start'))
     );
     
-    if (!startNode) return [];
+    // Find all end nodes (nodes with nodeType 'end' or no outgoing edges)
+    const endNodes = nodes.filter(node =>
+      node.data.nodeType === 'end' ||
+      (!node.data.nodeType && !edges.some(edge => edge.source === node.id)) ||
+      (node.data.nodeType === undefined && node.data.label.toLowerCase().includes('end'))
+    );
     
-    const sequence: string[] = [];
+    if (startNodes.length === 0) return { sequence: [], endNodes: [] };
+    
+    // Use the first start node if multiple exist
+    const startNode = startNodes[0];
+    
+    const sequence: Array<{ nodeId: string; level: number; isEndNode: boolean }> = [];
     const visited = new Set<string>();
+    const nodeToLevel = new Map<string, number>();
     
-    const traverse = (nodeId: string) => {
-      if (visited.has(nodeId)) return;
-      visited.add(nodeId);
-      sequence.push(nodeId);
+    // Breadth-first traversal to build proper workflow sequence
+    const buildSequenceBFS = () => {
+      const queue: Array<{ nodeId: string; level: number }> = [{ nodeId: startNode.id, level: 0 }];
+      nodeToLevel.set(startNode.id, 0);
       
-      // Find all edges from this node
-      const outgoingEdges = edges.filter(edge => edge.source === nodeId);
-      outgoingEdges.forEach(edge => {
-        if (edge.target) {
-          traverse(edge.target);
-        }
-      });
+      while (queue.length > 0) {
+        const { nodeId, level } = queue.shift()!;
+        
+        if (visited.has(nodeId)) continue;
+        visited.add(nodeId);
+        
+        const isEndNode = endNodes.some(endNode => endNode.id === nodeId);
+        sequence.push({ nodeId, level, isEndNode });
+        
+        // Find all direct children (outgoing edges)
+        const outgoingEdges = edges.filter(edge => edge.source === nodeId);
+        
+        outgoingEdges.forEach(edge => {
+          if (edge.target && !visited.has(edge.target)) {
+            const targetLevel = level + 1;
+            
+            // Only update level if it's higher (handles convergent paths)
+            if (!nodeToLevel.has(edge.target) || nodeToLevel.get(edge.target)! < targetLevel) {
+              nodeToLevel.set(edge.target, targetLevel);
+              queue.push({ nodeId: edge.target, level: targetLevel });
+            }
+          }
+        });
+      }
     };
     
-    traverse(startNode.id);
-    return sequence;
+    buildSequenceBFS();
+    
+    // Sort by level to ensure proper execution order
+    sequence.sort((a, b) => a.level - b.level);
+    
+    return {
+      sequence: sequence.map(item => item.nodeId),
+      endNodes: sequence.filter(item => item.isEndNode).map(item => item.nodeId),
+      sequenceWithMetadata: sequence
+    };
   }, [nodes, edges]);
 
   const highlightNode = useCallback((nodeId: string | null) => {
@@ -529,17 +575,22 @@ export default function DiagramEditor() {
 
   const executeWorkflowStep = useCallback(() => {
     if (workflowStep >= workflowSequence.length) {
-      // Workflow completed
+      // Workflow completed - check if we've reached all end nodes
+      const currentNodeId = workflowSequence[workflowStep - 1];
+      const isActualEndNode = workflowEndNodes.includes(currentNodeId);
+      
       setWorkflowState('idle');
       highlightNode(null);
       setWorkflowStep(0);
       
-      // Show completion toast
+      // Show completion toast with enhanced information
       if (window.showToast) {
         window.showToast({
           type: 'success',
-          title: 'Workflow Completed! 🎉',
-          message: `Successfully executed ${workflowSequence.length} node${workflowSequence.length === 1 ? '' : 's'} in the workflow.`,
+          title: isActualEndNode ? 'Workflow Completed! 🎉' : 'Workflow Path Completed! ✅',
+          message: isActualEndNode 
+            ? `Successfully executed ${workflowSequence.length} node${workflowSequence.length === 1 ? '' : 's'} and reached the final node.`
+            : `Executed ${workflowSequence.length} node${workflowSequence.length === 1 ? '' : 's'}. Workflow path completed.`,
           duration: 5000,
         });
       }
@@ -548,16 +599,28 @@ export default function DiagramEditor() {
     }
 
     const currentNodeId = workflowSequence[workflowStep];
+    const isEndNode = workflowEndNodes.includes(currentNodeId);
+    
     highlightNode(currentNodeId);
 
-    // Animate edges to next nodes
+    // Animate edges to next nodes (only if not the last step)
     const nextNodeId = workflowSequence[workflowStep + 1];
     if (nextNodeId) {
       animateEdge(currentNodeId, nextNodeId);
     }
 
+    // If this is an end node, show a special indicator
+    if (isEndNode && window.showToast) {
+      window.showToast({
+        type: 'info',
+        title: 'End Node Reached',
+        message: 'This node marks the end of a workflow path.',
+        duration: 2000,
+      });
+    }
+
     setWorkflowStep(prev => prev + 1);
-  }, [workflowStep, workflowSequence, highlightNode, animateEdge]);
+  }, [workflowStep, workflowSequence, workflowEndNodes, highlightNode, animateEdge]);
 
   // Separate effect to handle workflow stepping
   useEffect(() => {
@@ -601,9 +664,9 @@ export default function DiagramEditor() {
       }
     } else {
       // Start new workflow
-      const sequence = buildWorkflowSequence();
+      const workflowData = buildWorkflowSequence();
       
-      if (sequence.length === 0) {
+      if (workflowData.sequence.length === 0) {
         // Show error toast instead of alert
         if (window.showToast) {
           window.showToast({
@@ -616,7 +679,8 @@ export default function DiagramEditor() {
         return;
       }
       
-      setWorkflowSequence(sequence);
+      setWorkflowSequence(workflowData.sequence);
+      setWorkflowEndNodes(workflowData.endNodes);
       setWorkflowStep(0);
       setWorkflowState('playing');
       
@@ -625,7 +689,7 @@ export default function DiagramEditor() {
         window.showToast({
           type: 'info',
           title: 'Workflow Started',
-          message: `Executing workflow with ${sequence.length} node${sequence.length === 1 ? '' : 's'}.`,
+          message: `Executing workflow with ${workflowData.sequence.length} node${workflowData.sequence.length === 1 ? '' : 's'}.${workflowData.endNodes.length > 1 ? ` (${workflowData.endNodes.length} end nodes detected)` : ''}`,
           duration: 3000,
         });
       }
@@ -691,8 +755,8 @@ export default function DiagramEditor() {
       }
     } else {
       // Start debugging
-      const sequence = buildWorkflowSequence();
-      if (sequence.length === 0) {
+      const workflowData = buildWorkflowSequence();
+      if (workflowData.sequence.length === 0) {
         // Show error toast
         if (window.showToast) {
           window.showToast({
@@ -705,7 +769,8 @@ export default function DiagramEditor() {
         return;
       }
       
-      setWorkflowSequence(sequence);
+      setWorkflowSequence(workflowData.sequence);
+      setWorkflowEndNodes(workflowData.endNodes);
       setWorkflowStep(0);
       setWorkflowState('debugging');
       
@@ -714,7 +779,7 @@ export default function DiagramEditor() {
         window.showToast({
           type: 'info',
           title: 'Debug Mode Started',
-          message: 'Workflow will execute with 3-second delays between steps.',
+          message: `Workflow will execute with 3-second delays between steps. ${workflowData.endNodes.length > 1 ? `${workflowData.endNodes.length} end nodes detected.` : ''}`,
           duration: 4000,
         });
       }

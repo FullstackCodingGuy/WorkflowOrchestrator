@@ -11,12 +11,16 @@ import {
 import dagre from "dagre";
 import { APP_COLORS, NODE_DIMENSIONS, STORAGE_KEYS } from '../config/appConfig';
 
+// Define node type for workflow logic
+export type WorkflowNodeType = 'start' | 'process' | 'decision' | 'condition' | 'action' | 'end' | 'custom';
+
 // Define a more specific type for node data
 export interface NodeData {
   id: string;
   label: string;
   backgroundColor: string; // Changed from optional to required
   fontColor?: string; // Added for dynamic styling
+  nodeType?: WorkflowNodeType; // New node type attribute for workflow logic
 }
 
 export interface WorkflowState {
@@ -192,7 +196,7 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
     {
       id: "startNode1",
       type: "start",
-      data: { id: "startNode1", label: "Start", backgroundColor: APP_COLORS.defaultBg }, // Added default backgroundColor
+      data: { id: "startNode1", label: "Start", backgroundColor: APP_COLORS.defaultBg, nodeType: "start" }, // Added nodeType
       position: { x: 250, y: 5 },
       width: NODE_DIMENSIONS.defaultWidth, // Provide initial dimensions
       height: NODE_DIMENSIONS.startEndHeight,

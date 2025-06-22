@@ -1,7 +1,7 @@
 'use client'; // Ensure this is a client component
 
 import React, { useState, useEffect } from 'react';
-import useWorkflowStore from '../store/workflowStore'; // Removed NodeData import
+import useWorkflowStore, { WorkflowNodeType } from '../store/workflowStore'; // Import WorkflowNodeType
 import { useShallow } from 'zustand/shallow';
 import { ChevronDownIcon, ChevronRightIcon } from './Icons';
 
@@ -10,6 +10,7 @@ interface EditableNodeData {
   label?: string;
   fontColor?: string;
   backgroundColor?: string;
+  nodeType?: WorkflowNodeType; // Add nodeType to editable fields
   // Add other specific editable properties here
   // [key: string]: any; // Allow other properties - Removed for better type safety
 }
@@ -43,6 +44,7 @@ export default function PropertiesPanel({ isPanelOpen, onPanelToggle }: Properti
           label: node.data.label || '',
           fontColor: node.data.fontColor || '#000000', // Default for panel input if not set
           backgroundColor: node.data.backgroundColor || '#f5f5f5', // Default to whitesmoke for panel input if not set
+          nodeType: node.data.nodeType || 'custom', // Default to custom if not set
         });
       }
     } else {
@@ -68,6 +70,15 @@ export default function PropertiesPanel({ isPanelOpen, onPanelToggle }: Properti
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Update immediately for select dropdowns
+    if (selectedNodeId) {
+      updateNodeData(selectedNodeId, { [name]: value });
+    }
   };
 
   const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,15 +149,33 @@ export default function PropertiesPanel({ isPanelOpen, onPanelToggle }: Properti
             />
           </div>
           <div>
-            <label htmlFor="nodeType" className={labelClassName}>Type:</label>
+            <label htmlFor="reactFlowType" className={labelClassName}>React Flow Type:</label>
             <input 
               type="text" 
-              id="nodeType" 
+              id="reactFlowType" 
               value={selectedNode?.type || 'N/A'} 
               readOnly 
               disabled 
               className={`${inputClassName} opacity-70 cursor-not-allowed`}
             />
+          </div>
+          <div>
+            <label htmlFor="nodeType" className={labelClassName}>Workflow Node Type:</label>
+            <select
+              id="nodeType"
+              name="nodeType"
+              value={formData.nodeType || 'custom'}
+              onChange={handleSelectChange}
+              className={inputClassName}
+            >
+              <option value="start">Start</option>
+              <option value="process">Process</option>
+              <option value="action">Action</option>
+              <option value="decision">Decision</option>
+              <option value="condition">Condition</option>
+              <option value="end">End</option>
+              <option value="custom">Custom</option>
+            </select>
           </div>
           <div>
             <label htmlFor="label" className={labelClassName}>Label (Display):</label>

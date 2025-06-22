@@ -208,7 +208,12 @@ export default function WorkflowCanvas() {
           id: newNodeId,
           type: nodeType,
           position,
-          data: { id: newNodeId, label: `${label}` }, // Ensure data.id is set
+          data: { 
+            id: newNodeId, 
+            label: `${label}`, 
+            backgroundColor: '#f5f5f5', // Default background color
+            nodeType: nodeType as 'start' | 'process' | 'decision' | 'condition' | 'action' | 'end' | 'custom' // Set the nodeType for workflow logic
+          }, // Ensure data.id is set
           width: 180, // Default width
           height: 60, // Default height
         };
