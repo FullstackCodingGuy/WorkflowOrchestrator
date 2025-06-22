@@ -38,6 +38,7 @@ export interface PropertyPanelProps {
   selectedEdge?: Edge<DiagramEdgeData> | null;
   selectedItems?: (Node<DiagramNodeData> | Edge<DiagramEdgeData>)[];
   onNodeUpdate?: (nodeId: string, updates: Partial<DiagramNodeData>) => void;
+  onNodePositionUpdate?: (nodeId: string, position: { x: number; y: number }) => void;
   onEdgeUpdate?: (edgeId: string, updates: Partial<DiagramEdgeData>) => void;
   className?: string;
   isVisible?: boolean;
@@ -66,6 +67,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
   selectedEdge,
   selectedItems = [],
   onNodeUpdate,
+  onNodePositionUpdate,
   onEdgeUpdate,
   className = '',
   isVisible = false,
@@ -256,6 +258,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
             state={panelState}
             selectedItems={panelState.selectedItems}
             onItemUpdate={handleItemUpdate}
+            onNodePositionUpdate={onNodePositionUpdate}
             onStateUpdate={handleStateUpdate}
           />
         </>

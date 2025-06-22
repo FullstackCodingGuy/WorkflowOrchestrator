@@ -16,6 +16,7 @@ interface PropertyFormProps {
   state: PropertyPanelState;
   selectedItems: (Node<DiagramNodeData> | Edge<DiagramEdgeData>)[];
   onItemUpdate: (itemId: string, updates: Record<string, unknown>) => void;
+  onNodePositionUpdate?: (nodeId: string, position: { x: number; y: number }) => void;
   onStateUpdate: (updates: Partial<PropertyPanelState>) => void;
 }
 
@@ -23,6 +24,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({
   state,
   selectedItems,
   onItemUpdate,
+  onNodePositionUpdate,
   onStateUpdate,
 }) => {
   const {
@@ -38,6 +40,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({
   } = usePropertyForm({
     selectedItems,
     onItemUpdate,
+    onNodePositionUpdate,
   });
 
   const renderTabContent = () => {

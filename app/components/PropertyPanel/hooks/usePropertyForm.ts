@@ -26,6 +26,7 @@ interface PropertyFormState {
 interface UsePropertyFormProps {
   selectedItems: (Node<DiagramNodeData> | Edge<DiagramEdgeData>)[];
   onItemUpdate: (itemId: string, updates: Record<string, unknown>) => void;
+  onNodePositionUpdate?: (nodeId: string, position: { x: number; y: number }) => void;
 }
 
 const DEFAULT_STATE: PropertyFormState = {
@@ -39,7 +40,7 @@ const DEFAULT_STATE: PropertyFormState = {
   lastSyncTime: null,
 };
 
-export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyFormProps) => {
+export const usePropertyForm = ({ selectedItems, onItemUpdate, onNodePositionUpdate }: UsePropertyFormProps) => {
   const [formState, setFormState] = useState<PropertyFormState>(DEFAULT_STATE);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -56,7 +57,7 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
       // Single selection - extract all data properties
       const item = selectedItems[0];
       
-      // Extract node/edge data properties
+      // Extract node/edge data properties with proper defaults
       if (item.data) {
         const itemData = item.data as Record<string, unknown>;
         Object.keys(itemData).forEach(key => {
@@ -68,6 +69,18 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
       newData.id = item.id;
       newData.type = item.type;
       
+      // Enhanced color and typography extraction with defaults
+      newData.color = newData.color || '#6366f1';
+      newData.backgroundColor = newData.backgroundColor || '#ffffff';
+      newData.borderColor = newData.borderColor || '#cccccc';
+      newData.textColor = newData.textColor || '#000000';
+      newData.fontSize = newData.fontSize || 14;
+      newData.fontFamily = newData.fontFamily || 'Arial, sans-serif';
+      newData.fontWeight = newData.fontWeight || 'normal';
+      newData.textAlign = newData.textAlign || 'left';
+      newData.lineHeight = newData.lineHeight || 1.5;
+      newData.maxWidth = newData.maxWidth || 200;
+      
       if ('source' in item) {
         // Edge properties
         newData.source = item.source;
@@ -75,8 +88,10 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
         newData.sourceHandle = item.sourceHandle;
         newData.targetHandle = item.targetHandle;
       } else {
-        // Node properties
+        // Node properties including position
         newData.position = item.position;
+        newData.positionX = item.position.x;
+        newData.positionY = item.position.y;
         newData.width = item.width;
         newData.height = item.height;
       }
@@ -173,15 +188,25 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
           return;
         }
         
-        // Skip core React Flow properties - these are handled separately by React Flow
-        // and shouldn't be updated through data properties
-        if (['position', 'width', 'height', 'source', 'target', 'sourceHandle', 'targetHandle'].includes(field)) {
+        // Handle position updates separately
+        if (field === 'positionX' || field === 'positionY') {
+          if (onNodePositionUpdate && !('source' in item)) {
+            const currentPos = (item as Node).position;
+            const newPosition = {
+              x: field === 'positionX' ? (value as number) : currentPos.x,
+              y: field === 'positionY' ? (value as number) : currentPos.y,
+            };
+            onNodePositionUpdate(item.id, newPosition);
+          }
+          return;
+        }
+        
+        // Skip core React Flow properties for data updates
+        if (['source', 'target', 'sourceHandle', 'targetHandle'].includes(field)) {
           return;
         }
         
         // Only send data properties that are actually part of DiagramNodeData/DiagramEdgeData
-        // Valid data properties: label, description, color, icon, nodeType, properties, isExecuting (for nodes)
-        // Valid data properties: label, animated, color, strokeWidth, strokeStyle, animationSpeed, markerEnd, edgeType (for edges)
         updates[field] = value;
 
         if (Object.keys(updates).length > 0) {
@@ -189,11 +214,13 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
         }
       });
       
-      // Update sync status
+      // Update sync status with proper cleanup
       setFormState(prev => ({
         ...prev,
         autoSyncStatus: 'synced',
         lastSyncTime: Date.now(),
+        pendingUpdates: {}, // Clear pending updates immediately
+        isDirty: false,     // Reset dirty flag
       }));
       
       // Reset to idle after brief display
@@ -202,7 +229,7 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
           ...prev,
           autoSyncStatus: 'idle',
         }));
-      }, 1000);
+      }, 1500);
       
       // Also run validation
       validateField(field, value);
@@ -223,13 +250,25 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
     }
 
     // Numeric validation
-    if (field.includes('width') || field.includes('height')) {
+    if (field.includes('width') || field.includes('height') || field === 'maxWidth' || field === 'fontSize' || field === 'lineHeight') {
       const numValue = typeof value === 'string' ? parseFloat(value) : value;
       if (value !== undefined && value !== '' && (typeof numValue !== 'number' || isNaN(numValue) || numValue < 0)) {
         errors.push({
           field,
-          message: 'Must be a positive number',
+          message: field === 'maxWidth' ? 'Max width must be a positive number' : 'Must be a positive number',
           type: 'range',
+        });
+      }
+    }
+
+    // Position validation
+    if (field === 'positionX' || field === 'positionY') {
+      const numValue = typeof value === 'string' ? parseFloat(value) : value;
+      if (value !== undefined && value !== '' && (typeof numValue !== 'number' || isNaN(numValue))) {
+        errors.push({
+          field,
+          message: 'Position must be a valid number',
+          type: 'invalid',
         });
       }
     }
@@ -293,8 +332,13 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
         return;
       }
       
-      // Skip core React Flow properties
-      if (['position', 'width', 'height', 'source', 'target', 'sourceHandle', 'targetHandle'].includes(field)) {
+      // Handle position updates separately
+      if (field === 'positionX' || field === 'positionY') {
+        return; // Position handled separately
+      }
+      
+      // Skip core React Flow properties for data updates
+      if (['source', 'target', 'sourceHandle', 'targetHandle'].includes(field)) {
         return;
       }
 

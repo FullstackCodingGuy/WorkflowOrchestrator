@@ -9,6 +9,7 @@ interface PropertyGroupProps {
   isCompact?: boolean;
   defaultExpanded?: boolean;
   collapsible?: boolean;
+  priority?: 'high' | 'medium' | 'low';
   icon?: React.ReactNode;
   className?: string;
 }
@@ -19,6 +20,7 @@ export const PropertyGroup: React.FC<PropertyGroupProps> = ({
   isCompact = false,
   defaultExpanded = true,
   collapsible = true,
+  priority = 'medium',
   icon,
   className = '',
 }) => {
@@ -32,6 +34,7 @@ export const PropertyGroup: React.FC<PropertyGroupProps> = ({
   return (
     <div className={`
       ${styles.propertyGroup}
+      ${styles[`priority-${priority}`] || ''}
       ${isCompact ? styles.compact : ''}
       ${className}
     `}>

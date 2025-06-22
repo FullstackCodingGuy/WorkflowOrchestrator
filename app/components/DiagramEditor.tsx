@@ -45,6 +45,15 @@ export interface DiagramNodeData {
   label: string;
   description?: string;
   color?: string;
+  backgroundColor?: string;
+  borderColor?: string;
+  textColor?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  fontWeight?: string;
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+  lineHeight?: number;
+  maxWidth?: number;
   icon?: string;
   nodeType?: WorkflowNodeType; // New node type attribute
   properties?: Record<string, unknown>;
@@ -57,11 +66,16 @@ export interface DiagramEdgeData {
   label?: string;
   animated?: boolean;
   color?: string;
+  backgroundColor?: string;
   strokeWidth?: number;
   strokeStyle?: 'solid' | 'dashed' | 'dotted';
   animationSpeed?: 'slow' | 'normal' | 'fast';
   markerEnd?: 'arrow' | 'none';
   edgeType?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  fontWeight?: string;
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
 }
 
 export type DiagramEdge = Edge<DiagramEdgeData>;
@@ -76,6 +90,15 @@ const initialNodes: DiagramNode[] = [
       label: 'Start Node',
       description: 'Begin workflow execution',
       color: APP_COLORS.nodeTypes.start,
+      backgroundColor: '#ffffff',
+      borderColor: '#e2e8f0',
+      textColor: '#1a202c',
+      fontSize: 14,
+      fontFamily: 'Arial, sans-serif',
+      fontWeight: 'normal',
+      textAlign: 'center',
+      lineHeight: 1.5,
+      maxWidth: 200,
       icon: '🚀',
       nodeType: 'start',
       properties: { priority: 'high', trigger: 'manual', timeout: '30s' }
@@ -144,7 +167,15 @@ const initialEdges: DiagramEdge[] = [
       label: 'Execute', 
       animated: false, 
       color: APP_COLORS.edgeTypes.success,
+      backgroundColor: '#ffffff',
       strokeWidth: 3,
+      strokeStyle: 'solid',
+      animationSpeed: 'normal',
+      markerEnd: 'arrow',
+      fontSize: 12,
+      fontFamily: 'Arial, sans-serif',
+      fontWeight: 'normal',
+      textAlign: 'center',
     },
     markerEnd: { type: MarkerType.ArrowClosed, color: APP_COLORS.edgeTypes.success },
   },
@@ -356,8 +387,7 @@ export default function DiagramEditor() {
     [setEdges]
   );
 
-  // Handle node position updates (maintained for future property panel implementation)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // Handle node position updates (for property panel position editing)
   const handleNodePositionUpdate = useCallback(
     (nodeId: string, position: { x: number; y: number }) => {
       setNodes((nds) =>
@@ -1049,6 +1079,7 @@ export default function DiagramEditor() {
         selectedNode={selectedNode}
         selectedEdge={selectedEdge}
         onNodeUpdate={handleNodeUpdate}
+        onNodePositionUpdate={handleNodePositionUpdate}
         onEdgeUpdate={handleEdgeUpdate}
         isVisible={propertyPanelOpen}
         onVisibilityChange={setPropertyPanelOpen}

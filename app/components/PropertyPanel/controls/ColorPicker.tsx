@@ -9,6 +9,7 @@ interface ColorPickerProps {
   onChange: (color: string) => void;
   disabled?: boolean;
   presets?: string[];
+  error?: string;
 }
 
 const DEFAULT_PRESETS = [
@@ -28,6 +29,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   onChange,
   disabled = false,
   presets = DEFAULT_PRESETS,
+  error,
 }) => {
   const [showPicker, setShowPicker] = useState(false);
   const [customValue, setCustomValue] = useState(value);
@@ -111,6 +113,11 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
             </button>
           </div>
         </div>
+      )}
+      
+      {/* Error message */}
+      {error && (
+        <span className={styles.errorMessage}>{error}</span>
       )}
     </div>
   );
