@@ -17,38 +17,113 @@ const wideWidth = NODE_DIMENSIONS.wideWidth;
 
 export const workflowExamples: WorkflowExample[] = [
   {
-    name: 'Simple Linear Flow',
-    description: 'A basic sequence: Start -> Action -> End.',
+    name: 'E-Commerce Order Processing',
+    description: 'A real-time 5-step order processing workflow: Order Received → Validate Payment → Process Order → Fulfill Order → Order Complete.',
     layoutDirection: 'TB',
     nodes: [
       {
-        id: 'slf-start',
+        id: 'eop-start',
         type: 'start',
-        data: { id: 'slf-start', label: 'Start Process', backgroundColor: defaultBgColor, nodeType: 'start' },
-        position: { x: 300, y: 100 },
+        data: { 
+          id: 'eop-start', 
+          label: 'Order Received', 
+          backgroundColor: '#dcfce7', // Light green
+          nodeType: 'start' 
+        },
+        position: { x: 300, y: 50 },
         width: defaultWidth,
         height: 60,
       },
       {
-        id: 'slf-action1',
+        id: 'eop-validate',
         type: 'action',
-        data: { id: 'slf-action1', label: 'Perform Task', backgroundColor: defaultBgColor, nodeType: 'action' },
-        position: { x: 300, y: 250 },
+        data: { 
+          id: 'eop-validate', 
+          label: 'Validate Payment', 
+          backgroundColor: '#fef3c7', // Light yellow
+          nodeType: 'action' 
+        },
+        position: { x: 300, y: 170 },
         width: defaultWidth,
         height: defaultHeight,
       },
       {
-        id: 'slf-end',
+        id: 'eop-process',
+        type: 'process',
+        data: { 
+          id: 'eop-process', 
+          label: 'Process Order Items', 
+          backgroundColor: '#dbeafe', // Light blue
+          nodeType: 'process' 
+        },
+        position: { x: 300, y: 290 },
+        width: defaultWidth,
+        height: defaultHeight,
+      },
+      {
+        id: 'eop-fulfill',
+        type: 'action',
+        data: { 
+          id: 'eop-fulfill', 
+          label: 'Package & Ship', 
+          backgroundColor: '#f3e8ff', // Light purple
+          nodeType: 'action' 
+        },
+        position: { x: 300, y: 410 },
+        width: defaultWidth,
+        height: defaultHeight,
+      },
+      {
+        id: 'eop-complete',
         type: 'end',
-        data: { id: 'slf-end', label: 'End Process', backgroundColor: defaultBgColor, nodeType: 'end' },
-        position: { x: 300, y: 400 },
+        data: { 
+          id: 'eop-complete', 
+          label: 'Order Complete', 
+          backgroundColor: '#fce7f3', // Light pink
+          nodeType: 'end' 
+        },
+        position: { x: 300, y: 530 },
         width: defaultWidth,
         height: 60,
       },
     ],
     edges: [
-      { id: 'slf-e-start-action1', type: 'dotFlow', source: 'slf-start', target: 'slf-action1', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
-      { id: 'slf-e-action1-end', type: 'dotFlow', source: 'slf-action1', target: 'slf-end', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } },
+      { 
+        id: 'eop-e-start-validate', 
+        type: 'dotFlow', 
+        source: 'eop-start', 
+        target: 'eop-validate', 
+        label: 'New Order',
+        animated: false, 
+        data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } 
+      },
+      { 
+        id: 'eop-e-validate-process', 
+        type: 'dotFlow', 
+        source: 'eop-validate', 
+        target: 'eop-process', 
+        label: 'Payment OK',
+        animated: false, 
+        data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } 
+      },
+      { 
+        id: 'eop-e-process-fulfill', 
+        type: 'dotFlow', 
+        source: 'eop-process', 
+        target: 'eop-fulfill', 
+        label: 'Items Ready',
+        animated: false, 
+        data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } 
+      },
+      { 
+        id: 'eop-e-fulfill-complete', 
+        type: 'dotFlow', 
+        source: 'eop-fulfill', 
+        target: 'eop-complete', 
+        label: 'Shipped',
+        animated: false, 
+        data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge, completed: false } 
+      },
     ],
   },
   {

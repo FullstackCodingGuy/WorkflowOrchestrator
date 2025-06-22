@@ -1,3 +1,268 @@
+# 0.0.5
+
+### Fixed Import Path for Workflow Examples
+
+Corrected the Sidebar component to import from the correct workflow examples file (`workflowExamples_new.ts`) instead of the legacy file, ensuring the updated E-Commerce Order Processing example is displayed properly.
+
+#### **🐛 Root Cause:**
+
+The Sidebar component was still importing from the legacy `workflowExamples.ts` file instead of the updated `workflowExamples_new.ts` file, causing the old workflow examples to be displayed rather than the enhanced 5-node E-Commerce Order Processing workflow.
+
+#### **🔧 Solution Applied:**
+
+##### **Import Path Correction:**
+```typescript
+// BEFORE (incorrect import)
+import { workflowExamples, WorkflowExample } from './workflowExamples';
+
+// AFTER (corrected import)  
+import { workflowExamples, WorkflowExample } from './workflowExamples_new';
+```
+
+##### **File Strategy:**
+- **Primary File**: `workflowExamples_new.ts` - Contains the enhanced E-Commerce workflow
+- **Legacy File**: `workflowExamples.ts` - No longer used, kept for reference
+- **Active Import**: Sidebar now correctly imports from `workflowExamples_new.ts`
+
+#### **✅ Verification:**
+
+##### **Build Status:**
+- **Production Build**: ✅ Successful compilation
+- **Development Server**: ✅ Running on localhost:3000
+- **TypeScript**: ✅ No type errors
+- **Hot Reload**: ✅ Changes reflected immediately
+
+##### **Expected Display:**
+The workflow editor sidebar will now show:
+- **Workflow Name**: "E-Commerce Order Processing"
+- **Description**: "A real-time 5-step order processing workflow: Order Received → Validate Payment → Process Order → Fulfill Order → Order Complete."
+- **Visual**: 5 color-coded nodes with proper spacing
+- **Functionality**: Load button should work correctly
+
+#### **📂 Files Modified:**
+
+- **`Sidebar.tsx`**: Updated import path from `./workflowExamples` to `./workflowExamples_new`
+- **Active Workflow Source**: Now correctly uses `workflowExamples_new.ts`
+
+#### **🎯 Result:**
+
+The workflow editor sidebar now correctly displays the enhanced 5-node E-Commerce Order Processing workflow with:
+- ✅ Proper import from the updated file
+- ✅ Color-coded nodes (Light Green, Yellow, Blue, Purple, Pink)
+- ✅ Meaningful business process labels
+- ✅ Descriptive edge transitions
+- ✅ Working Load functionality
+
+**Future Reference**: All workflow example updates should be made only to `workflowExamples_new.ts` as specified by the user.
+
+---
+
+# 0.0.4
+
+### Fixed Workflow Example Display Issue
+
+Resolved the issue where the workflow editor was not showing the latest updated 5-node E-Commerce Order Processing example. The problem was that the Sidebar component was importing from the incorrect workflow examples file.
+
+#### **🐛 Problem Identified:**
+
+The workflow editor was displaying the old 3-node "Simple Linear Flow" example instead of the new 5-node "E-Commerce Order Processing" workflow because:
+
+1. **Incorrect Import**: `Sidebar.tsx` was importing from `./workflowExamples` (original file)
+2. **Wrong File Updated**: The enhancement was applied to `./workflowExamples_new` (backup file)  
+3. **Import Mismatch**: The component was not reading from the updated file
+
+#### **🔧 Solution Applied:**
+
+##### **Root Cause Analysis:**
+```typescript
+// Sidebar.tsx was importing from the original file
+import { workflowExamples, WorkflowExample } from './workflowExamples';
+
+// But the update was made to the backup file
+// workflowExamples_new.ts (not being used)
+```
+
+##### **Fix Implementation:**
+- **Updated Main File**: Applied the 5-node E-Commerce workflow to `workflowExamples.ts`
+- **Maintained Import**: Kept existing import structure in `Sidebar.tsx`
+- **Consistent Configuration**: Ensured both files now have the same enhanced example
+
+#### **✅ Verification:**
+
+##### **Build Status:**
+- **Development Server**: ✅ Running successfully on localhost:3000
+- **Hot Reload**: ✅ Changes reflected immediately
+- **No TypeScript Errors**: ✅ Clean compilation
+
+##### **Workflow Display:**
+- **Example Name**: "E-Commerce Order Processing" 
+- **Node Count**: 5 nodes (Order Received → Validate Payment → Process Order Items → Package & Ship → Order Complete)
+- **Color Coding**: ✅ Light green, yellow, blue, purple, pink backgrounds
+- **Edge Labels**: ✅ "New Order", "Payment OK", "Items Ready", "Shipped"
+- **Node Types**: ✅ Proper nodeType attributes for all nodes
+
+#### **📂 Files Updated:**
+
+- **`workflowExamples.ts`**: Updated with 5-node E-Commerce workflow
+- **Import Chain**: `Sidebar.tsx` → `workflowExamples.ts` → Enhanced workflow
+- **Consistency**: Both `workflowExamples.ts` and `workflowExamples_new.ts` now synchronized
+
+#### **🎯 Result:**
+
+The workflow editor now correctly displays the enhanced 5-node E-Commerce Order Processing workflow with:
+- Proper color-coded nodes
+- Meaningful business process steps  
+- Descriptive edge transition labels
+- Correct nodeType attributes
+- Professional visual presentation
+
+**The issue has been resolved and users will now see the latest enhanced workflow example in the editor sidebar.**
+
+---
+
+# 0.0.3
+
+### Enhanced Workflow Example with Real-Time E-Commerce Processing
+
+The Simple Linear Flow example has been upgraded to a comprehensive 5-node E-Commerce Order Processing workflow that demonstrates real-time business scenarios with proper node types, color coding, and meaningful edge labels.
+
+#### **🎯 Enhancement Overview:**
+
+The basic 3-node example has been replaced with a realistic e-commerce order processing workflow that showcases:
+1. **Real-World Scenario**: Complete order-to-fulfillment process
+2. **Proper Node Types**: Each node uses appropriate nodeType for its function
+3. **Color-Coded Visualization**: Distinct background colors for different workflow stages
+4. **Meaningful Edge Labels**: Clear transition descriptions between workflow steps
+5. **Business Logic Flow**: Represents actual business process operations
+
+#### **🚀 New E-Commerce Order Processing Workflow**
+
+##### **Workflow Structure:**
+```
+Order Received → Validate Payment → Process Order Items → Package & Ship → Order Complete
+```
+
+##### **Node Configuration:**
+```typescript
+// 1. Start Node - Order Initiation
+{
+  id: 'eop-start',
+  type: 'start',
+  nodeType: 'start',
+  label: 'Order Received',
+  backgroundColor: '#dcfce7' // Light green - represents new order
+}
+
+// 2. Payment Validation
+{
+  id: 'eop-validate', 
+  type: 'action',
+  nodeType: 'action',
+  label: 'Validate Payment',
+  backgroundColor: '#fef3c7' // Light yellow - validation process
+}
+
+// 3. Order Processing
+{
+  id: 'eop-process',
+  type: 'process', 
+  nodeType: 'process',
+  label: 'Process Order Items',
+  backgroundColor: '#dbeafe' // Light blue - core processing
+}
+
+// 4. Fulfillment
+{
+  id: 'eop-fulfill',
+  type: 'action',
+  nodeType: 'action', 
+  label: 'Package & Ship',
+  backgroundColor: '#f3e8ff' // Light purple - physical fulfillment
+}
+
+// 5. Completion
+{
+  id: 'eop-complete',
+  type: 'end',
+  nodeType: 'end',
+  label: 'Order Complete', 
+  backgroundColor: '#fce7f3' // Light pink - successful completion
+}
+```
+
+##### **Edge Configuration with Descriptive Labels:**
+```typescript
+// Meaningful transition labels
+'New Order' → 'Payment OK' → 'Items Ready' → 'Shipped'
+```
+
+#### **🎨 Visual Enhancements:**
+
+##### **Color-Coded Node Types:**
+- **Start Node**: Light Green (`#dcfce7`) - Fresh beginning
+- **Validation**: Light Yellow (`#fef3c7`) - Caution/verification 
+- **Processing**: Light Blue (`#dbeafe`) - Active work
+- **Fulfillment**: Light Purple (`#f3e8ff`) - Specialized action
+- **Completion**: Light Pink (`#fce7f3`) - Successful end
+
+##### **Enhanced Edge Labels:**
+- **"New Order"**: Transition from order received to validation
+- **"Payment OK"**: Successful payment validation to processing
+- **"Items Ready"**: Processing complete, ready for fulfillment
+- **"Shipped"**: Package sent, order completion
+
+#### **📊 Business Process Mapping:**
+
+##### **Real-Time Workflow Stages:**
+1. **Order Initiation**: Customer places order, system receives request
+2. **Payment Validation**: Verify payment method, check funds availability
+3. **Order Processing**: Inventory check, item allocation, order preparation
+4. **Fulfillment**: Physical packaging, shipping label generation, dispatch
+5. **Completion**: Order fulfilled, customer notification, process closed
+
+##### **NodeType Alignment:**
+- **'start'**: Perfect for order initiation points
+- **'action'**: Ideal for validation and fulfillment steps
+- **'process'**: Appropriate for core business logic processing
+- **'end'**: Clear completion and success indication
+
+#### **🔍 Technical Improvements:**
+
+##### **Type Safety:**
+- All nodes properly typed with appropriate `nodeType` values
+- Consistent with new nodeType system architecture
+- Full TypeScript support and validation
+
+##### **Visual Consistency:**
+- Proper spacing with 120px vertical separation
+- Consistent node dimensions using configuration constants
+- Professional color palette with business-appropriate tones
+
+##### **Edge Animation:**
+- Maintains existing dotFlow animation system
+- Proper source/target connections for linear workflow
+- Ready for workflow execution and debugging features
+
+#### **🎯 Benefits:**
+
+1. **Educational Value**: Demonstrates real business process modeling
+2. **Visual Appeal**: Professional color coding and clear labeling
+3. **Type Demonstration**: Shows proper nodeType usage in practice
+4. **Scalability**: Template for other business workflow examples
+5. **User Experience**: More meaningful than generic "Action" nodes
+6. **Testing**: Better example for validating workflow functionality
+
+#### **🔧 Implementation Details:**
+
+- **File Updated**: `workflowExamples_new.ts`
+- **Backward Compatibility**: Maintains existing workflow example structure
+- **Build Verification**: Full compilation and type checking successful
+- **Configuration**: Uses existing APP_COLORS and NODE_DIMENSIONS constants
+
+**This enhanced workflow example provides a professional, real-world demonstration of the workflow system while showcasing the new nodeType attribute system in a meaningful business context.**
+
+---
+
 # 0.0.2
 
 ### Node Type Attribute Implementation for Workflow Logic

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'; // Added useState
 import useWorkflowStore from '../store/workflowStore';
-import { workflowExamples, WorkflowExample } from './workflowExamples';
+import { workflowExamples, WorkflowExample } from './workflowExamples_new';
 import {
   PlayCircleIcon,
   CogIcon,
