@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -41,7 +39,6 @@ export interface PropertyPanelProps {
   selectedItems?: (Node<DiagramNodeData> | Edge<DiagramEdgeData>)[];
   onNodeUpdate?: (nodeId: string, updates: Partial<DiagramNodeData>) => void;
   onEdgeUpdate?: (edgeId: string, updates: Partial<DiagramEdgeData>) => void;
-  onSelectionChange?: (items: (Node<DiagramNodeData> | Edge<DiagramEdgeData>)[]) => void;
   className?: string;
   isVisible?: boolean;
   onVisibilityChange?: (visible: boolean) => void;
@@ -70,7 +67,6 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
   selectedItems = [],
   onNodeUpdate,
   onEdgeUpdate,
-  onSelectionChange,
   className = '',
   isVisible = false,
   onVisibilityChange,
@@ -157,19 +153,23 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
   }, []);
 
   // Handle item updates
-  const handleItemUpdate = useCallback((itemId: string, updates: any) => {
+  const handleItemUpdate = useCallback((itemId: string, updates: Record<string, unknown>) => {
     const item = panelState.selectedItems.find(item => item.id === itemId);
     if (!item) return;
 
-    if (item.type === 'custom' || 'source' in item === false) {
-      // It's a node
-      if (onNodeUpdate) {
-        onNodeUpdate(itemId, updates);
-      }
-    } else {
+    // For nodes and edges, DiagramEditor expects data properties directly
+    // No need to wrap in { data: { ... } } structure since handleNodeUpdate/handleEdgeUpdate
+    // already handles the data spreading: { ...node.data, ...updates }
+    
+    if ('source' in item) {
       // It's an edge
       if (onEdgeUpdate) {
         onEdgeUpdate(itemId, updates);
+      }
+    } else {
+      // It's a node  
+      if (onNodeUpdate) {
+        onNodeUpdate(itemId, updates);
       }
     }
   }, [panelState.selectedItems, onNodeUpdate, onEdgeUpdate]);

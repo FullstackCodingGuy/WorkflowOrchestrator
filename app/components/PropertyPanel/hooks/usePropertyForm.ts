@@ -48,41 +48,60 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
 
     const newData: Record<string, unknown> = {};
     
-    selectedItems.forEach(item => {
+    if (selectedItems.length === 1) {
+      // Single selection - extract all data properties
+      const item = selectedItems[0];
+      
+      // Extract node/edge data properties
       if (item.data) {
         const itemData = item.data as Record<string, unknown>;
         Object.keys(itemData).forEach(key => {
-          if (selectedItems.length === 1) {
-            // Single selection - use exact values
-            newData[key] = itemData[key];
-          } else {
-            // Multiple selection - handle mixed values
-            if (newData[key] === undefined) {
-              newData[key] = itemData[key];
-            } else if (newData[key] !== itemData[key]) {
-              newData[key] = ''; // Mixed values indicator
-            }
-          }
+          newData[key] = itemData[key];
         });
       }
       
-      // Add basic properties
-      newData[`${item.id}_id`] = item.id;
-      newData[`${item.id}_type`] = item.type;
+      // Add core properties
+      newData.id = item.id;
+      newData.type = item.type;
       
       if ('source' in item) {
         // Edge properties
-        newData[`${item.id}_source`] = item.source;
-        newData[`${item.id}_target`] = item.target;
-        newData[`${item.id}_sourceHandle`] = item.sourceHandle;
-        newData[`${item.id}_targetHandle`] = item.targetHandle;
+        newData.source = item.source;
+        newData.target = item.target;
+        newData.sourceHandle = item.sourceHandle;
+        newData.targetHandle = item.targetHandle;
       } else {
         // Node properties
-        newData[`${item.id}_position`] = item.position;
-        newData[`${item.id}_width`] = item.width;
-        newData[`${item.id}_height`] = item.height;
+        newData.position = item.position;
+        newData.width = item.width;
+        newData.height = item.height;
       }
-    });
+    } else {
+      // Multiple selection - handle common properties
+      const commonProperties: Record<string, unknown> = {};
+      
+      selectedItems.forEach((item, index) => {
+        if (item.data) {
+          const itemData = item.data as Record<string, unknown>;
+          Object.keys(itemData).forEach(key => {
+            if (index === 0) {
+              // First item - set initial values
+              commonProperties[key] = itemData[key];
+            } else {
+              // Subsequent items - check for differences
+              if (commonProperties[key] !== itemData[key]) {
+                commonProperties[key] = ''; // Mixed values indicator
+              }
+            }
+          });
+        }
+      });
+      
+      // Use common properties for bulk editing
+      Object.assign(newData, commonProperties);
+      newData.bulkEdit = true;
+      newData.selectionCount = selectedItems.length;
+    }
 
     setFormState(prev => ({
       ...prev,
@@ -112,11 +131,37 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
       clearTimeout(timeoutRef.current);
     }
 
-    // Debounced validation
+    // Debounced auto-apply changes (500ms delay for user typing)
     timeoutRef.current = setTimeout(() => {
+      // Auto-apply the changes after debounce
+      selectedItems.forEach(item => {
+        const updates: Record<string, unknown> = {};
+        
+        // Skip system fields
+        if (field === 'id' || field === 'type' || field === 'bulkEdit' || field === 'selectionCount') {
+          return;
+        }
+        
+        // Skip core React Flow properties - these are handled separately by React Flow
+        // and shouldn't be updated through data properties
+        if (['position', 'width', 'height', 'source', 'target', 'sourceHandle', 'targetHandle'].includes(field)) {
+          return;
+        }
+        
+        // Only send data properties that are actually part of DiagramNodeData/DiagramEdgeData
+        // Valid data properties: label, description, color, icon, nodeType, properties, isExecuting (for nodes)
+        // Valid data properties: label, animated, color, strokeWidth, strokeStyle, animationSpeed, markerEnd, edgeType (for edges)
+        updates[field] = value;
+
+        if (Object.keys(updates).length > 0) {
+          onItemUpdate(item.id, updates);
+        }
+      });
+      
+      // Also run validation
       validateField(field, value);
-    }, 300);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, 500);
+  }, [selectedItems, onItemUpdate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Validate a single field
   const validateField = useCallback((field: string, value: unknown) => {
@@ -193,18 +238,23 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
     selectedItems.forEach(item => {
       const updates: Record<string, unknown> = {};
       
-      // Extract updates for this item
+      // Build updates from pending changes
       Object.keys(formState.pendingUpdates).forEach(field => {
-        if (field.startsWith(`${item.id}_`)) {
-          const actualField = field.replace(`${item.id}_`, '');
-          updates[actualField] = formState.pendingUpdates[field];
-        } else if (selectedItems.length === 1) {
-          // Single item - apply all non-prefixed updates to data
-          if (!field.includes('_id') && !field.includes('_type')) {
-            if (!updates.data) updates.data = {};
-            (updates.data as Record<string, unknown>)[field] = formState.pendingUpdates[field];
-          }
+        const value = formState.pendingUpdates[field];
+        
+        // Skip system fields
+        if (field === 'id' || field === 'type' || field === 'bulkEdit' || field === 'selectionCount') {
+          return;
         }
+        
+        // Skip core React Flow properties - these are handled separately by React Flow
+        // and shouldn't be updated through data properties
+        if (['position', 'width', 'height', 'source', 'target', 'sourceHandle', 'targetHandle'].includes(field)) {
+          return;
+        }
+        
+        // Only handle data properties that are part of DiagramNodeData/DiagramEdgeData
+        updates[field] = value;
       });
 
       if (Object.keys(updates).length > 0) {

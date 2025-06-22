@@ -15,7 +15,7 @@ import styles from './PropertyPanel.module.css';
 interface PropertyFormProps {
   state: PropertyPanelState;
   selectedItems: (Node<DiagramNodeData> | Edge<DiagramEdgeData>)[];
-  onItemUpdate: (itemId: string, updates: unknown) => void;
+  onItemUpdate: (itemId: string, updates: Record<string, unknown>) => void;
   onStateUpdate: (updates: Partial<PropertyPanelState>) => void;
 }
 
