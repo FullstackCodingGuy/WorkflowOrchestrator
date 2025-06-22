@@ -26,6 +26,9 @@ import { WorkflowEdge } from './WorkflowEdge';
 import { WorkflowNode } from './WorkflowNode';
 import { DiagramToolbar } from './DiagramToolbar';
 
+// Import the new Property Panel
+import { PropertyPanel } from './PropertyPanel/PropertyPanel';
+
 // Import side panel components
 import { SidePanel, PanelSection } from './SidePanel';
 import { ExplorerPanel, OutlinePanel, FileExplorer } from './ExplorerPanelContent';
@@ -325,8 +328,7 @@ export default function DiagramEditor() {
     setPropertyPanelOpen(false);
   }, [selectedNode, setNodes, setEdges]);
 
-  // Enhanced node update callback (maintained for future property panel implementation)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // Enhanced node update callback
   const handleNodeUpdate = useCallback(
     (nodeId: string, updates: Partial<DiagramNodeData>) => {
       setNodes((nds) =>
@@ -340,8 +342,7 @@ export default function DiagramEditor() {
     [setNodes]
   );
 
-  // Enhanced edge update callback (maintained for future property panel implementation)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // Enhanced edge update callback
   const handleEdgeUpdate = useCallback(
     (edgeId: string, updates: Partial<DiagramEdgeData>) => {
       setEdges((eds) =>
@@ -1043,9 +1044,15 @@ export default function DiagramEditor() {
         width={280}
       />
 
-      {/* REMOVED: Enhanced Right Properties Panel - Decoupled for future implementation */}
-      {/* Property panel state is maintained in propertyPanelOpen but no UI is rendered */}
-      {/* This enables future extensibility without breaking existing functionality */}
+      {/* New Property Panel System */}
+      <PropertyPanel
+        selectedNode={selectedNode}
+        selectedEdge={selectedEdge}
+        onNodeUpdate={handleNodeUpdate}
+        onEdgeUpdate={handleEdgeUpdate}
+        isVisible={propertyPanelOpen}
+        onVisibilityChange={setPropertyPanelOpen}
+      />
 
       {/* Panel Toggle Buttons */}
       {/* <PanelToggleButton
