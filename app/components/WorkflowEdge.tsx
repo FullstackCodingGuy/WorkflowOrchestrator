@@ -6,7 +6,7 @@ import {
   EdgeLabelRenderer,
 } from 'reactflow';
 
-export function AnimatedSVGEdge({
+export function WorkflowEdge({
   id,
   sourceX,
   sourceY,

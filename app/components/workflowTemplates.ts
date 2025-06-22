@@ -1,7 +1,7 @@
 import { Node, Edge } from 'reactflow';
 import { APP_COLORS, NODE_DIMENSIONS } from '../config/appConfig';
 
-export interface WorkflowExample {
+export interface WorkflowTemplate {
   name: string;
   description: string;
   nodes: Node[];
@@ -15,7 +15,7 @@ const defaultHeight = NODE_DIMENSIONS.defaultHeight;
 const conditionHeight = NODE_DIMENSIONS.conditionHeight;
 const wideWidth = NODE_DIMENSIONS.wideWidth;
 
-export const workflowExamples: WorkflowExample[] = [
+export const workflowTemplates: WorkflowTemplate[] = [
   {
     name: 'E-Commerce Order Processing',
     description: 'A real-time 5-step order processing workflow: Order Received → Validate Payment → Process Order → Fulfill Order → Order Complete.',

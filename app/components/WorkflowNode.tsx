@@ -11,7 +11,7 @@ interface DiagramNodeData {
   isExecuting?: boolean;
 }
 
-export const CustomNode = memo(({ data, selected }: NodeProps<DiagramNodeData>) => {
+export const WorkflowNode = memo(({ data, selected }: NodeProps<DiagramNodeData>) => {
   const {
     label,
     description,
@@ -208,4 +208,4 @@ export const CustomNode = memo(({ data, selected }: NodeProps<DiagramNodeData>) 
   );
 });
 
-CustomNode.displayName = 'CustomNode';
+WorkflowNode.displayName = 'WorkflowNode';

@@ -21,15 +21,16 @@ import ReactFlow, {
 
 import 'reactflow/dist/style.css';
 
-// Import custom components - will be created below
-import { AnimatedSVGEdge } from './AnimatedSVGEdge';
-import { CustomNode } from './CustomNode';
+// Import custom components
+import { WorkflowEdge } from './WorkflowEdge';
+import { WorkflowNode } from './WorkflowNode';
 import { DiagramToolbar } from './DiagramToolbar';
 
 // Import side panel components
 import { SidePanel, PanelSection } from './SidePanel';
-import { ExplorerPanel, OutlinePanel, FileExplorer } from './PanelContent';
-import { WorkflowExamplesPanel } from './WorkflowExamplesPanel';
+import { ExplorerPanel, OutlinePanel, FileExplorer } from './ExplorerPanelContent';
+import { TemplateLibraryPanel } from './TemplateLibraryPanel';
+import { WorkflowTemplate } from './workflowTemplates';
 
 // Import enhanced configuration
 import { APP_COLORS } from '../config/appConfig';
@@ -120,19 +121,20 @@ const initialNodes: DiagramNode[] = [
 
 // Edge types configuration
 const edgeTypes: EdgeTypes = {
-  animatedSvg: AnimatedSVGEdge,
+  workflowEdge: WorkflowEdge,
+  animatedSvg: WorkflowEdge, // Keep backward compatibility
 };
 
 // Node types configuration
 const nodeTypes: NodeTypes = {
-  custom: CustomNode,
+  custom: WorkflowNode,
 };
 
 // Initial edges with enhanced modern styling
 const initialEdges: DiagramEdge[] = [
   {
     id: '1->2',
-    type: 'animatedSvg',
+    type: 'workflowEdge',
     source: '1',
     target: '2',
     data: { 
@@ -145,7 +147,7 @@ const initialEdges: DiagramEdge[] = [
   },
   {
     id: '2->3',
-    type: 'animatedSvg',
+    type: 'workflowEdge',
     source: '2',
     target: '3',
     data: { 
@@ -158,7 +160,7 @@ const initialEdges: DiagramEdge[] = [
   },
   {
     id: '3->4',
-    type: 'animatedSvg',
+    type: 'workflowEdge',
     source: '3',
     target: '4',
     data: { 
@@ -242,7 +244,7 @@ export default function DiagramEditor() {
         id: `${params.source}->${params.target}`,
         source: params.source,
         target: params.target,
-        type: isAnimationEnabled ? 'animatedSvg' : 'smoothstep',
+        type: isAnimationEnabled ? 'workflowEdge' : 'smoothstep',
         data: {
           animated: isAnimationEnabled,
           color: APP_COLORS.edgeTypes.default,
@@ -374,7 +376,7 @@ export default function DiagramEditor() {
       setEdges((eds) =>
         eds.map((edge) => ({
           ...edge,
-          type: enabled ? 'animatedSvg' : 'smoothstep',
+          type: enabled ? 'workflowEdge' : 'smoothstep',
           data: {
             ...edge.data,
             animated: enabled,
@@ -562,7 +564,7 @@ export default function DiagramEditor() {
               ...node.data,
               isExecuting: true,
             },
-            // NEVER modify style - let CustomNode handle visual feedback
+            // NEVER modify style - let WorkflowNode handle visual feedback
           };
         } else if (node.data.isExecuting) {
           // Node was executing but no longer is - ONLY modify data
@@ -861,10 +863,10 @@ export default function DiagramEditor() {
       icon: '📚',
       defaultOpen: true,
       content: (
-        <WorkflowExamplesPanel
-          onLoadExample={(example) => {
-            setNodes(example.nodes);
-            setEdges(example.edges);
+        <TemplateLibraryPanel
+          onLoadExample={(template: WorkflowTemplate) => {
+            setNodes(template.nodes);
+            setEdges(template.edges);
             // Clear selections when loading new example
             setSelectedNode(null);
             setSelectedEdge(null);
