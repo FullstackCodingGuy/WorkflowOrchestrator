@@ -953,6 +953,10 @@ export default function DiagramEditor() {
         onRestartWorkflow={handleRestartWorkflow}
         onDebugWorkflow={handleDebugWorkflow}
         workflowState={workflowState}
+        showLeftSidebar={leftPanelOpen}
+        onToggleLeftSidebar={() => setLeftPanelOpen(!leftPanelOpen)}
+        showRightSidebar={rightPanelOpen}
+        onToggleRightSidebar={() => setRightPanelOpen(!rightPanelOpen)}
       />
 
       {/* Main Editor Area */}

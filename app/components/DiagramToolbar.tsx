@@ -37,6 +37,11 @@ interface DiagramToolbarProps {
   onRestartWorkflow: () => void;
   onDebugWorkflow: () => void;
   workflowState: 'idle' | 'playing' | 'paused' | 'debugging';
+  // Sidebar controls
+  showLeftSidebar: boolean;
+  onToggleLeftSidebar: () => void;
+  showRightSidebar: boolean;
+  onToggleRightSidebar: () => void;
 }
 
 export function DiagramToolbar({
@@ -60,11 +65,15 @@ export function DiagramToolbar({
   onRestartWorkflow,
   onDebugWorkflow,
   workflowState,
+  showLeftSidebar,
+  onToggleLeftSidebar,
+  showRightSidebar,
+  onToggleRightSidebar,
 }: DiagramToolbarProps) {
   return (
     <div className="flex flex-col">
       {/* Main Toolbar */}
-      <div className="h-12 bg-header border-b border-border flex items-center px-3 shadow-soft">
+      <div id="main-toolbar" className="h-12 bg-header border-b border-border flex items-center px-3 shadow-soft">
         {/* Left Section - Main Actions */}
         <div className="flex items-center space-x-1.5">
           <button
@@ -220,9 +229,26 @@ export function DiagramToolbar({
       </div>
 
       {/* Footer Toolbar */}
-      <div className="h-7 bg-sidebar border-t border-border flex items-center justify-between px-3">
-        {/* Left Section - Background & Animation Controls */}
+      <div id="sub-toolbar" className="h-7 bg-sidebar border-t border-border flex items-center justify-between px-3">
+        {/* Left Section - Left Sidebar Toggle + Background & Animation Controls */}
         <div className="flex items-center space-x-2">
+          {/* Left Sidebar Toggle */}
+          <button
+            onClick={onToggleLeftSidebar}
+            className={`btn btn-xs ${
+              showLeftSidebar
+                ? 'btn-primary'
+                : 'btn-outline'
+            }`}
+            title={`${showLeftSidebar ? 'Hide' : 'Show'} left sidebar`}
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+          </button>
+
+          <div className="w-px h-4 bg-border" />
+
           {/* Background Variant Buttons */}
           <div className="flex items-center bg-card border border-border rounded-sm overflow-hidden">
             <button
@@ -286,7 +312,7 @@ export function DiagramToolbar({
           </button>
         </div>
 
-        {/* Right Section - MiniMap Toggle */}
+        {/* Right Section - MiniMap Toggle + Right Sidebar Toggle */}
         <div className="flex items-center space-x-2">
           <label className="flex items-center space-x-1.5 text-xs text-muted cursor-pointer hover:text-foreground transition-colors">
             <input
@@ -301,6 +327,23 @@ export function DiagramToolbar({
             </svg>
             <span>Show MiniMap</span>
           </label>
+
+          <div className="w-px h-4 bg-border" />
+
+          {/* Right Sidebar Toggle */}
+          <button
+            onClick={onToggleRightSidebar}
+            className={`btn btn-xs ${
+              showRightSidebar
+                ? 'btn-primary'
+                : 'btn-outline'
+            }`}
+            title={`${showRightSidebar ? 'Hide' : 'Show'} right sidebar`}
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 6H4M20 12H4m16 6H11" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

@@ -531,6 +531,41 @@ Start B → Process 2 ↗
 
 # CHANGELOG
 
+## [v1.4.1] - 2025-06-22 - Sidebar Toggle Controls in Sub-Toolbar
+
+### New Features
+- **Sub-Toolbar Sidebar Controls**: Added dedicated toggle buttons for left and right sidebars in the sub-toolbar
+  - Left sidebar toggle button positioned at the far left of the sub-toolbar
+  - Right sidebar toggle button positioned at the far right of the sub-toolbar
+  - Visual feedback with primary/outline button states based on sidebar visibility
+  - Intuitive icons for left and right sidebar panels
+  - Proper spacing and dividers for clean layout organization
+
+### Component Updates
+- **Enhanced `DiagramToolbar.tsx`**: Added comprehensive sidebar control functionality
+  - Extended interface with `showLeftSidebar`, `onToggleLeftSidebar`, `showRightSidebar`, `onToggleRightSidebar` props
+  - Integrated toggle buttons into sub-toolbar layout with proper positioning
+  - Added visual separators between control groups for better organization
+  - Maintained consistent button styling with existing sub-toolbar elements
+- **Updated `DiagramEditor.tsx`**: Connected sidebar state to toolbar controls
+  - Passed sidebar state and toggle functions to DiagramToolbar component
+  - Maintained existing sidebar functionality while adding toolbar integration
+  - Ensured proper prop forwarding for seamless integration
+
+### UI/UX Improvements
+- Users can now toggle sidebars directly from the sub-toolbar without needing bottom-positioned buttons
+- Clear visual indicators show current sidebar state (primary for open, outline for closed)
+- Better accessibility with consistent control placement in the toolbar interface
+- Enhanced workflow efficiency with all controls consolidated in the toolbar area
+- Proper spacing and visual hierarchy in the sub-toolbar layout
+
+### Technical Details
+- Type-safe implementation with proper interface extensions
+- Consistent naming conventions following existing patterns
+- Maintained backward compatibility with existing functionality
+- Clean separation of concerns between toolbar and panel components
+- Optimized state management for responsive sidebar controls
+
 ## [v1.4.0] - 2025-06-22 - Enhanced Sidebar with Accordion Workflow Examples
 
 ### Major Features Added
