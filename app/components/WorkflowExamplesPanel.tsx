@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { workflowExamples, WorkflowExample } from './workflowExamples_new';
-import useWorkflowStore from '../store/workflowStore';
 import { PlayCircleIcon, ChevronDownIcon, ChevronRightIcon } from './Icons';
 
 interface WorkflowExamplesPanelProps {
@@ -11,7 +10,6 @@ interface WorkflowExamplesPanelProps {
 
 export function WorkflowExamplesPanel({ onLoadExample }: WorkflowExamplesPanelProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Business Workflows']));
-  const { importWorkflow } = useWorkflowStore();
 
   // Group examples by category based on name patterns
   const categorizedExamples = workflowExamples.reduce((acc, example) => {
@@ -49,8 +47,6 @@ export function WorkflowExamplesPanel({ onLoadExample }: WorkflowExamplesPanelPr
   const handleLoadExample = (example: WorkflowExample) => {
     if (onLoadExample) {
       onLoadExample(example);
-    } else {
-      importWorkflow({ nodes: example.nodes, edges: example.edges }, example.layoutDirection);
     }
   };
 
