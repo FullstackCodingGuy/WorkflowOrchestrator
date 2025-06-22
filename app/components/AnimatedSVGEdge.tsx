@@ -33,47 +33,58 @@ export function AnimatedSVGEdge({
   const gradientId = `gradient-${id}`;
 
   // Get styling properties from data
-  const edgeColor = data?.color || '#64748b';
+  const edgeColor = data?.color || '#6366f1'; // Modern indigo instead of gray
   const isAnimated = data?.animated ?? false;
-  const strokeWidth = data?.strokeWidth || 2;
+  const strokeWidth = data?.strokeWidth || 3; // Increased for better visibility
   const strokeStyle = data?.strokeStyle || 'solid';
   const animationSpeed = data?.animationSpeed || 'normal';
   const markerEndType = data?.markerEnd || 'arrow';
 
   // Animation duration based on speed
   const animationDurations = {
-    slow: '3s',
-    normal: '2s',
-    fast: '1s'
+    slow: '4s',
+    normal: '2.5s',
+    fast: '1.5s'
   };
-  const animationDuration = animationDurations[animationSpeed as keyof typeof animationDurations] || '2s';
+  const animationDuration = animationDurations[animationSpeed as keyof typeof animationDurations] || '2.5s';
 
-  // Stroke dash array based on style
+  // Enhanced stroke dash arrays
   const strokeDashArrays = {
     solid: 'none',
-    dashed: '8,4',
-    dotted: '2,2'
+    dashed: '12,6',
+    dotted: '3,3'
   };
   const strokeDashArray = strokeDashArrays[strokeStyle as keyof typeof strokeDashArrays] || 'none';
 
   return (
     <>
       <defs>
-        {/* Gradient definition for animated effect */}
+        {/* Enhanced gradient definition with smoother transitions */}
         <linearGradient id={gradientId} gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor={edgeColor} stopOpacity="0.2" />
-          <stop offset="50%" stopColor={edgeColor} stopOpacity="0.8" />
-          <stop offset="100%" stopColor={edgeColor} stopOpacity="0.2" />
+          <stop offset="0%" stopColor={edgeColor} stopOpacity="0.3" />
+          <stop offset="25%" stopColor={edgeColor} stopOpacity="0.7" />
+          <stop offset="50%" stopColor={edgeColor} stopOpacity="1" />
+          <stop offset="75%" stopColor={edgeColor} stopOpacity="0.7" />
+          <stop offset="100%" stopColor={edgeColor} stopOpacity="0.3" />
           {isAnimated && (
             <animateTransform
               attributeName="gradientTransform"
               type="translate"
-              values="-100,0;100,0;-100,0"
+              values="-150,0;150,0;-150,0"
               dur={animationDuration}
               repeatCount="indefinite"
             />
           )}
         </linearGradient>
+
+        {/* Enhanced glow effect */}
+        <filter id={`glow-${id}`}>
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge> 
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
 
         {/* Path for the motion animation */}
         <path
@@ -84,7 +95,7 @@ export function AnimatedSVGEdge({
         />
       </defs>
 
-      {/* Main edge path */}
+      {/* Enhanced main edge path */}
       <BaseEdge
         id={id}
         path={edgePath}
@@ -93,8 +104,11 @@ export function AnimatedSVGEdge({
           ...style,
           stroke: isAnimated ? `url(#${gradientId})` : edgeColor,
           strokeWidth: strokeWidth,
-          strokeDasharray: selected ? '5,5' : strokeDashArray,
-          transition: 'stroke 0.3s ease-in-out', // Smooth transition when toggling
+          strokeDasharray: selected ? '8,4' : strokeDashArray,
+          filter: isAnimated || selected ? `url(#glow-${id})` : 'none',
+          transition: 'all 0.3s ease-in-out',
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
         }}
       />
 

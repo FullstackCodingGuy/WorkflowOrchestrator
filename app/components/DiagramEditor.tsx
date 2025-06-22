@@ -27,11 +27,14 @@ import { CustomNode } from './CustomNode';
 import { DiagramToolbar } from './DiagramToolbar';
 
 // Import side panel components
-import { SidePanel, PanelToggleButton, PanelSection } from './SidePanel';
+import { SidePanel, PanelSection } from './SidePanel';
 import { ExplorerPanel, OutlinePanel, FileExplorer } from './PanelContent';
 import { PropertiesContent, SettingsContent, DiagramStatsContent } from './RightPanelContent';
 import { EdgePropertiesPanel } from './EdgePropertiesPanel';
 import { WorkflowExamplesPanel } from './WorkflowExamplesPanel';
+
+// Import enhanced configuration
+import { APP_COLORS } from '../config/appConfig';
 
 // Types
 export type WorkflowNodeType = 'start' | 'process' | 'decision' | 'condition' | 'action' | 'end' | 'custom';
@@ -61,17 +64,17 @@ export interface DiagramEdgeData {
 
 export type DiagramEdge = Edge<DiagramEdgeData>;
 
-// Initial nodes with different types and styles
+// Initial nodes with stepped waterfall layout for enhanced visibility
 const initialNodes: DiagramNode[] = [
   {
     id: '1',
     type: 'custom',
-    position: { x: 100, y: 100 },
+    position: { x: 50, y: 50 }, // Top cliff start
     data: {
       label: 'Start Node',
-      description: 'This is the starting point',
-      color: '#4ade80',
-      icon: '▶️',
+      description: 'Begin workflow execution',
+      color: APP_COLORS.nodeTypes.start,
+      icon: '🚀',
       nodeType: 'start',
       properties: { priority: 'high' }
     },
@@ -79,11 +82,11 @@ const initialNodes: DiagramNode[] = [
   {
     id: '2',
     type: 'custom',
-    position: { x: 300, y: 200 },
+    position: { x: 350, y: 200 }, // First step down and right
     data: {
-      label: 'Process Node',
-      description: 'Processing step',
-      color: '#3b82f6',
+      label: 'Process Data',
+      description: 'Transform and validate input',
+      color: APP_COLORS.nodeTypes.process,
       icon: '⚙️',
       nodeType: 'process',
       properties: { duration: '2 minutes' }
@@ -92,11 +95,11 @@ const initialNodes: DiagramNode[] = [
   {
     id: '3',
     type: 'custom',
-    position: { x: 500, y: 100 },
+    position: { x: 650, y: 350 }, // Second step down and right
     data: {
-      label: 'Decision Node',
-      description: 'Decision point',
-      color: '#f59e0b',
+      label: 'Decision Point',
+      description: 'Evaluate conditions and route',
+      color: APP_COLORS.nodeTypes.decision,
       icon: '🔀',
       nodeType: 'decision',
       properties: { condition: 'if x > 10' }
@@ -105,12 +108,12 @@ const initialNodes: DiagramNode[] = [
   {
     id: '4',
     type: 'custom',
-    position: { x: 700, y: 200 },
+    position: { x: 950, y: 500 }, // Final step down and right
     data: {
-      label: 'End Node',
-      description: 'Completion point',
-      color: '#ef4444',
-      icon: '🏁',
+      label: 'Complete',
+      description: 'Workflow finished successfully',
+      color: APP_COLORS.nodeTypes.end,
+      icon: '✅',
       nodeType: 'end',
       properties: { result: 'success' }
     },
@@ -127,43 +130,63 @@ const nodeTypes: NodeTypes = {
   custom: CustomNode,
 };
 
-// Initial edges with different styles
+// Initial edges with enhanced modern styling
 const initialEdges: DiagramEdge[] = [
   {
     id: '1->2',
     type: 'animatedSvg',
     source: '1',
     target: '2',
-    data: { label: 'Next', animated: true, color: '#4ade80' },
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#4ade80' },
+    data: { 
+      label: 'Execute', 
+      animated: false, 
+      color: APP_COLORS.edgeTypes.success,
+      strokeWidth: 3,
+    },
+    markerEnd: { type: MarkerType.ArrowClosed, color: APP_COLORS.edgeTypes.success },
   },
   {
     id: '2->3',
     type: 'animatedSvg',
     source: '2',
     target: '3',
-    data: { label: 'Process', animated: true, color: '#3b82f6' },
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
+    data: { 
+      label: 'Evaluate', 
+      animated: false, 
+      color: APP_COLORS.edgeTypes.info,
+      strokeWidth: 3,
+    },
+    markerEnd: { type: MarkerType.ArrowClosed, color: APP_COLORS.edgeTypes.info },
   },
   {
     id: '3->4',
     type: 'animatedSvg',
     source: '3',
     target: '4',
-    data: { label: 'Complete', animated: true, color: '#f59e0b' },
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#f59e0b' },
+    data: { 
+      label: 'Finish', 
+      animated: false, 
+      color: APP_COLORS.edgeTypes.success,
+      strokeWidth: 3,
+    },
+    markerEnd: { type: MarkerType.ArrowClosed, color: APP_COLORS.edgeTypes.success },
   },
 ];
 
-// Connection line style
+// Enhanced connection line style
 const connectionLineStyle = {
-  strokeWidth: 2,
-  stroke: '#64748b',
+  strokeWidth: 3,
+  stroke: APP_COLORS.edgeTypes.default,
+  strokeDasharray: '8,4',
 };
 
-// Default edge options
+// Enhanced default edge options
 const defaultEdgeOptions = {
-  style: { strokeWidth: 2 },
+  style: { 
+    strokeWidth: 3,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+  },
   markerEnd: { type: MarkerType.ArrowClosed },
 };
 
@@ -205,9 +228,10 @@ export default function DiagramEditor() {
         type: isAnimationEnabled ? 'animatedSvg' : 'smoothstep',
         data: {
           animated: isAnimationEnabled,
-          color: '#64748b',
+          color: APP_COLORS.edgeTypes.default,
+          strokeWidth: 3,
         },
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#64748b' },
+        markerEnd: { type: MarkerType.ArrowClosed, color: APP_COLORS.edgeTypes.default },
       };
       setEdges((eds) => addEdge(newEdge, eds));
     },
@@ -231,19 +255,23 @@ export default function DiagramEditor() {
     setRightPanelOpen(false);
   }, []);
 
-  // Add new node
+  // Add new node with waterfall positioning for enhanced visibility
   const addNewNode = useCallback(
     (type: string = 'custom') => {
       if (!reactFlowInstance) return;
 
-      const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      if (!reactFlowBounds) return;
-
-      // Position new node in the center of the viewport
-      const position = reactFlowInstance.project({
-        x: reactFlowBounds.width / 2,
-        y: reactFlowBounds.height / 2,
-      });
+      // Calculate waterfall position based on existing nodes
+      const nodeCount = nodes.length;
+      const stepX = 300; // Horizontal step distance
+      const stepY = 150; // Vertical step distance
+      const startX = 50;  // Starting X position (cliff top)
+      const startY = 50;  // Starting Y position
+      
+      // Create stepped waterfall layout: each new node steps down and right
+      const position = {
+        x: startX + (nodeCount * stepX),
+        y: startY + (nodeCount * stepY),
+      };
 
       const newNode: DiagramNode = {
         id: `node-${Date.now()}`,
@@ -251,9 +279,9 @@ export default function DiagramEditor() {
         position,
         data: {
           label: `New Node ${nodes.length + 1}`,
-          description: 'Click to edit',
-          color: '#64748b',
-          icon: '📋',
+          description: 'Click to customize this node',
+          color: APP_COLORS.nodeTypes.custom,
+          icon: '✨',
           nodeType: 'custom', // Default node type
           properties: {},
         },
@@ -929,6 +957,7 @@ export default function DiagramEditor() {
     []
   );
 
+  const proOptions = { hideAttribution: true };
   return (
     <div className="h-screen w-full flex flex-col bg-background relative">
       {/* Toolbar */}
@@ -971,6 +1000,7 @@ export default function DiagramEditor() {
           ref={reactFlowWrapper}
         >
           <ReactFlow
+            proOptions={proOptions}
             nodes={nodes}
             edges={edges}
             nodeTypes={nodeTypes}
@@ -1036,19 +1066,19 @@ export default function DiagramEditor() {
       />
 
       {/* Panel Toggle Buttons */}
-      <PanelToggleButton
+      {/* <PanelToggleButton
         side="left"
         isOpen={leftPanelOpen}
         onToggle={() => setLeftPanelOpen(!leftPanelOpen)}
         label="Explorer"
-      />
+      /> */}
 
-      <PanelToggleButton
+      {/* <PanelToggleButton
         side="right"
         isOpen={rightPanelOpen}
         onToggle={() => setRightPanelOpen(!rightPanelOpen)}
         label="Properties"
-      />
+      /> */}
 
       {/* Status Bar */}
       <div className="h-7 bg-sidebar border-t border-border flex items-center justify-between px-3 text-xs text-muted relative z-10">

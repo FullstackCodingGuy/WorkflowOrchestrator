@@ -18,7 +18,7 @@ const wideWidth = NODE_DIMENSIONS.wideWidth;
 export const workflowExamples: WorkflowExample[] = [
   {
     name: 'E-Commerce Order Processing',
-    description: 'A real-time 5-step order processing workflow: Order Received → Validate Payment → Process Order → Fulfill Order → Order Complete.',
+    description: 'A waterfall 5-step order processing workflow: Order Received → Validate Payment → Process Order → Fulfill Order → Order Complete.',
     layoutDirection: 'TB',
     nodes: [
       {
@@ -30,7 +30,7 @@ export const workflowExamples: WorkflowExample[] = [
           backgroundColor: '#dcfce7', // Light green
           nodeType: 'start' 
         },
-        position: { x: 300, y: 50 },
+        position: { x: 50, y: 50 }, // Waterfall start
         width: defaultWidth,
         height: 60,
       },
@@ -43,7 +43,7 @@ export const workflowExamples: WorkflowExample[] = [
           backgroundColor: '#fef3c7', // Light yellow
           nodeType: 'action' 
         },
-        position: { x: 300, y: 170 },
+        position: { x: 350, y: 200 }, // Step down and right
         width: defaultWidth,
         height: defaultHeight,
       },
@@ -56,7 +56,7 @@ export const workflowExamples: WorkflowExample[] = [
           backgroundColor: '#dbeafe', // Light blue
           nodeType: 'process' 
         },
-        position: { x: 300, y: 290 },
+        position: { x: 650, y: 350 }, // Step down and right
         width: defaultWidth,
         height: defaultHeight,
       },
@@ -69,7 +69,7 @@ export const workflowExamples: WorkflowExample[] = [
           backgroundColor: '#f3e8ff', // Light purple
           nodeType: 'action' 
         },
-        position: { x: 300, y: 410 },
+        position: { x: 950, y: 500 }, // Step down and right
         width: defaultWidth,
         height: defaultHeight,
       },
@@ -82,7 +82,7 @@ export const workflowExamples: WorkflowExample[] = [
           backgroundColor: '#fce7f3', // Light pink
           nodeType: 'end' 
         },
-        position: { x: 300, y: 530 },
+        position: { x: 1250, y: 650 }, // Final step down and right
         width: defaultWidth,
         height: 60,
       },
