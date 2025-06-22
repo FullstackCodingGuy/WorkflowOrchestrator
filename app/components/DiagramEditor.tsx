@@ -84,7 +84,7 @@ const initialNodes: DiagramNode[] = [
   {
     id: '2',
     type: 'custom',
-    position: { x: 350, y: 200 }, // First step down and right
+    position: { x: 350, y: 250 }, // First step down and right
     data: {
       label: 'Process Data',
       description: 'Transform and validate input',
@@ -97,7 +97,7 @@ const initialNodes: DiagramNode[] = [
   {
     id: '3',
     type: 'custom',
-    position: { x: 650, y: 350 }, // Second step down and right
+    position: { x: 650, y: 450 }, // Second step down and right
     data: {
       label: 'Decision Point',
       description: 'Evaluate conditions and route',
@@ -110,7 +110,7 @@ const initialNodes: DiagramNode[] = [
   {
     id: '4',
     type: 'custom',
-    position: { x: 950, y: 500 }, // Final step down and right
+    position: { x: 950, y: 650 }, // Final step down and right
     data: {
       label: 'Complete',
       description: 'Workflow finished successfully',

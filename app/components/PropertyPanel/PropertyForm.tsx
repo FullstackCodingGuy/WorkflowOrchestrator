@@ -29,6 +29,8 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({
     formData,
     isDirty,
     errors,
+    autoSyncStatus,
+    lastSyncTime,
     updateField,
     resetForm,
     applyChanges,
@@ -90,6 +92,37 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({
       <div className={styles.formContent}>
         {renderTabContent()}
       </div>
+
+      {/* Auto-sync status indicator */}
+      {(autoSyncStatus !== 'idle' || isDirty) && (
+        <div className={styles.syncStatus}>
+          <div className={styles.syncIndicator}>
+            {autoSyncStatus === 'syncing' && (
+              <>
+                <div className={styles.syncSpinner}></div>
+                <span className={styles.syncText}>Auto-syncing...</span>
+              </>
+            )}
+            {autoSyncStatus === 'synced' && (
+              <>
+                <div className={styles.syncCheck}>✓</div>
+                <span className={styles.syncText}>Changes saved</span>
+              </>
+            )}
+            {autoSyncStatus === 'idle' && isDirty && (
+              <>
+                <div className={styles.syncPending}>●</div>
+                <span className={styles.syncText}>Changes pending</span>
+              </>
+            )}
+          </div>
+          {lastSyncTime && (
+            <div className={styles.lastSync}>
+              Last synced: {new Date(lastSyncTime).toLocaleTimeString()}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Form actions */}
       {isDirty && state.deviceType !== 'mobile' && (

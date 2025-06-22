@@ -845,3 +845,87 @@
   line-height: 1.5;
   max-width: 280px;
 }
+
+/* Auto-sync Status Indicator */
+.syncStatus {
+  padding: 8px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--background-secondary);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.syncIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.syncSpinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--border);
+  border-top: 2px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.syncCheck {
+  width: 12px;
+  height: 12px;
+  background: var(--success, #10b981);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: bold;
+}
+
+.syncPending {
+  width: 6px;
+  height: 6px;
+  background: var(--warning, #f59e0b);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.syncText {
+  font-weight: 500;
+}
+
+.lastSync {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  opacity: 0.8;
+}
+
+/* Compact mode adjustments */
+.propertyPanel.compact .syncStatus {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+.propertyPanel.compact .syncIndicator {
+  gap: 6px;
+}
+
+/* Mobile adjustments */
+.propertyPanel.mobile .syncStatus {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  border-top: 2px solid var(--border);
+}

@@ -19,6 +19,8 @@ interface PropertyFormState {
   isValidating: boolean;
   errors: Record<string, ValidationError | undefined>;
   pendingUpdates: Record<string, unknown>;
+  autoSyncStatus: 'idle' | 'syncing' | 'synced';
+  lastSyncTime: number | null;
 }
 
 interface UsePropertyFormProps {
@@ -33,6 +35,8 @@ const DEFAULT_STATE: PropertyFormState = {
   isValidating: false,
   errors: {},
   pendingUpdates: {},
+  autoSyncStatus: 'idle',
+  lastSyncTime: null,
 };
 
 export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyFormProps) => {
@@ -112,7 +116,7 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
     }));
   }, [selectedItems]);
 
-  // Update a single field
+  // Update a single field with enhanced auto-sync
   const updateField = useCallback((field: string, value: unknown) => {
     setFormState(prev => {
       const newLocalData = { ...prev.localData, [field]: value };
@@ -123,6 +127,7 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
         localData: newLocalData,
         isDirty,
         pendingUpdates: { ...prev.pendingUpdates, [field]: value },
+        autoSyncStatus: 'syncing',
       };
     });
 
@@ -131,9 +136,35 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
       clearTimeout(timeoutRef.current);
     }
 
-    // Debounced auto-apply changes (500ms delay for user typing)
+    // Smart auto-sync with field-specific delays for better UX
+    const getAutoSyncDelay = (fieldName: string): number => {
+      // Immediate sync for visual properties (instant feedback)
+      const instantFields = ['color', 'strokeWidth', 'opacity', 'visible', 'animated', 'strokeStyle'];
+      if (instantFields.some(f => fieldName.toLowerCase().includes(f.toLowerCase()))) {
+        return 0; // Immediate
+      }
+      
+      // Fast sync for numeric properties
+      const numericFields = ['width', 'height', 'fontSize', 'borderRadius', 'animationSpeed'];
+      if (numericFields.some(f => fieldName.toLowerCase().includes(f.toLowerCase()))) {
+        return 150; // Fast response
+      }
+      
+      // Debounced for text fields (prevents excessive updates while typing)
+      const textFields = ['label', 'description', 'title', 'notes', 'text'];
+      if (textFields.some(f => fieldName.toLowerCase().includes(f.toLowerCase()))) {
+        return 300; // Balanced for typing
+      }
+      
+      // Default delay for other fields
+      return 500;
+    };
+
+    const syncDelay = getAutoSyncDelay(field);
+    
+    // Enhanced auto-apply with smart delays
     timeoutRef.current = setTimeout(() => {
-      // Auto-apply the changes after debounce
+      // Auto-apply the changes after appropriate delay
       selectedItems.forEach(item => {
         const updates: Record<string, unknown> = {};
         
@@ -158,9 +189,24 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
         }
       });
       
+      // Update sync status
+      setFormState(prev => ({
+        ...prev,
+        autoSyncStatus: 'synced',
+        lastSyncTime: Date.now(),
+      }));
+      
+      // Reset to idle after brief display
+      setTimeout(() => {
+        setFormState(prev => ({
+          ...prev,
+          autoSyncStatus: 'idle',
+        }));
+      }, 1000);
+      
       // Also run validation
       validateField(field, value);
-    }, 500);
+    }, syncDelay);
   }, [selectedItems, onItemUpdate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Validate a single field
@@ -231,34 +277,45 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
     return namedColors.includes(color.toLowerCase());
   };
 
-  // Apply changes to selected items
+  // Apply changes to selected items with enhanced batching
   const applyChanges = useCallback(() => {
     if (!formState.isDirty) return;
 
-    selectedItems.forEach(item => {
-      const updates: Record<string, unknown> = {};
-      
-      // Build updates from pending changes
-      Object.keys(formState.pendingUpdates).forEach(field => {
-        const value = formState.pendingUpdates[field];
-        
-        // Skip system fields
-        if (field === 'id' || field === 'type' || field === 'bulkEdit' || field === 'selectionCount') {
-          return;
-        }
-        
-        // Skip core React Flow properties - these are handled separately by React Flow
-        // and shouldn't be updated through data properties
-        if (['position', 'width', 'height', 'source', 'target', 'sourceHandle', 'targetHandle'].includes(field)) {
-          return;
-        }
-        
-        // Only handle data properties that are part of DiagramNodeData/DiagramEdgeData
-        updates[field] = value;
-      });
+    // Group updates by urgency for optimized processing
+    const instantUpdates: Record<string, unknown> = {};
+    const batchedUpdates: Record<string, unknown> = {};
 
-      if (Object.keys(updates).length > 0) {
-        onItemUpdate(item.id, updates);
+    Object.keys(formState.pendingUpdates).forEach(field => {
+      const value = formState.pendingUpdates[field];
+      
+      // Skip system fields
+      if (field === 'id' || field === 'type' || field === 'bulkEdit' || field === 'selectionCount') {
+        return;
+      }
+      
+      // Skip core React Flow properties
+      if (['position', 'width', 'height', 'source', 'target', 'sourceHandle', 'targetHandle'].includes(field)) {
+        return;
+      }
+
+      // Categorize updates for optimized processing
+      const instantFields = ['color', 'strokeWidth', 'opacity', 'visible', 'animated', 'strokeStyle'];
+      if (instantFields.some(f => field.toLowerCase().includes(f.toLowerCase()))) {
+        instantUpdates[field] = value;
+      } else {
+        batchedUpdates[field] = value;
+      }
+    });
+
+    selectedItems.forEach(item => {
+      // Apply instant updates immediately
+      if (Object.keys(instantUpdates).length > 0) {
+        onItemUpdate(item.id, instantUpdates);
+      }
+      
+      // Apply batched updates (if any)
+      if (Object.keys(batchedUpdates).length > 0) {
+        onItemUpdate(item.id, batchedUpdates);
       }
     });
 
@@ -305,6 +362,8 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate }: UsePropertyForm
     isValidating: formState.isValidating,
     errors: formState.errors,
     pendingUpdates: formState.pendingUpdates,
+    autoSyncStatus: formState.autoSyncStatus,
+    lastSyncTime: formState.lastSyncTime,
     updateField,
     validateField,
     applyChanges,
