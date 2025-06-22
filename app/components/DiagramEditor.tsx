@@ -533,6 +533,17 @@ export default function DiagramEditor() {
       setWorkflowState('idle');
       highlightNode(null);
       setWorkflowStep(0);
+      
+      // Show completion toast
+      if (window.showToast) {
+        window.showToast({
+          type: 'success',
+          title: 'Workflow Completed! 🎉',
+          message: `Successfully executed ${workflowSequence.length} node${workflowSequence.length === 1 ? '' : 's'} in the workflow.`,
+          duration: 5000,
+        });
+      }
+      
       return;
     }
 
@@ -578,18 +589,46 @@ export default function DiagramEditor() {
     if (workflowState === 'paused') {
       // Resume from current step
       setWorkflowState('playing');
+      
+      // Show resume toast
+      if (window.showToast) {
+        window.showToast({
+          type: 'info',
+          title: 'Workflow Resumed',
+          message: 'Continuing from where it was paused.',
+          duration: 3000,
+        });
+      }
     } else {
       // Start new workflow
       const sequence = buildWorkflowSequence();
       
       if (sequence.length === 0) {
-        alert('No workflow to execute. Please add nodes with connections.');
+        // Show error toast instead of alert
+        if (window.showToast) {
+          window.showToast({
+            type: 'warning',
+            title: 'No Workflow Found',
+            message: 'Please add nodes with connections to create a workflow.',
+            duration: 4000,
+          });
+        }
         return;
       }
       
       setWorkflowSequence(sequence);
       setWorkflowStep(0);
       setWorkflowState('playing');
+      
+      // Show start toast
+      if (window.showToast) {
+        window.showToast({
+          type: 'info',
+          title: 'Workflow Started',
+          message: `Executing workflow with ${sequence.length} node${sequence.length === 1 ? '' : 's'}.`,
+          duration: 3000,
+        });
+      }
     }
   }, [workflowState, buildWorkflowSequence]);
 
@@ -598,6 +637,16 @@ export default function DiagramEditor() {
     if (workflowTimerRef.current) {
       clearTimeout(workflowTimerRef.current);
       workflowTimerRef.current = null;
+    }
+    
+    // Show pause toast
+    if (window.showToast) {
+      window.showToast({
+        type: 'warning',
+        title: 'Workflow Paused',
+        message: 'Click Play to resume from current step.',
+        duration: 3000,
+      });
     }
   }, []);
 
@@ -608,6 +657,16 @@ export default function DiagramEditor() {
     if (workflowTimerRef.current) {
       clearTimeout(workflowTimerRef.current);
       workflowTimerRef.current = null;
+    }
+    
+    // Show restart toast
+    if (window.showToast) {
+      window.showToast({
+        type: 'info',
+        title: 'Workflow Reset',
+        message: 'Workflow has been reset to initial state.',
+        duration: 3000,
+      });
     }
   }, [highlightNode]);
 
@@ -620,17 +679,45 @@ export default function DiagramEditor() {
         clearTimeout(workflowTimerRef.current);
         workflowTimerRef.current = null;
       }
+      
+      // Show debug stop toast
+      if (window.showToast) {
+        window.showToast({
+          type: 'info',
+          title: 'Debug Mode Stopped',
+          message: 'Debugging session has ended.',
+          duration: 3000,
+        });
+      }
     } else {
       // Start debugging
       const sequence = buildWorkflowSequence();
       if (sequence.length === 0) {
-        alert('No workflow to debug. Please add nodes with connections.');
+        // Show error toast
+        if (window.showToast) {
+          window.showToast({
+            type: 'warning',
+            title: 'No Workflow to Debug',
+            message: 'Please add nodes with connections to create a workflow.',
+            duration: 4000,
+          });
+        }
         return;
       }
       
       setWorkflowSequence(sequence);
       setWorkflowStep(0);
       setWorkflowState('debugging');
+      
+      // Show debug start toast
+      if (window.showToast) {
+        window.showToast({
+          type: 'info',
+          title: 'Debug Mode Started',
+          message: 'Workflow will execute with 3-second delays between steps.',
+          duration: 4000,
+        });
+      }
     }
   }, [workflowState, buildWorkflowSequence, highlightNode]);
 
