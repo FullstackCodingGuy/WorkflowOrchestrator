@@ -25,12 +25,11 @@ import 'reactflow/dist/style.css';
 import { AnimatedSVGEdge } from './AnimatedSVGEdge';
 import { CustomNode } from './CustomNode';
 import { DiagramToolbar } from './DiagramToolbar';
+import EnhancedPropertiesPanel from './EnhancedPropertiesPanel';
 
 // Import side panel components
 import { SidePanel, PanelSection } from './SidePanel';
 import { ExplorerPanel, OutlinePanel, FileExplorer } from './PanelContent';
-import { PropertiesContent, SettingsContent, DiagramStatsContent } from './RightPanelContent';
-import { EdgePropertiesPanel } from './EdgePropertiesPanel';
 import { WorkflowExamplesPanel } from './WorkflowExamplesPanel';
 
 // Import enhanced configuration
@@ -76,7 +75,7 @@ const initialNodes: DiagramNode[] = [
       color: APP_COLORS.nodeTypes.start,
       icon: '🚀',
       nodeType: 'start',
-      properties: { priority: 'high' }
+      properties: { priority: 'high', trigger: 'manual', timeout: '30s' }
     },
   },
   {
@@ -89,7 +88,7 @@ const initialNodes: DiagramNode[] = [
       color: APP_COLORS.nodeTypes.process,
       icon: '⚙️',
       nodeType: 'process',
-      properties: { duration: '2 minutes' }
+      properties: { duration: '2 minutes', cpu: '0.5 cores', memory: '512MB' }
     },
   },
   {
@@ -102,7 +101,7 @@ const initialNodes: DiagramNode[] = [
       color: APP_COLORS.nodeTypes.decision,
       icon: '🔀',
       nodeType: 'decision',
-      properties: { condition: 'if x > 10' }
+      properties: { condition: 'if x > 10', branches: 2, timeout: '5s' }
     },
   },
   {
@@ -115,7 +114,7 @@ const initialNodes: DiagramNode[] = [
       color: APP_COLORS.nodeTypes.end,
       icon: '✅',
       nodeType: 'end',
-      properties: { result: 'success' }
+      properties: { result: 'success', notify: 'email', cleanup: true }
     },
   },
 ];
@@ -283,7 +282,7 @@ export default function DiagramEditor() {
           color: APP_COLORS.nodeTypes.custom,
           icon: '✨',
           nodeType: 'custom', // Default node type
-          properties: {},
+          properties: { created: new Date().toISOString(), version: '1.0' },
         },
       };
 
@@ -304,13 +303,41 @@ export default function DiagramEditor() {
     setRightPanelOpen(false);
   }, [selectedNode, setNodes, setEdges]);
 
-  // Update node properties
-  const updateNodeProperties = useCallback(
-    (nodeId: string, updates: Partial<DiagramNode['data']>) => {
+  // Enhanced node update callback for properties panel
+  const handleNodeUpdate = useCallback(
+    (nodeId: string, updates: Partial<DiagramNodeData>) => {
       setNodes((nds) =>
         nds.map((node) =>
           node.id === nodeId
             ? { ...node, data: { ...node.data, ...updates } }
+            : node
+        )
+      );
+    },
+    [setNodes]
+  );
+
+  // Enhanced edge update callback for properties panel
+  const handleEdgeUpdate = useCallback(
+    (edgeId: string, updates: Partial<DiagramEdgeData>) => {
+      setEdges((eds) =>
+        eds.map((edge) =>
+          edge.id === edgeId
+            ? { ...edge, data: { ...edge.data, ...updates } }
+            : edge
+        )
+      );
+    },
+    [setEdges]
+  );
+
+  // Handle node position updates
+  const handleNodePositionUpdate = useCallback(
+    (nodeId: string, position: { x: number; y: number }) => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, position }
             : node
         )
       );
@@ -427,27 +454,6 @@ export default function DiagramEditor() {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [saveDiagram, loadDiagram, addNewNode, fitView, deleteSelectedNode, selectedNode, showMiniMap]);
-
-  // Update edge properties
-  const updateEdgeProperties = useCallback(
-    (edgeId: string, updates: Partial<DiagramEdgeData | undefined>) => {
-      if (!updates) return;
-      
-      setEdges((eds) =>
-        eds.map((edge) =>
-          edge.id === edgeId
-            ? { 
-                ...edge, 
-                data: { ...edge.data, ...updates },
-                // Handle edge type changes
-                ...(updates.edgeType && updates.edgeType !== edge.type ? { type: updates.edgeType } : {})
-              }
-            : edge
-        )
-      );
-    },
-    [setEdges]
-  );
 
   // Workflow handlers
   const buildWorkflowSequence = useCallback(() => {
@@ -905,48 +911,6 @@ export default function DiagramEditor() {
     },
   ];
 
-  // Configure right panel sections
-  const rightPanelSections: PanelSection[] = [
-    {
-      id: 'properties',
-      title: selectedEdge ? 'Edge Properties' : 'Node Properties',
-      icon: selectedEdge ? '🔗' : '⚙️',
-      defaultOpen: true,
-      content: selectedEdge ? (
-        <EdgePropertiesPanel
-          selectedEdge={selectedEdge}
-          onUpdateEdge={updateEdgeProperties}
-        />
-      ) : (
-        <PropertiesContent
-          selectedNode={selectedNode}
-          onUpdateNode={(nodeId: string, updates: unknown) => 
-            updateNodeProperties(nodeId, updates as Partial<DiagramNode['data']>)
-          }
-        />
-      ),
-    },
-    {
-      id: 'settings',
-      title: 'Settings',
-      icon: '🔧',
-      defaultOpen: false,
-      content: <SettingsContent />,
-    },
-    {
-      id: 'stats',
-      title: 'Diagram Stats',
-      icon: '📊',
-      defaultOpen: false,
-      content: (
-        <DiagramStatsContent
-          totalNodes={nodes.length}
-          totalEdges={edges.length}
-        />
-      ),
-    },
-  ];
-
   // Edge click handler
   const onEdgeClick = useCallback(
     (event: React.MouseEvent, edge: DiagramEdge) => {
@@ -995,7 +959,7 @@ export default function DiagramEditor() {
           className={`flex-1 transition-all duration-300 ${
             leftPanelOpen ? 'ml-[280px]' : 'ml-0'
           } ${
-            rightPanelOpen ? 'mr-[280px]' : 'mr-0'
+            rightPanelOpen ? 'mr-[384px]' : 'mr-0'
           }`} 
           ref={reactFlowWrapper}
         >
@@ -1056,14 +1020,18 @@ export default function DiagramEditor() {
         width={280}
       />
 
-      {/* Right Side Panel */}
-      <SidePanel
-        side="right"
-        isOpen={rightPanelOpen}
-        onToggle={() => setRightPanelOpen(!rightPanelOpen)}
-        sections={rightPanelSections}
-        width={280}
-      />
+      {/* Enhanced Right Properties Panel */}
+      <div className="absolute top-0 right-0 h-full z-20">
+        <EnhancedPropertiesPanel
+          selectedNode={selectedNode}
+          selectedEdge={selectedEdge}
+          onNodeUpdate={handleNodeUpdate}
+          onEdgeUpdate={handleEdgeUpdate}
+          onPositionUpdate={handleNodePositionUpdate}
+          isOpen={rightPanelOpen}
+          onToggle={() => setRightPanelOpen(!rightPanelOpen)}
+        />
+      </div>
 
       {/* Panel Toggle Buttons */}
       {/* <PanelToggleButton
