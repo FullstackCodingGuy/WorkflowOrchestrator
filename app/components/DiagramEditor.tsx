@@ -25,7 +25,6 @@ import 'reactflow/dist/style.css';
 import { AnimatedSVGEdge } from './AnimatedSVGEdge';
 import { CustomNode } from './CustomNode';
 import { DiagramToolbar } from './DiagramToolbar';
-import EnhancedPropertiesPanel from './EnhancedPropertiesPanel';
 
 // Import side panel components
 import { SidePanel, PanelSection } from './SidePanel';
@@ -212,7 +211,26 @@ export default function DiagramEditor() {
 
   // Side panel states
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
-  const [rightPanelOpen, setRightPanelOpen] = useState(false);
+  
+  // Property panel state (decoupled from UI - ready for future implementation)
+  const [propertyPanelOpen, setPropertyPanelOpen] = useState(false);
+  
+  // REMOVED: rightPanelOpen state - no longer needed as property panels are removed
+
+  // Property panel toggle handler (decoupled from UI)
+  const handlePropertyPanelToggle = useCallback(() => {
+    setPropertyPanelOpen(!propertyPanelOpen);
+    
+    // Show "Coming Soon" toast notification
+    if (window.showToast) {
+      window.showToast({
+        type: 'info',
+        title: 'Properties Panel',
+        message: 'Advanced property panel coming soon! Stay tuned for comprehensive node and edge configuration.',
+        duration: 3000,
+      });
+    }
+  }, [propertyPanelOpen]);
 
   // Connection handler
   const onConnect = useCallback(
@@ -237,21 +255,23 @@ export default function DiagramEditor() {
     [setEdges, isAnimationEnabled]
   );
 
-  // Node click handler
+  // Node click handler (decoupled from UI panel)
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
       setSelectedNode(node as DiagramNode);
       setSelectedEdge(null); // Clear edge selection
-      setRightPanelOpen(true);
+      
+      // State is tracked but no UI panel is shown (decoupled for future implementation)
+      setPropertyPanelOpen(true);
     },
     []
   );
 
-  // Pane click handler (deselect)
+  // Pane click handler (deselect and reset state)
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
     setSelectedEdge(null);
-    setRightPanelOpen(false);
+    setPropertyPanelOpen(false);
   }, []);
 
   // Add new node with waterfall positioning for enhanced visibility
@@ -300,10 +320,11 @@ export default function DiagramEditor() {
       eds.filter((edge) => edge.source !== selectedNode.id && edge.target !== selectedNode.id)
     );
     setSelectedNode(null);
-    setRightPanelOpen(false);
+    setPropertyPanelOpen(false);
   }, [selectedNode, setNodes, setEdges]);
 
-  // Enhanced node update callback for properties panel
+  // Enhanced node update callback (maintained for future property panel implementation)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleNodeUpdate = useCallback(
     (nodeId: string, updates: Partial<DiagramNodeData>) => {
       setNodes((nds) =>
@@ -317,7 +338,8 @@ export default function DiagramEditor() {
     [setNodes]
   );
 
-  // Enhanced edge update callback for properties panel
+  // Enhanced edge update callback (maintained for future property panel implementation)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleEdgeUpdate = useCallback(
     (edgeId: string, updates: Partial<DiagramEdgeData>) => {
       setEdges((eds) =>
@@ -331,7 +353,8 @@ export default function DiagramEditor() {
     [setEdges]
   );
 
-  // Handle node position updates
+  // Handle node position updates (maintained for future property panel implementation)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleNodePositionUpdate = useCallback(
     (nodeId: string, position: { x: number; y: number }) => {
       setNodes((nds) =>
@@ -383,7 +406,7 @@ export default function DiagramEditor() {
     setNodes([]);
     setEdges([]);
     setSelectedNode(null);
-    setRightPanelOpen(false);
+    setPropertyPanelOpen(false);
   }, [setNodes, setEdges]);
 
   // Save diagram to localStorage
@@ -447,7 +470,7 @@ export default function DiagramEditor() {
       }
       if (event.key === 'Escape') {
         setSelectedNode(null);
-        setRightPanelOpen(false);
+        setPropertyPanelOpen(false);
       }
     };
 
@@ -867,7 +890,7 @@ export default function DiagramEditor() {
           selectedNode={selectedNode}
           onNodeSelect={(node) => {
             setSelectedNode(node);
-            setRightPanelOpen(true);
+            setPropertyPanelOpen(true);
           }}
           onNodeDelete={(nodeId) => {
             setNodes((nds) => nds.filter((node) => node.id !== nodeId));
@@ -890,7 +913,7 @@ export default function DiagramEditor() {
           edges={edges}
           onNodeSelect={(node) => {
             setSelectedNode(node);
-            setRightPanelOpen(true);
+            setPropertyPanelOpen(true);
           }}
           onFitView={fitView}
         />
@@ -916,7 +939,7 @@ export default function DiagramEditor() {
     (event: React.MouseEvent, edge: DiagramEdge) => {
       setSelectedEdge(edge);
       setSelectedNode(null); // Clear node selection
-      setRightPanelOpen(true);
+      setPropertyPanelOpen(true);
     },
     []
   );
@@ -937,8 +960,8 @@ export default function DiagramEditor() {
         onBackgroundVariantChange={setBackgroundVariant}
         isAnimationEnabled={isAnimationEnabled}
         onAnimationToggle={handleAnimationToggle}
-        onTogglePropertiesPanel={() => setRightPanelOpen(!rightPanelOpen)}
-        showPropertiesPanel={rightPanelOpen}
+        onTogglePropertiesPanel={handlePropertyPanelToggle}
+        showPropertiesPanel={propertyPanelOpen}
         showMiniMap={showMiniMap}
         onMiniMapToggle={setShowMiniMap}
         onPlayWorkflow={handlePlayWorkflow}
@@ -948,8 +971,8 @@ export default function DiagramEditor() {
         workflowState={workflowState}
         showLeftSidebar={leftPanelOpen}
         onToggleLeftSidebar={() => setLeftPanelOpen(!leftPanelOpen)}
-        showRightSidebar={rightPanelOpen}
-        onToggleRightSidebar={() => setRightPanelOpen(!rightPanelOpen)}
+        showRightSidebar={false}
+        onToggleRightSidebar={() => {}} // Placeholder - no right sidebar functionality
       />
 
       {/* Main Editor Area */}
@@ -958,8 +981,6 @@ export default function DiagramEditor() {
         <div 
           className={`flex-1 transition-all duration-300 ${
             leftPanelOpen ? 'ml-[280px]' : 'ml-0'
-          } ${
-            rightPanelOpen ? 'mr-[384px]' : 'mr-0'
           }`} 
           ref={reactFlowWrapper}
         >
@@ -1020,18 +1041,9 @@ export default function DiagramEditor() {
         width={280}
       />
 
-      {/* Enhanced Right Properties Panel */}
-      <div className="absolute top-0 right-0 h-full z-20">
-        <EnhancedPropertiesPanel
-          selectedNode={selectedNode}
-          selectedEdge={selectedEdge}
-          onNodeUpdate={handleNodeUpdate}
-          onEdgeUpdate={handleEdgeUpdate}
-          onPositionUpdate={handleNodePositionUpdate}
-          isOpen={rightPanelOpen}
-          onToggle={() => setRightPanelOpen(!rightPanelOpen)}
-        />
-      </div>
+      {/* REMOVED: Enhanced Right Properties Panel - Decoupled for future implementation */}
+      {/* Property panel state is maintained in propertyPanelOpen but no UI is rendered */}
+      {/* This enables future extensibility without breaking existing functionality */}
 
       {/* Panel Toggle Buttons */}
       {/* <PanelToggleButton
