@@ -39,6 +39,12 @@ export function WorkflowEdge({
   const strokeStyle = data?.strokeStyle || 'solid';
   const animationSpeed = data?.animationSpeed || 'normal';
   const markerEndType = data?.markerEnd || 'arrow';
+  
+  // Typography properties for edge labels
+  const fontSize = data?.fontSize || 12;
+  const fontFamily = data?.fontFamily || 'Arial, sans-serif';
+  const fontWeight = data?.fontWeight || 'normal';
+  const textColor = data?.textColor || edgeColor;
 
   // Animation duration based on speed
   const animationDurations = {
@@ -133,16 +139,17 @@ export function WorkflowEdge({
         </circle>
       )}
 
-      {/* Edge label */}
+      {/* Edge label with dynamic typography */}
       {data?.label && (
         <EdgeLabelRenderer>
           <div
             style={{
               position: 'absolute',
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-              fontSize: 12,
-              fontWeight: 500,
-              color: edgeColor,
+              fontSize: fontSize,
+              fontFamily: fontFamily,
+              fontWeight: fontWeight,
+              color: textColor,
               backgroundColor: 'white',
               padding: '2px 6px',
               borderRadius: '4px',
