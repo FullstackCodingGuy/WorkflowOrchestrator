@@ -9,7 +9,20 @@ export interface WorkflowTemplate {
   layoutDirection: 'TB' | 'LR';
 }
 
-const defaultBgColor = APP_COLORS.defaultBg;
+// Enhanced default styling for better visual appeal
+const defaultNodeStyle = {
+  backgroundColor: '#ffffff', // Pure white for clean look
+  borderColor: '#d1d5db', // Soft gray border
+  textColor: '#1f2937', // Dark gray for better contrast
+  fontSize: 16, // Larger for better readability
+  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+  fontWeight: '600', // Semi-bold for better visibility
+  textAlign: 'center' as const,
+  lineHeight: 1.5, // Better line spacing
+  maxWidth: 240, // Wider for better content display
+};
+
+const defaultBgColor = '#ffffff';
 const defaultWidth = NODE_DIMENSIONS.defaultWidth;
 const defaultHeight = NODE_DIMENSIONS.defaultHeight;
 const conditionHeight = NODE_DIMENSIONS.conditionHeight;
@@ -27,7 +40,9 @@ export const workflowTemplates: WorkflowTemplate[] = [
         data: { 
           id: 'eop-start', 
           label: 'Order Received', 
-          backgroundColor: '#dcfce7', // Light green
+          ...defaultNodeStyle,
+          backgroundColor: '#f0fdf4', // Light green
+          textColor: '#065f46',
           nodeType: 'start' 
         },
         position: { x: 300, y: 50 },
@@ -40,7 +55,9 @@ export const workflowTemplates: WorkflowTemplate[] = [
         data: { 
           id: 'eop-validate', 
           label: 'Validate Payment', 
-          backgroundColor: '#fef3c7', // Light yellow
+          ...defaultNodeStyle,
+          backgroundColor: '#fff7ed', // Light orange
+          textColor: '#9a3412',
           nodeType: 'action' 
         },
         position: { x: 300, y: 170 },
@@ -53,7 +70,9 @@ export const workflowTemplates: WorkflowTemplate[] = [
         data: { 
           id: 'eop-process', 
           label: 'Process Order Items', 
-          backgroundColor: '#dbeafe', // Light blue
+          ...defaultNodeStyle,
+          backgroundColor: '#eff6ff', // Light blue
+          textColor: '#1e40af',
           nodeType: 'process' 
         },
         position: { x: 300, y: 290 },
@@ -66,7 +85,9 @@ export const workflowTemplates: WorkflowTemplate[] = [
         data: { 
           id: 'eop-fulfill', 
           label: 'Package & Ship', 
+          ...defaultNodeStyle,
           backgroundColor: '#f3e8ff', // Light purple
+          textColor: '#5b21b6',
           nodeType: 'action' 
         },
         position: { x: 300, y: 410 },
@@ -79,7 +100,9 @@ export const workflowTemplates: WorkflowTemplate[] = [
         data: { 
           id: 'eop-complete', 
           label: 'Order Complete', 
-          backgroundColor: '#fce7f3', // Light pink
+          ...defaultNodeStyle,
+          backgroundColor: '#fef2f2', // Light pink
+          textColor: '#991b1b',
           nodeType: 'end' 
         },
         position: { x: 300, y: 530 },
@@ -132,24 +155,24 @@ export const workflowTemplates: WorkflowTemplate[] = [
     layoutDirection: 'TB',
     nodes: [
       // Main flow - centered
-      { id: 'itu-start', type: 'start', data: { id: 'itu-start', label: 'New User Request', backgroundColor: defaultBgColor }, position: { x: 400, y: 50 }, width: defaultWidth, height: 60 },
-      { id: 'itu-action-hr', type: 'action', data: { id: 'itu-action-hr', label: 'HR Verification', backgroundColor: defaultBgColor }, position: { x: 400, y: 150 }, width: defaultWidth, height: defaultHeight },
-      { id: 'itu-cond-hr', type: 'condition', data: { id: 'itu-cond-hr', label: 'HR Approved?', backgroundColor: defaultBgColor }, position: { x: 400, y: 280 }, width: defaultWidth, height: conditionHeight },
+      { id: 'itu-start', type: 'start', data: { id: 'itu-start', label: 'New User Request', ...defaultNodeStyle, backgroundColor: '#f0fdf4', textColor: '#065f46' }, position: { x: 400, y: 50 }, width: defaultWidth, height: 60 },
+      { id: 'itu-action-hr', type: 'action', data: { id: 'itu-action-hr', label: 'HR Verification', ...defaultNodeStyle, backgroundColor: '#ecfeff', textColor: '#155e75' }, position: { x: 400, y: 150 }, width: defaultWidth, height: defaultHeight },
+      { id: 'itu-cond-hr', type: 'condition', data: { id: 'itu-cond-hr', label: 'HR Approved?', ...defaultNodeStyle, backgroundColor: '#f3e8ff', textColor: '#5b21b6' }, position: { x: 400, y: 280 }, width: defaultWidth, height: conditionHeight },
       
       // Success path - center-left
-      { id: 'itu-action-it-setup', type: 'action', data: { id: 'itu-action-it-setup', label: 'Attempt IT Account Setup', backgroundColor: defaultBgColor }, position: { x: 400, y: 420 }, width: wideWidth, height: defaultHeight },
-      { id: 'itu-cond-it-setup-ok', type: 'condition', data: { id: 'itu-cond-it-setup-ok', label: 'IT Setup Successful?', backgroundColor: defaultBgColor }, position: { x: 400, y: 560 }, width: defaultWidth, height: conditionHeight },
-      { id: 'itu-action-resource', type: 'action', data: { id: 'itu-action-resource', label: 'Allocate Resources', backgroundColor: defaultBgColor }, position: { x: 200, y: 700 }, width: defaultWidth, height: defaultHeight },
-      { id: 'itu-action-notify', type: 'action', data: { id: 'itu-action-notify', label: 'Notify User & Manager', backgroundColor: defaultBgColor }, position: { x: 200, y: 840 }, width: defaultWidth, height: defaultHeight },
-      { id: 'itu-end-complete', type: 'end', data: { id: 'itu-end-complete', label: 'Onboarding Complete', backgroundColor: defaultBgColor }, position: { x: 200, y: 980 }, width: defaultWidth, height: 60 },
+      { id: 'itu-action-it-setup', type: 'action', data: { id: 'itu-action-it-setup', label: 'Attempt IT Account Setup', ...defaultNodeStyle, backgroundColor: '#eff6ff', textColor: '#1e40af' }, position: { x: 400, y: 420 }, width: wideWidth, height: defaultHeight },
+      { id: 'itu-cond-it-setup-ok', type: 'condition', data: { id: 'itu-cond-it-setup-ok', label: 'IT Setup Successful?', ...defaultNodeStyle, backgroundColor: '#f3e8ff', textColor: '#5b21b6' }, position: { x: 400, y: 560 }, width: defaultWidth, height: conditionHeight },
+      { id: 'itu-action-resource', type: 'action', data: { id: 'itu-action-resource', label: 'Allocate Resources', ...defaultNodeStyle, backgroundColor: '#ecfeff', textColor: '#155e75' }, position: { x: 200, y: 700 }, width: defaultWidth, height: defaultHeight },
+      { id: 'itu-action-notify', type: 'action', data: { id: 'itu-action-notify', label: 'Notify User & Manager', ...defaultNodeStyle, backgroundColor: '#ecfeff', textColor: '#155e75' }, position: { x: 200, y: 840 }, width: defaultWidth, height: defaultHeight },
+      { id: 'itu-end-complete', type: 'end', data: { id: 'itu-end-complete', label: 'Onboarding Complete', ...defaultNodeStyle, backgroundColor: '#f0fdf4', textColor: '#065f46' }, position: { x: 200, y: 980 }, width: defaultWidth, height: 60 },
       
       // IT failure path - center-right
-      { id: 'itu-action-log-issue', type: 'action', data: { id: 'itu-action-log-issue', label: 'Log IT Issue / Escalate', backgroundColor: defaultBgColor }, position: { x: 600, y: 700 }, width: wideWidth, height: defaultHeight },
-      { id: 'itu-end-delayed', type: 'end', data: { id: 'itu-end-delayed', label: 'Onboarding Delayed/Issue', backgroundColor: defaultBgColor }, position: { x: 600, y: 840 }, width: wideWidth, height: 60 },
+      { id: 'itu-action-log-issue', type: 'action', data: { id: 'itu-action-log-issue', label: 'Log IT Issue / Escalate', ...defaultNodeStyle, backgroundColor: '#fff7ed', textColor: '#9a3412' }, position: { x: 600, y: 700 }, width: wideWidth, height: defaultHeight },
+      { id: 'itu-end-delayed', type: 'end', data: { id: 'itu-end-delayed', label: 'Onboarding Delayed/Issue', ...defaultNodeStyle, backgroundColor: '#fef2f2', textColor: '#991b1b' }, position: { x: 600, y: 840 }, width: wideWidth, height: 60 },
       
       // HR rejection path - right
-      { id: 'itu-action-reject-hr', type: 'action', data: { id: 'itu-action-reject-hr', label: 'Notify HR Rejection', backgroundColor: defaultBgColor }, position: { x: 700, y: 420 }, width: defaultWidth, height: defaultHeight },
-      { id: 'itu-end-rejected-hr', type: 'end', data: { id: 'itu-end-rejected-hr', label: 'Onboarding Rejected (HR)', backgroundColor: defaultBgColor }, position: { x: 700, y: 560 }, width: wideWidth, height: 60 },
+      { id: 'itu-action-reject-hr', type: 'action', data: { id: 'itu-action-reject-hr', label: 'Notify HR Rejection', ...defaultNodeStyle, backgroundColor: '#fff7ed', textColor: '#9a3412' }, position: { x: 700, y: 420 }, width: defaultWidth, height: defaultHeight },
+      { id: 'itu-end-rejected-hr', type: 'end', data: { id: 'itu-end-rejected-hr', label: 'Onboarding Rejected (HR)', ...defaultNodeStyle, backgroundColor: '#fef2f2', textColor: '#991b1b' }, position: { x: 700, y: 560 }, width: wideWidth, height: 60 },
     ],
     edges: [
       { id: 'itu-e-start-hr', type: 'dotFlow', source: 'itu-start', target: 'itu-action-hr', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
@@ -171,27 +194,27 @@ export const workflowTemplates: WorkflowTemplate[] = [
     layoutDirection: 'LR',
     nodes: [
       // Main horizontal flow
-      { id: 'bla-start', type: 'start', data: { id: 'bla-start', label: 'Loan Application Received', backgroundColor: defaultBgColor }, position: { x: 50, y: 300 }, width: wideWidth, height: 60 },
-      { id: 'bla-action-docs', type: 'action', data: { id: 'bla-action-docs', label: 'Document Verification', backgroundColor: defaultBgColor }, position: { x: 350, y: 300 }, width: defaultWidth, height: defaultHeight },
-      { id: 'bla-cond-docs', type: 'condition', data: { id: 'bla-cond-docs', label: 'Docs OK?', backgroundColor: defaultBgColor }, position: { x: 600, y: 300 }, width: defaultWidth, height: conditionHeight },
+      { id: 'bla-start', type: 'start', data: { id: 'bla-start', label: 'Loan Application Received', ...defaultNodeStyle, backgroundColor: '#f0fdf4', textColor: '#065f46' }, position: { x: 50, y: 300 }, width: wideWidth, height: 60 },
+      { id: 'bla-action-docs', type: 'action', data: { id: 'bla-action-docs', label: 'Document Verification', ...defaultNodeStyle, backgroundColor: '#ecfeff', textColor: '#155e75' }, position: { x: 350, y: 300 }, width: defaultWidth, height: defaultHeight },
+      { id: 'bla-cond-docs', type: 'condition', data: { id: 'bla-cond-docs', label: 'Docs OK?', ...defaultNodeStyle, backgroundColor: '#f3e8ff', textColor: '#5b21b6' }, position: { x: 600, y: 300 }, width: defaultWidth, height: conditionHeight },
       
       // Document failure path - upper branch
-      { id: 'bla-action-request-info', type: 'action', data: { id: 'bla-action-request-info', label: 'Request Add. Info', backgroundColor: defaultBgColor }, position: { x: 600, y: 150 }, width: defaultWidth, height: defaultHeight },
-      { id: 'bla-end-incomplete', type: 'end', data: { id: 'bla-end-incomplete', label: 'App. Incomplete', backgroundColor: defaultBgColor }, position: { x: 850, y: 150 }, width: defaultWidth, height: 60 },
+      { id: 'bla-action-request-info', type: 'action', data: { id: 'bla-action-request-info', label: 'Request Add. Info', ...defaultNodeStyle, backgroundColor: '#fff7ed', textColor: '#9a3412' }, position: { x: 600, y: 150 }, width: defaultWidth, height: defaultHeight },
+      { id: 'bla-end-incomplete', type: 'end', data: { id: 'bla-end-incomplete', label: 'App. Incomplete', ...defaultNodeStyle, backgroundColor: '#fef2f2', textColor: '#991b1b' }, position: { x: 850, y: 150 }, width: defaultWidth, height: 60 },
       
       // Success path continues horizontally
-      { id: 'bla-action-credit', type: 'action', data: { id: 'bla-action-credit', label: 'Credit Check', backgroundColor: defaultBgColor }, position: { x: 850, y: 300 }, width: defaultWidth, height: defaultHeight },
-      { id: 'bla-cond-credit', type: 'condition', data: { id: 'bla-cond-credit', label: 'Credit Score OK?', backgroundColor: defaultBgColor }, position: { x: 1100, y: 300 }, width: defaultWidth, height: conditionHeight },
-      { id: 'bla-action-risk', type: 'action', data: { id: 'bla-action-risk', label: 'Risk Assessment', backgroundColor: defaultBgColor }, position: { x: 1350, y: 300 }, width: defaultWidth, height: defaultHeight },
-      { id: 'bla-cond-risk', type: 'condition', data: { id: 'bla-cond-risk', label: 'Risk Low?', backgroundColor: defaultBgColor }, position: { x: 1600, y: 300 }, width: defaultWidth, height: conditionHeight },
+      { id: 'bla-action-credit', type: 'action', data: { id: 'bla-action-credit', label: 'Credit Check', ...defaultNodeStyle, backgroundColor: '#eff6ff', textColor: '#1e40af' }, position: { x: 850, y: 300 }, width: defaultWidth, height: defaultHeight },
+      { id: 'bla-cond-credit', type: 'condition', data: { id: 'bla-cond-credit', label: 'Credit Score OK?', ...defaultNodeStyle, backgroundColor: '#f3e8ff', textColor: '#5b21b6' }, position: { x: 1100, y: 300 }, width: defaultWidth, height: conditionHeight },
+      { id: 'bla-action-risk', type: 'action', data: { id: 'bla-action-risk', label: 'Risk Assessment', ...defaultNodeStyle, backgroundColor: '#eff6ff', textColor: '#1e40af' }, position: { x: 1350, y: 300 }, width: defaultWidth, height: defaultHeight },
+      { id: 'bla-cond-risk', type: 'condition', data: { id: 'bla-cond-risk', label: 'Risk Low?', ...defaultNodeStyle, backgroundColor: '#f3e8ff', textColor: '#5b21b6' }, position: { x: 1600, y: 300 }, width: defaultWidth, height: conditionHeight },
       
       // Final approval path - upper branch
-      { id: 'bla-action-approve', type: 'action', data: { id: 'bla-action-approve', label: 'Approve Loan & Disburse', backgroundColor: defaultBgColor }, position: { x: 1600, y: 150 }, width: wideWidth, height: defaultHeight },
-      { id: 'bla-end-approved', type: 'end', data: { id: 'bla-end-approved', label: 'Loan Approved', backgroundColor: defaultBgColor }, position: { x: 1900, y: 150 }, width: defaultWidth, height: 60 },
+      { id: 'bla-action-approve', type: 'action', data: { id: 'bla-action-approve', label: 'Approve Loan & Disburse', ...defaultNodeStyle, backgroundColor: '#f0fdf4', textColor: '#065f46' }, position: { x: 1600, y: 150 }, width: wideWidth, height: defaultHeight },
+      { id: 'bla-end-approved', type: 'end', data: { id: 'bla-end-approved', label: 'Loan Approved', ...defaultNodeStyle, backgroundColor: '#f0fdf4', textColor: '#065f46' }, position: { x: 1900, y: 150 }, width: defaultWidth, height: 60 },
       
       // Rejection path - lower branch
-      { id: 'bla-action-reject', type: 'action', data: { id: 'bla-action-reject', label: 'Notify Rejection', backgroundColor: defaultBgColor }, position: { x: 1350, y: 450 }, width: defaultWidth, height: defaultHeight },
-      { id: 'bla-end-rejected', type: 'end', data: { id: 'bla-end-rejected', label: 'Loan Rejected', backgroundColor: defaultBgColor }, position: { x: 1600, y: 450 }, width: defaultWidth, height: 60 },
+      { id: 'bla-action-reject', type: 'action', data: { id: 'bla-action-reject', label: 'Notify Rejection', ...defaultNodeStyle, backgroundColor: '#fff7ed', textColor: '#9a3412' }, position: { x: 1350, y: 450 }, width: defaultWidth, height: defaultHeight },
+      { id: 'bla-end-rejected', type: 'end', data: { id: 'bla-end-rejected', label: 'Loan Rejected', ...defaultNodeStyle, backgroundColor: '#fef2f2', textColor: '#991b1b' }, position: { x: 1600, y: 450 }, width: defaultWidth, height: 60 },
     ],
     edges: [
       { id: 'bla-e-start-docs', type: 'dotFlow', source: 'bla-start', target: 'bla-action-docs', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },

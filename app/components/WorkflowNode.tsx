@@ -25,15 +25,15 @@ export const WorkflowNode = memo(({ data, selected }: NodeProps<DiagramNodeData>
     label,
     description,
     color = '#64748b',
-    backgroundColor = '#ffffff',
-    borderColor = '#e2e8f0',
-    textColor = '#1f2937',
-    fontSize = 14,
-    fontFamily = 'Arial, sans-serif',
-    fontWeight = 'normal',
-    textAlign = 'left',
-    lineHeight = 1.5,
-    maxWidth = 200,
+    backgroundColor = '#ffffff', // Pure white for clean look
+    borderColor = '#d1d5db', // Soft gray border
+    textColor = '#1f2937', // Dark gray for better contrast
+    fontSize = 16, // Larger for better readability
+    fontFamily = 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+    fontWeight = '600', // Semi-bold for better visibility
+    textAlign = 'center',
+    lineHeight = 1.5, // Better line spacing
+    maxWidth = 240, // Wider for better content display
     icon = '📋',
     nodeType = 'custom',
     properties = {},
@@ -56,13 +56,13 @@ export const WorkflowNode = memo(({ data, selected }: NodeProps<DiagramNodeData>
         fallbackText: '#1e40af',
       },
       decision: {
-        fallbackBg: '#fffbeb',
-        fallbackBorder: '#fde68a',
-        fallbackAccent: '#d97706',
-        fallbackText: '#92400e',
+        fallbackBg: '#fff7ed',
+        fallbackBorder: '#fed7aa',
+        fallbackAccent: '#ea580c',
+        fallbackText: '#9a3412',
       },
       condition: {
-        fallbackBg: '#f5f3ff',
+        fallbackBg: '#f3e8ff',
         fallbackBorder: '#c4b5fd',
         fallbackAccent: '#7c3aed',
         fallbackText: '#5b21b6',
@@ -80,10 +80,10 @@ export const WorkflowNode = memo(({ data, selected }: NodeProps<DiagramNodeData>
         fallbackText: '#991b1b',
       },
       custom: {
-        fallbackBg: '#f8fafc',
-        fallbackBorder: '#e2e8f0',
+        fallbackBg: '#ffffff',
+        fallbackBorder: '#d1d5db',
         fallbackAccent: '#64748b',
-        fallbackText: '#334155',
+        fallbackText: '#1f2937',
       },
     };
     return styles[type as keyof typeof styles] || styles.custom;

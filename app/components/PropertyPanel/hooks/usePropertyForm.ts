@@ -69,17 +69,17 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate, onNodePositionUpd
       newData.id = item.id;
       newData.type = item.type;
       
-      // Enhanced color and typography extraction with defaults
+      // Enhanced color and typography extraction with visually appealing defaults
       newData.color = newData.color || '#6366f1';
-      newData.backgroundColor = newData.backgroundColor || '#ffffff';
-      newData.borderColor = newData.borderColor || '#cccccc';
-      newData.textColor = newData.textColor || '#000000';
-      newData.fontSize = newData.fontSize || 14;
-      newData.fontFamily = newData.fontFamily || 'Arial, sans-serif';
-      newData.fontWeight = newData.fontWeight || 'normal';
-      newData.textAlign = newData.textAlign || 'left';
-      newData.lineHeight = newData.lineHeight || 1.5;
-      newData.maxWidth = newData.maxWidth || 200;
+      newData.backgroundColor = newData.backgroundColor || '#ffffff'; // Pure white for clean look
+      newData.borderColor = newData.borderColor || '#d1d5db'; // Soft gray border
+      newData.textColor = newData.textColor || '#1f2937'; // Dark gray for better contrast
+      newData.fontSize = newData.fontSize || 16; // Larger for better readability
+      newData.fontFamily = newData.fontFamily || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+      newData.fontWeight = newData.fontWeight || '600'; // Semi-bold for better visibility
+      newData.textAlign = newData.textAlign || 'center';
+      newData.lineHeight = newData.lineHeight || 1.5; // Better line spacing
+      newData.maxWidth = newData.maxWidth || 240; // Wider for better content display
       
       if ('source' in item) {
         // Edge properties

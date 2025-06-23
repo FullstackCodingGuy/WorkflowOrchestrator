@@ -48,7 +48,7 @@ export const StyleTab: React.FC<StyleTabProps> = ({
           <div className={styles.formGroup}>
             <ColorPicker
               label="Background"
-              value={(formData.backgroundColor as string) || '#ffffff'}
+              value={(formData.backgroundColor as string) || '#f8fafc'}
               onChange={(color: string) => onFieldUpdate('backgroundColor', color)}
               error={errors.backgroundColor?.message}
             />
@@ -56,7 +56,7 @@ export const StyleTab: React.FC<StyleTabProps> = ({
           <div className={styles.formGroup}>
             <ColorPicker
               label="Border"
-              value={(formData.borderColor as string) || '#cccccc'}
+              value={(formData.borderColor as string) || '#e2e8f0'}
               onChange={(color: string) => onFieldUpdate('borderColor', color)}
               error={errors.borderColor?.message}
             />
@@ -64,7 +64,7 @@ export const StyleTab: React.FC<StyleTabProps> = ({
           <div className={styles.formGroup}>
             <ColorPicker
               label="Text Color"
-              value={(formData.textColor as string) || '#000000'}
+              value={(formData.textColor as string) || '#334155'}
               onChange={(color: string) => onFieldUpdate('textColor', color)}
               error={errors.textColor?.message}
             />

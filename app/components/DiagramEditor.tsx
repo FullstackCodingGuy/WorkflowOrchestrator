@@ -85,7 +85,7 @@ export interface DiagramEdgeData {
 
 export type DiagramEdge = Edge<DiagramEdgeData>;
 
-// Initial nodes with stepped waterfall layout for enhanced visibility
+// Initial nodes with enhanced default styling
 const initialNodes: DiagramNode[] = [
   {
     id: '1',
@@ -95,15 +95,15 @@ const initialNodes: DiagramNode[] = [
       label: 'Start Node',
       description: 'Begin workflow execution',
       color: APP_COLORS.nodeTypes.start,
-      backgroundColor: '#ffffff',
-      borderColor: '#e2e8f0',
-      textColor: '#1a202c',
-      fontSize: 14,
-      fontFamily: 'Arial, sans-serif',
-      fontWeight: 'normal',
+      backgroundColor: '#f0fdf4', // Light green background
+      borderColor: '#bbf7d0',
+      textColor: '#065f46', // Dark green text
+      fontSize: 16,
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontWeight: '600',
       textAlign: 'center',
-      lineHeight: 1.5,
-      maxWidth: 200,
+      lineHeight: 1.4,
+      maxWidth: 220,
       icon: '🚀',
       nodeType: 'start',
       properties: { priority: 'high', trigger: 'manual', timeout: '30s' }
@@ -117,6 +117,15 @@ const initialNodes: DiagramNode[] = [
       label: 'Process Data',
       description: 'Transform and validate input',
       color: APP_COLORS.nodeTypes.process,
+      backgroundColor: '#eff6ff', // Light blue background
+      borderColor: '#bfdbfe',
+      textColor: '#1e40af', // Dark blue text
+      fontSize: 15,
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontWeight: '500',
+      textAlign: 'center',
+      lineHeight: 1.4,
+      maxWidth: 220,
       icon: '⚙️',
       nodeType: 'process',
       properties: { duration: '2 minutes', cpu: '0.5 cores', memory: '512MB' }
@@ -130,6 +139,15 @@ const initialNodes: DiagramNode[] = [
       label: 'Decision Point',
       description: 'Evaluate conditions and route',
       color: APP_COLORS.nodeTypes.decision,
+      backgroundColor: '#fffbeb', // Light amber background
+      borderColor: '#fde68a',
+      textColor: '#92400e', // Dark amber text
+      fontSize: 15,
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontWeight: '500',
+      textAlign: 'center',
+      lineHeight: 1.4,
+      maxWidth: 220,
       icon: '🔀',
       nodeType: 'decision',
       properties: { condition: 'if x > 10', branches: 2, timeout: '5s' }
@@ -143,6 +161,15 @@ const initialNodes: DiagramNode[] = [
       label: 'Complete',
       description: 'Workflow finished successfully',
       color: APP_COLORS.nodeTypes.end,
+      backgroundColor: '#fef2f2', // Light red background
+      borderColor: '#fecaca',
+      textColor: '#991b1b', // Dark red text
+      fontSize: 16,
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontWeight: '600',
+      textAlign: 'center',
+      lineHeight: 1.4,
+      maxWidth: 220,
       icon: '✅',
       nodeType: 'end',
       properties: { result: 'success', notify: 'email', cleanup: true }
@@ -327,6 +354,15 @@ export default function DiagramEditor() {
           label: `New Node ${nodes.length + 1}`,
           description: 'Click to customize this node',
           color: APP_COLORS.nodeTypes.custom,
+          backgroundColor: '#ffffff', // Pure white for clean look
+          borderColor: '#d1d5db', // Soft gray border
+          textColor: '#1f2937', // Dark gray for better contrast
+          fontSize: 16, // Larger for better readability
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+          fontWeight: '600', // Semi-bold for better visibility
+          textAlign: 'center',
+          lineHeight: 1.5, // Better line spacing
+          maxWidth: 240, // Wider for better content display
           icon: '✨',
           nodeType: 'custom', // Default node type
           properties: { created: new Date().toISOString(), version: '1.0' },
