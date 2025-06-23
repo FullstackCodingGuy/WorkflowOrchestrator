@@ -3,11 +3,9 @@
 import React from 'react';
 import { Node, Edge } from 'reactflow';
 import { PropertyPanelState } from './PropertyPanel';
-import { OverviewTab } from './tabs/OverviewTab';
 import { PropertiesTab } from './tabs/PropertiesTab';
 import { StyleTab } from './tabs/StyleTab';
-import { AdvancedTab } from './tabs/AdvancedTab';
-import { DiagramTab } from './tabs/DiagramTab';
+import { SettingsTab } from './tabs/SettingsTab';
 import { DiagramNodeData, DiagramEdgeData } from '../DiagramEditor';
 import { usePropertyForm } from './hooks/usePropertyForm';
 import styles from './PropertyPanel.module.css';
@@ -60,28 +58,17 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({
     };
 
     switch (state.activeTab) {
-      case 'overview':
-        return <OverviewTab {...commonProps} />;
-      
       case 'properties':
         return <PropertiesTab {...commonProps} />;
       
       case 'style':
         return <StyleTab {...commonProps} />;
       
-      case 'advanced':
-        return <AdvancedTab {...commonProps} />;
-      
-      case 'diagram':
-        return (
-          <DiagramTab
-            {...commonProps}
-            onStateUpdate={onStateUpdate}
-          />
-        );
+      case 'settings':
+        return <SettingsTab {...commonProps} />;
       
       default:
-        return <OverviewTab {...commonProps} />;
+        return <PropertiesTab {...commonProps} />;
     }
   };
 

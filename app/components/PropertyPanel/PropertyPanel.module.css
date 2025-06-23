@@ -1,16 +1,18 @@
-/* Property Panel Main Styles */
+/* --- Compact, Modern, Space-Efficient Property Panel --- */
 .propertyPanel {
   position: fixed;
-  top: 0;
+  top: var(--sub-toolbar-height, 48px);
   right: 0;
-  height: 100vh;
+  height: calc(100vh - var(--sub-toolbar-height, 48px) - var(--footer-height, 36px));
   background: var(--background);
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   z-index: 1000;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.08);
+  min-width: 280px;
+  max-width: 420px;
 }
 
 .propertyPanel.collapsed {
@@ -30,6 +32,20 @@
 
 .propertyPanel.resizing * {
   pointer-events: none;
+}
+
+/* Scrollable Panel */
+.scrollablePanel {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 10px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface);
+  min-height: 0;
+  max-height: 100%;
 }
 
 /* Accordion Container */
@@ -82,6 +98,7 @@
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+  min-height: 0;
 }
 
 /* Header Styles */
@@ -184,6 +201,17 @@
 .headerButton svg {
   width: 16px;
   height: 16px;
+}
+
+/* Minimal Header Style */
+.headerMinimal {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 4px 6px 0 0;
+  min-height: 32px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
 }
 
 /* Search Container */
@@ -374,48 +402,46 @@
 
 /* Form Controls */
 .formGroup {
-  margin-bottom: 16px;
-}
-
-.propertyForm.compact .formGroup {
-  margin-bottom: 12px;
-}
-
-.formLabel {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-primary);
   margin-bottom: 6px;
 }
 
-.formInput {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
+.propertyForm.compact .formGroup {
+  margin-bottom: 4px;
+}
+
+.formLabel {
+  font-size: 0.92rem;
+  font-weight: 500;
+  margin-bottom: 1px;
   color: var(--text-primary);
-  font-size: 14px;
-  transition: all 0.2s ease;
 }
 
-.formInput:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-light);
+.formInput, .formTextarea {
+  font-size: 0.93rem;
+  padding: 3px 7px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.formInput:disabled {
-  background: var(--disabled);
-  color: var(--text-disabled);
-  cursor: not-allowed;
+.formTextarea {
+  min-height: 36px;
+  resize: vertical;
 }
 
-.formError {
-  font-size: 12px;
-  color: var(--error);
-  margin-top: 4px;
+.helpText {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: 1px;
+}
+
+.errorMessage {
+  color: var(--danger);
+  font-size: 0.8rem;
+  margin-top: 1px;
 }
 
 /* Additional Form Control Styles */
@@ -558,6 +584,58 @@
 .propertyGroupToggle svg {
   width: 16px;
   height: 16px;
+}
+
+/* Section Styles */
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 6px;
+}
+
+.sectionTitle {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sectionType {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.sectionId {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.bulkEditBadge {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 0.75rem;
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: 5px;
+  font-weight: 500;
+}
+
+.inlineFields {
+  display: flex;
+  gap: 6px;
+}
+
+.connectionInfoRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.connectionItem {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 2px;
 }
 
 /* Tab Content Styles */
@@ -1008,4 +1086,131 @@
   bottom: 0;
   z-index: 10;
   border-top: 2px solid var(--border);
+}
+
+/* Edge Values Input Styles */
+.edgeValuesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.edgeValueItem {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.removeValueBtn {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 1em;
+  margin-left: 1px;
+  cursor: pointer;
+  padding: 0 1px;
+  border-radius: 2px;
+  transition: background 0.12s;
+}
+.removeValueBtn:hover {
+  background: var(--danger-bg);
+}
+.edgeValueInputRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.addValueBtn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 3px 10px;
+  font-size: 0.93rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.addValueBtn:disabled {
+  background: var(--border);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+/* Key-Value Input Styles */
+.keyValueList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.keyValueItem {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.keyValueInputRow {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.keyInput {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.12s ease;
+}
+
+.keyInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary-light);
+}
+
+.valueInput {
+  flex: 1.5;
+  min-width: 0;
+  font-size: 0.9rem;
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.12s ease;
+}
+
+.valueInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary-light);
+}
+
+/* Wrapper for Property Panel Content */
+.propertyPanelContentWrapper {
+  position: absolute;
+  top: var(--sub-toolbar-height, 56px);
+  bottom: var(--footer-height, 48px);
+  right: 0;
+  left: auto;
+  width: var(--property-panel-width, 384px);
+  display: flex;
+  flex-direction: column;
+  background: var(--background);
+  z-index: 1000;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.08);
+  border-left: 1px solid var(--border);
+  height: auto;
+  min-height: 0;
+  max-height: unset;
 }

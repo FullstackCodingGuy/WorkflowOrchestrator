@@ -101,6 +101,7 @@ export const ResponsivePropertyPanel: React.FC<ResponsivePropertyPanelProps> = (
       ref={panelRef}
       data-property-panel
       className={`
+        ${styles.propertyPanelContentWrapper}
         ${styles.propertyPanel}
         ${state.isCollapsed ? styles.collapsed : ''}
         ${state.isCompactMode ? styles.compact : ''}
@@ -118,7 +119,6 @@ export const ResponsivePropertyPanel: React.FC<ResponsivePropertyPanelProps> = (
         className={styles.resizeHandle}
         onMouseDown={handleResizeStart}
       />
-      
       {/* Panel content */}
       <div className={styles.panelContent}>
         {children}

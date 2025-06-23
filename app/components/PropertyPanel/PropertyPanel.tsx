@@ -11,7 +11,7 @@ import { useResponsivePanel } from './hooks/useResponsivePanel';
 import { usePanelPersistence } from './hooks/usePanelPersistence';
 import { DiagramNodeData, DiagramEdgeData } from '../DiagramEditor';
 
-export type TabType = 'overview' | 'properties' | 'style' | 'advanced' | 'diagram';
+export type TabType = 'properties' | 'style' | 'settings';
 export type SelectionType = 'none' | 'single' | 'multiple';
 export type PanelMode = 'sidebar' | 'modal' | 'bottomSheet';
 export type DeviceType = 'mobile' | 'tablet' | 'desktop';
@@ -49,7 +49,7 @@ const DEFAULT_PANEL_STATE: PropertyPanelState = {
   isOpen: false,
   isCollapsed: false,
   width: 384,
-  activeTab: 'overview',
+  activeTab: 'properties',
   isCompactMode: false,
   selectedItems: [],
   selectionType: 'none',
