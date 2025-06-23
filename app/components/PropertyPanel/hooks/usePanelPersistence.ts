@@ -15,7 +15,7 @@ const STORAGE_KEY = 'propertyPanel_preferences';
 
 const DEFAULT_PREFERENCES: PanelPreferences = {
   width: 384,
-  activeTab: 'overview',
+  activeTab: 'properties',
   isCompactMode: false,
   isCollapsed: false,
   collapsedGroups: [],

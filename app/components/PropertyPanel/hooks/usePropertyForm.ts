@@ -88,12 +88,25 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate, onNodePositionUpd
         newData.sourceHandle = item.sourceHandle;
         newData.targetHandle = item.targetHandle;
       } else {
-        // Node properties including position
-        newData.position = item.position;
-        newData.positionX = item.position.x;
-        newData.positionY = item.position.y;
-        newData.width = item.width;
-        newData.height = item.height;
+        // Node properties including position and settings
+        const node = item as Node<DiagramNodeData>;
+        newData.position = node.position;
+        newData.positionX = node.position.x;
+        newData.positionY = node.position.y;
+        newData.width = node.width;
+        newData.height = node.height;
+        
+        // Node-level properties (React Flow properties)
+        newData.draggable = node.draggable ?? true;
+        newData.selectable = node.selectable ?? true;
+        newData.deletable = node.deletable ?? true;
+        newData.zIndex = node.zIndex ?? 0;
+        
+        // Settings from data (stored for persistence)
+        newData.snapToGrid = node.data?.snapToGrid ?? false;
+        newData.gridSize = node.data?.gridSize ?? 20;
+        newData.showMinimap = node.data?.showMinimap ?? true;
+        newData.showControls = node.data?.showControls ?? true;
       }
     } else {
       // Multiple selection - handle common properties

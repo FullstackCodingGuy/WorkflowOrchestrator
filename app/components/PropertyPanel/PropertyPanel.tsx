@@ -11,7 +11,7 @@ import { useResponsivePanel } from './hooks/useResponsivePanel';
 import { usePanelPersistence } from './hooks/usePanelPersistence';
 import { DiagramNodeData, DiagramEdgeData } from '../DiagramEditor';
 
-export type TabType = 'properties' | 'style' | 'settings';
+export type TabType = 'properties' | 'style';
 export type SelectionType = 'none' | 'single' | 'multiple';
 export type PanelMode = 'sidebar' | 'modal' | 'bottomSheet';
 export type DeviceType = 'mobile' | 'tablet' | 'desktop';

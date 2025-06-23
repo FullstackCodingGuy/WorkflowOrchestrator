@@ -27,8 +27,6 @@ interface DiagramToolbarProps {
   onBackgroundVariantChange: (variant: BackgroundVariant) => void;
   isAnimationEnabled: boolean;
   onAnimationToggle: (enabled: boolean) => void;
-  onTogglePropertiesPanel: () => void;
-  showPropertiesPanel: boolean;
   showMiniMap: boolean;
   onMiniMapToggle: (show: boolean) => void;
   // Workflow controls
@@ -42,6 +40,13 @@ interface DiagramToolbarProps {
   onToggleLeftSidebar: () => void;
   showRightSidebar: boolean;
   onToggleRightSidebar: () => void;
+  // Settings controls (moved from settings tab)
+  snapToGrid?: boolean;
+  onSnapToGridToggle: (enabled: boolean) => void;
+  gridSize?: number;
+  onGridSizeChange: (size: number) => void;
+  showControls?: boolean;
+  onShowControlsToggle: (show: boolean) => void;
 }
 
 export function DiagramToolbar({
@@ -56,8 +61,6 @@ export function DiagramToolbar({
   onBackgroundVariantChange,
   isAnimationEnabled,
   onAnimationToggle,
-  onTogglePropertiesPanel,
-  showPropertiesPanel,
   showMiniMap,
   onMiniMapToggle,
   onPlayWorkflow,
@@ -69,6 +72,12 @@ export function DiagramToolbar({
   onToggleLeftSidebar,
   showRightSidebar,
   onToggleRightSidebar,
+  snapToGrid = false,
+  onSnapToGridToggle,
+  gridSize = 20,
+  onGridSizeChange,
+  showControls = true,
+  onShowControlsToggle,
 }: DiagramToolbarProps) {
   return (
     <div className="flex flex-col">
@@ -185,7 +194,7 @@ export function DiagramToolbar({
           </div>
         </div>
 
-        {/* Right Section - File Operations & Properties */}
+        {/* Right Section - File Operations */}
         <div className="flex items-center space-x-1.5">
           <button
             onClick={onLoad}
@@ -207,23 +216,6 @@ export function DiagramToolbar({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
             </svg>
             <span>Save</span>
-          </button>
-
-          <div className="w-px h-5 bg-border mx-1" />
-
-          <button
-            onClick={onTogglePropertiesPanel}
-            className={`btn btn-sm ${
-              showPropertiesPanel
-                ? 'btn-primary'
-                : 'btn-outline'
-            }`}
-            title="Toggle Properties Panel"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-            </svg>
-            <span>Properties</span>
           </button>
         </div>
       </div>
@@ -312,8 +304,44 @@ export function DiagramToolbar({
           </button>
         </div>
 
-        {/* Right Section - MiniMap Toggle + Right Sidebar Toggle */}
+        {/* Right Section - Settings + MiniMap Toggle + Right Sidebar Toggle */}
         <div className="flex items-center space-x-2">
+          {/* Settings Controls */}
+          <label className="flex items-center space-x-1.5 text-xs text-muted cursor-pointer hover:text-foreground transition-colors">
+            <input
+              type="checkbox"
+              checked={snapToGrid}
+              onChange={(e) => onSnapToGridToggle(e.target.checked)}
+              className="checkbox w-3 h-3"
+            />
+            <span>Snap to Grid</span>
+          </label>
+
+          <div className="flex items-center space-x-1 text-xs text-muted">
+            <label>Grid:</label>
+            <input
+              type="number"
+              value={gridSize}
+              onChange={(e) => onGridSizeChange(parseInt(e.target.value))}
+              className="w-12 px-1 py-0.5 text-xs border border-border rounded bg-background text-foreground"
+              min={10}
+              max={100}
+              step={5}
+            />
+          </div>
+
+          <label className="flex items-center space-x-1.5 text-xs text-muted cursor-pointer hover:text-foreground transition-colors">
+            <input
+              type="checkbox"
+              checked={showControls}
+              onChange={(e) => onShowControlsToggle(e.target.checked)}
+              className="checkbox w-3 h-3"
+            />
+            <span>Show Controls</span>
+          </label>
+
+          <div className="w-px h-4 bg-border" />
+
           <label className="flex items-center space-x-1.5 text-xs text-muted cursor-pointer hover:text-foreground transition-colors">
             <input
               type="checkbox"

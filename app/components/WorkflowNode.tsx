@@ -186,13 +186,13 @@ export const WorkflowNode = memo(({ data, selected }: NodeProps<DiagramNodeData>
       )}
 
       {/* Selected element display */}
-      {selected && (
+      {/* {selected && (
         <div className="absolute -bottom-8 left-0 right-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-md shadow-lg z-10">
           <div className="text-center font-medium">
             Selected: {label} (ID: {data.label ? data.label.replace(/\s+/g, '-').toLowerCase() : 'node'})
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Enhanced Output Handle */}
       <Handle

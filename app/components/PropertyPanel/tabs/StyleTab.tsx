@@ -27,7 +27,6 @@ export const StyleTab: React.FC<StyleTabProps> = ({
   selectedItems,
   formData,
   errors,
-  isCompactMode,
   onFieldUpdate,
 }) => {
   const isNode = selectedItems.length > 0 && !('source' in selectedItems[0]);
@@ -35,9 +34,7 @@ export const StyleTab: React.FC<StyleTabProps> = ({
 
   return (
     <div className={`${styles.tabContent} ${styles.styleTab} ${styles.scrollablePanel}`}> 
-      <div className={styles.sectionHeader}>
-        <span className={styles.sectionTitle}>Style</span>
-      </div>
+      {/* Color Controls */}
       <div className={styles.formGroup}>
         <ColorPicker
           label={isEdge ? 'Edge Color' : 'Primary Color'}
@@ -50,7 +47,7 @@ export const StyleTab: React.FC<StyleTabProps> = ({
         <>
           <div className={styles.formGroup}>
             <ColorPicker
-              label="Background Color"
+              label="Background"
               value={(formData.backgroundColor as string) || '#ffffff'}
               onChange={(color: string) => onFieldUpdate('backgroundColor', color)}
               error={errors.backgroundColor?.message}
@@ -58,7 +55,7 @@ export const StyleTab: React.FC<StyleTabProps> = ({
           </div>
           <div className={styles.formGroup}>
             <ColorPicker
-              label="Border Color"
+              label="Border"
               value={(formData.borderColor as string) || '#cccccc'}
               onChange={(color: string) => onFieldUpdate('borderColor', color)}
               error={errors.borderColor?.message}
@@ -72,29 +69,27 @@ export const StyleTab: React.FC<StyleTabProps> = ({
               error={errors.textColor?.message}
             />
           </div>
-          <div className={styles.inlineFields}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Max Width</label>
-              <input
-                type="number"
-                className={styles.formInput}
-                value={(formData.maxWidth as number) || 200}
-                onChange={(e) => onFieldUpdate('maxWidth', parseInt(e.target.value))}
-                min="50"
-                max="1000"
-                placeholder="Max width in pixels"
-              />
-              {errors.maxWidth && (
-                <span className={styles.errorMessage}>{errors.maxWidth.message}</span>
-              )}
-            </div>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Max Width</label>
+            <input
+              type="number"
+              className={styles.formInput}
+              value={(formData.maxWidth as number) || 200}
+              onChange={(e) => onFieldUpdate('maxWidth', parseInt(e.target.value))}
+              min="50"
+              max="1000"
+              placeholder="Max width in pixels"
+            />
+            {errors.maxWidth && (
+              <span className={styles.errorMessage}>{errors.maxWidth.message}</span>
+            )}
           </div>
         </>
       )}
       {isEdge && (
-        <>
+        <div className={styles.inlineFields}>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Stroke Width</label>
+            <label className={styles.formLabel}>Width</label>
             <input
               type="number"
               className={styles.formInput}
@@ -105,7 +100,7 @@ export const StyleTab: React.FC<StyleTabProps> = ({
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Stroke Style</label>
+            <label className={styles.formLabel}>Style</label>
             <select
               className={styles.formInput}
               value={(formData.strokeStyle as string) || 'solid'}
@@ -116,21 +111,37 @@ export const StyleTab: React.FC<StyleTabProps> = ({
               <option value="dotted">Dotted</option>
             </select>
           </div>
-        </>
+        </div>
       )}
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Font Size</label>
-        <input
-          type="number"
-          className={styles.formInput}
-          value={(formData.fontSize as number) || 14}
-          onChange={(e) => onFieldUpdate('fontSize', parseInt(e.target.value))}
-          min="8"
-          max="72"
-        />
-        {errors.fontSize && (
-          <span className={styles.errorMessage}>{errors.fontSize.message}</span>
-        )}
+      
+      {/* Typography Controls */}
+      <div className={styles.inlineFields}>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>Font Size</label>
+          <input
+            type="number"
+            className={styles.formInput}
+            value={(formData.fontSize as number) || 14}
+            onChange={(e) => onFieldUpdate('fontSize', parseInt(e.target.value))}
+            min="8"
+            max="72"
+          />
+          {errors.fontSize && (
+            <span className={styles.errorMessage}>{errors.fontSize.message}</span>
+          )}
+        </div>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>Line Height</label>
+          <input
+            type="number"
+            className={styles.formInput}
+            value={(formData.lineHeight as number) || 1.5}
+            onChange={(e) => onFieldUpdate('lineHeight', parseFloat(e.target.value))}
+            min="0.8"
+            max="3"
+            step="0.1"
+          />
+        </div>
       </div>
       <div className={styles.formGroup}>
         <label className={styles.formLabel}>Font Family</label>
@@ -147,50 +158,40 @@ export const StyleTab: React.FC<StyleTabProps> = ({
           <option value="Verdana, sans-serif">Verdana</option>
         </select>
       </div>
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Font Weight</label>
-        <select
-          className={styles.formInput}
-          value={(formData.fontWeight as string) || 'normal'}
-          onChange={(e) => onFieldUpdate('fontWeight', e.target.value)}
-        >
-          <option value="normal">Normal</option>
-          <option value="bold">Bold</option>
-          <option value="lighter">Lighter</option>
-          <option value="bolder">Bolder</option>
-          <option value="100">100 (Thin)</option>
-          <option value="300">300 (Light)</option>
-          <option value="400">400 (Normal)</option>
-          <option value="500">500 (Medium)</option>
-          <option value="600">600 (Semi Bold)</option>
-          <option value="700">700 (Bold)</option>
-          <option value="900">900 (Black)</option>
-        </select>
-      </div>
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Text Align</label>
-        <select
-          className={styles.formInput}
-          value={(formData.textAlign as string) || 'left'}
-          onChange={(e) => onFieldUpdate('textAlign', e.target.value)}
-        >
-          <option value="left">Left</option>
-          <option value="center">Center</option>
-          <option value="right">Right</option>
-          <option value="justify">Justify</option>
-        </select>
-      </div>
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Line Height</label>
-        <input
-          type="number"
-          className={styles.formInput}
-          value={(formData.lineHeight as number) || 1.5}
-          onChange={(e) => onFieldUpdate('lineHeight', parseFloat(e.target.value))}
-          min="0.8"
-          max="3"
-          step="0.1"
-        />
+      <div className={styles.inlineFields}>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>Weight</label>
+          <select
+            className={styles.formInput}
+            value={(formData.fontWeight as string) || 'normal'}
+            onChange={(e) => onFieldUpdate('fontWeight', e.target.value)}
+          >
+            <option value="normal">Normal</option>
+            <option value="bold">Bold</option>
+            <option value="lighter">Lighter</option>
+            <option value="bolder">Bolder</option>
+            <option value="100">100</option>
+            <option value="300">300</option>
+            <option value="400">400</option>
+            <option value="500">500</option>
+            <option value="600">600</option>
+            <option value="700">700</option>
+            <option value="900">900</option>
+          </select>
+        </div>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>Align</label>
+          <select
+            className={styles.formInput}
+            value={(formData.textAlign as string) || 'left'}
+            onChange={(e) => onFieldUpdate('textAlign', e.target.value)}
+          >
+            <option value="left">Left</option>
+            <option value="center">Center</option>
+            <option value="right">Right</option>
+            <option value="justify">Justify</option>
+          </select>
+        </div>
       </div>
     </div>
   );

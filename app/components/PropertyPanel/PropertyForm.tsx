@@ -5,7 +5,6 @@ import { Node, Edge } from 'reactflow';
 import { PropertyPanelState } from './PropertyPanel';
 import { PropertiesTab } from './tabs/PropertiesTab';
 import { StyleTab } from './tabs/StyleTab';
-import { SettingsTab } from './tabs/SettingsTab';
 import { DiagramNodeData, DiagramEdgeData } from '../DiagramEditor';
 import { usePropertyForm } from './hooks/usePropertyForm';
 import styles from './PropertyPanel.module.css';
@@ -23,7 +22,6 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({
   selectedItems,
   onItemUpdate,
   onNodePositionUpdate,
-  onStateUpdate,
 }) => {
   const {
     formData,
@@ -63,9 +61,6 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({
       
       case 'style':
         return <StyleTab {...commonProps} />;
-      
-      case 'settings':
-        return <SettingsTab {...commonProps} />;
       
       default:
         return <PropertiesTab {...commonProps} />;

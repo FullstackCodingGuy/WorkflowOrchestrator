@@ -87,7 +87,6 @@ export const PropertiesTab: React.FC<PropertiesTabProps> = ({
   selectedItems,
   formData,
   errors,
-  isCompactMode,
   onFieldUpdate,
 }) => {
   const hasSelection = selectedItems.length > 0;

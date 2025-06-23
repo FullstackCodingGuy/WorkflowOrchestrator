@@ -26,7 +26,7 @@ import { WorkflowEdge } from './WorkflowEdge';
 import { WorkflowNode } from './WorkflowNode';
 import { DiagramToolbar } from './DiagramToolbar';
 
-// Import the new Property Panel
+// Import the Property Panel
 import { PropertyPanel } from './PropertyPanel/PropertyPanel';
 
 // Import side panel components
@@ -58,6 +58,11 @@ export interface DiagramNodeData {
   nodeType?: WorkflowNodeType; // New node type attribute
   properties?: Record<string, unknown>;
   isExecuting?: boolean;
+  // Settings properties
+  snapToGrid?: boolean;
+  gridSize?: number;
+  showMinimap?: boolean;
+  showControls?: boolean;
 }
 
 export type DiagramNode = Node<DiagramNodeData>;
@@ -234,6 +239,11 @@ export default function DiagramEditor() {
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(true);
 
+  // Settings state (moved from property panel)
+  const [snapToGrid, setSnapToGrid] = useState(false);
+  const [gridSize, setGridSize] = useState(20);
+  const [showControls, setShowControls] = useState(true);
+
   // Workflow state
   const [workflowState, setWorkflowState] = useState<'idle' | 'playing' | 'paused' | 'debugging'>('idle');
   const [workflowSequence, setWorkflowSequence] = useState<string[]>([]);
@@ -248,25 +258,8 @@ export default function DiagramEditor() {
   // Side panel states
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
   
-  // Property panel state (decoupled from UI - ready for future implementation)
+  // Property panel state - opens when nodes/edges are selected
   const [propertyPanelOpen, setPropertyPanelOpen] = useState(false);
-  
-  // REMOVED: rightPanelOpen state - no longer needed as property panels are removed
-
-  // Property panel toggle handler (decoupled from UI)
-  const handlePropertyPanelToggle = useCallback(() => {
-    setPropertyPanelOpen(!propertyPanelOpen);
-    
-    // Show "Coming Soon" toast notification
-    if (window.showToast) {
-      window.showToast({
-        type: 'info',
-        title: 'Properties Panel',
-        message: 'Advanced property panel coming soon! Stay tuned for comprehensive node and edge configuration.',
-        duration: 3000,
-      });
-    }
-  }, [propertyPanelOpen]);
 
   // Connection handler
   const onConnect = useCallback(
@@ -291,19 +284,17 @@ export default function DiagramEditor() {
     [setEdges, isAnimationEnabled]
   );
 
-  // Node click handler (decoupled from UI panel)
+  // Node click handler - opens property panel
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
       setSelectedNode(node as DiagramNode);
       setSelectedEdge(null); // Clear edge selection
-      
-      // State is tracked but no UI panel is shown (decoupled for future implementation)
-      setPropertyPanelOpen(true);
+      setPropertyPanelOpen(true); // Open property panel when node is selected
     },
     []
   );
 
-  // Pane click handler (deselect and reset state)
+  // Pane click handler (deselect and close property panel)
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
     setSelectedEdge(null);
@@ -358,48 +349,6 @@ export default function DiagramEditor() {
     setSelectedNode(null);
     setPropertyPanelOpen(false);
   }, [selectedNode, setNodes, setEdges]);
-
-  // Enhanced node update callback
-  const handleNodeUpdate = useCallback(
-    (nodeId: string, updates: Partial<DiagramNodeData>) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === nodeId
-            ? { ...node, data: { ...node.data, ...updates } }
-            : node
-        )
-      );
-    },
-    [setNodes]
-  );
-
-  // Enhanced edge update callback
-  const handleEdgeUpdate = useCallback(
-    (edgeId: string, updates: Partial<DiagramEdgeData>) => {
-      setEdges((eds) =>
-        eds.map((edge) =>
-          edge.id === edgeId
-            ? { ...edge, data: { ...edge.data, ...updates } }
-            : edge
-        )
-      );
-    },
-    [setEdges]
-  );
-
-  // Handle node position updates (for property panel position editing)
-  const handleNodePositionUpdate = useCallback(
-    (nodeId: string, position: { x: number; y: number }) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === nodeId
-            ? { ...node, position }
-            : node
-        )
-      );
-    },
-    [setNodes]
-  );
 
   // Toggle animation for all edges
   const toggleAllEdgesAnimation = useCallback(
@@ -972,9 +921,71 @@ export default function DiagramEditor() {
     (event: React.MouseEvent, edge: DiagramEdge) => {
       setSelectedEdge(edge);
       setSelectedNode(null); // Clear node selection
-      setPropertyPanelOpen(true);
+      setPropertyPanelOpen(true); // Open property panel when edge is selected
     },
     []
+  );
+
+  // Enhanced node update callback
+  const handleNodeUpdate = useCallback(
+    (nodeId: string, updates: Partial<DiagramNodeData> & Record<string, unknown>) => {
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.id !== nodeId) return node;
+          
+          // Separate node-level properties from data properties
+          const { 
+            draggable, 
+            selectable, 
+            deletable, 
+            zIndex,
+            ...dataUpdates 
+          } = updates;
+          
+          // Update node-level properties
+          const nodeUpdates: Partial<Node> = {};
+          if (draggable !== undefined) nodeUpdates.draggable = draggable as boolean;
+          if (selectable !== undefined) nodeUpdates.selectable = selectable as boolean;
+          if (deletable !== undefined) nodeUpdates.deletable = deletable as boolean;
+          if (zIndex !== undefined) nodeUpdates.zIndex = zIndex as number;
+          
+          return { 
+            ...node, 
+            ...nodeUpdates,
+            data: { ...node.data, ...dataUpdates } 
+          };
+        })
+      );
+    },
+    [setNodes]
+  );
+
+  // Enhanced edge update callback
+  const handleEdgeUpdate = useCallback(
+    (edgeId: string, updates: Partial<DiagramEdgeData>) => {
+      setEdges((eds) =>
+        eds.map((edge) =>
+          edge.id === edgeId
+            ? { ...edge, data: { ...edge.data, ...updates } }
+            : edge
+        )
+      );
+    },
+    [setEdges]
+  );
+
+  // Handle node position updates (for property panel position editing)
+  const handleNodePositionUpdate = useCallback(
+    (nodeId: string, position: { x: number; y: number }) => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, position }
+            : node
+        )
+      );
+    },
+    [setNodes]
   );
 
   const proOptions = { hideAttribution: true };
@@ -993,8 +1004,6 @@ export default function DiagramEditor() {
         onBackgroundVariantChange={setBackgroundVariant}
         isAnimationEnabled={isAnimationEnabled}
         onAnimationToggle={handleAnimationToggle}
-        onTogglePropertiesPanel={handlePropertyPanelToggle}
-        showPropertiesPanel={propertyPanelOpen}
         showMiniMap={showMiniMap}
         onMiniMapToggle={setShowMiniMap}
         onPlayWorkflow={handlePlayWorkflow}
@@ -1006,6 +1015,12 @@ export default function DiagramEditor() {
         onToggleLeftSidebar={() => setLeftPanelOpen(!leftPanelOpen)}
         showRightSidebar={false}
         onToggleRightSidebar={() => {}} // Placeholder - no right sidebar functionality
+        snapToGrid={snapToGrid}
+        onSnapToGridToggle={setSnapToGrid}
+        gridSize={gridSize}
+        onGridSizeChange={setGridSize}
+        showControls={showControls}
+        onShowControlsToggle={setShowControls}
       />
 
       {/* Main Editor Area */}
@@ -1033,19 +1048,21 @@ export default function DiagramEditor() {
             connectionMode={ConnectionMode.Loose}
             connectionLineStyle={connectionLineStyle}
             defaultEdgeOptions={defaultEdgeOptions}
-            snapToGrid={true}
-            snapGrid={[15, 15]}
+            snapToGrid={snapToGrid}
+            snapGrid={[gridSize, gridSize]}
             fitView
             attributionPosition="bottom-left"
             className="bg-background"
           >
-            <Controls 
-              position="bottom-right"
-              showZoom={true}
-              showFitView={true}
-              showInteractive={true}
-              className="bg-card border border-border rounded-lg shadow-soft"
-            />
+            {showControls && (
+              <Controls 
+                position="bottom-right"
+                showZoom={true}
+                showFitView={true}
+                showInteractive={true}
+                className="bg-card border border-border rounded-lg shadow-soft"
+              />
+            )}
             {showMiniMap && (
               <MiniMap 
                 position="top-right"
@@ -1074,7 +1091,7 @@ export default function DiagramEditor() {
         width={280}
       />
 
-      {/* New Property Panel System */}
+      {/* Property Panel System - Opens when nodes/edges are selected */}
       <PropertyPanel
         selectedNode={selectedNode}
         selectedEdge={selectedEdge}

@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
+import { Node } from 'reactflow';
+import { DiagramNodeData } from '../DiagramEditor';
 import { PropertyPanelState } from './PropertyPanel';
-import { PropertySearch } from './features/PropertySearch';
 import styles from './PropertyPanel.module.css';
 
 interface PropertyPanelHeaderProps {
@@ -15,15 +16,40 @@ interface PropertyPanelHeaderProps {
 
 export const PropertyPanelHeader: React.FC<PropertyPanelHeaderProps> = ({
   state,
-  onCollapseToggle,
   onClose,
-  onSearch,
-  onCompactModeToggle,
 }) => {
-  const [showSearch, setShowSearch] = useState(false);
+  // Get the selected node type for display
+  const getSelectedNodeType = () => {
+    if (state.selectedItems.length === 0) return null;
+    
+    const firstItem = state.selectedItems[0];
+    if ('source' in firstItem) {
+      // It's an edge
+      return 'Edge';
+    } else {
+      // It's a node
+      const node = firstItem as Node<DiagramNodeData>;
+      const nodeType = node.data?.nodeType || node.type || 'Node';
+      // Capitalize first letter and format
+      return nodeType.charAt(0).toUpperCase() + nodeType.slice(1);
+    }
+  };
+
+  const selectedNodeType = getSelectedNodeType();
 
   return (
     <div className={styles.headerMinimal}>
+      {selectedNodeType && (
+        <div className={styles.headerNodeType}>
+          <span className={styles.nodeTypeIcon}>
+            {selectedNodeType === 'Edge' ? '→' : '⬢'}
+          </span>
+          <span className={styles.nodeTypeText}>{selectedNodeType}</span>
+          {state.selectedItems.length > 1 && (
+            <span className={styles.selectionCount}>({state.selectedItems.length})</span>
+          )}
+        </div>
+      )}
       <button
         className={styles.headerButton}
         onClick={onClose}
