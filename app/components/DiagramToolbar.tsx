@@ -3,33 +3,15 @@ import { BackgroundVariant } from 'reactflow';
 import { FileMenu } from './FileMenu';
 import { DIAGRAM_TYPES, DiagramType } from '../config/appConfig';
 
-interface DiagramNode {
-  id: string;
-  type?: string;
-  position: { x: number; y: number };
-  selected?: boolean;
-  data: {
-    label: string;
-    description?: string;
-    color?: string;
-    icon?: string;
-    properties?: Record<string, unknown>;
-  };
-}
-
 interface DiagramToolbarProps {
   onAddNode: () => void;
-  onDeleteNode: () => void;
   onFitView: () => void;
   onNew: () => void;
   onClear: () => void;
   onSave: () => void;
   onLoad: () => void;
-  selectedNode: DiagramNode | null;
   backgroundVariant: BackgroundVariant;
   onBackgroundVariantChange: (variant: BackgroundVariant) => void;
-  isAnimationEnabled: boolean;
-  onAnimationToggle: (enabled: boolean) => void;
   showMiniMap: boolean;
   onMiniMapToggle: (show: boolean) => void;
   // Workflow controls
@@ -61,17 +43,13 @@ interface DiagramToolbarProps {
 
 export function DiagramToolbar({
   onAddNode,
-  onDeleteNode,
   onFitView,
   onNew,
   onClear,
   onSave,
   onLoad,
-  selectedNode,
   backgroundVariant,
   onBackgroundVariantChange,
-  isAnimationEnabled,
-  onAnimationToggle,
   showMiniMap,
   onMiniMapToggle,
   onPlayWorkflow,
@@ -120,18 +98,6 @@ export function DiagramToolbar({
             </svg>
             <span>Add Node</span>
           </button>
-
-          {/* <button
-            onClick={onDeleteNode}
-            disabled={!selectedNode}
-            className="btn btn-sm btn-outline disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Delete Selected Node (Delete)"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            <span>Delete</span>
-          </button> */}
 
           <div className="w-px h-5 bg-border mx-1" />
 
@@ -284,29 +250,6 @@ export function DiagramToolbar({
               </svg>
             </button>
           </div>
-
-          {/* Animation Toggle */}
-          {/* <button
-            onClick={() => onAnimationToggle(!isAnimationEnabled)}
-            className={`btn btn-xs ${
-              isAnimationEnabled
-                ? 'btn-success'
-                : 'btn-outline'
-            }`}
-            title={`${isAnimationEnabled ? 'Disable' : 'Enable'} edge animations`}
-          >
-            {isAnimationEnabled ? (
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M15 14h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            ) : (
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6M7 3h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7a4 4 0 014-4z" />
-              </svg>
-            )}
-          </button> */}
-
-          <div className="w-px h-4 bg-border" />
 
           {/* Diagram Type Selector */}
           <div className="flex items-center space-x-1 text-xs text-muted">

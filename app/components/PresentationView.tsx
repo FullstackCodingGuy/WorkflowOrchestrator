@@ -111,7 +111,13 @@ function PresentationViewContent({
         fitView
         fitViewOptions={{ padding: 0.1 }}
       >
-        <Background variant={backgroundVariant} gap={20} size={1} />
+        <Background 
+          variant={backgroundVariant} 
+          gap={backgroundVariant === BackgroundVariant.Dots ? 32 : 24} 
+          size={backgroundVariant === BackgroundVariant.Dots ? 2.5 : 2}
+          color="#64748b"
+          lineWidth={backgroundVariant === BackgroundVariant.Lines ? 1 : 1.5}
+        />
         
         {showMiniMap && (
           <MiniMap

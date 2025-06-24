@@ -264,7 +264,7 @@ export default function DiagramEditor() {
   const [selectedNode, setSelectedNode] = useState<DiagramNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<DiagramEdge | null>(null);
   const [backgroundVariant, setBackgroundVariant] = useState<BackgroundVariant>(BackgroundVariant.Dots);
-  const [isAnimationEnabled, setIsAnimationEnabled] = useState(false);
+  const [isAnimationEnabled] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(true);
 
   // Settings state (moved from property panel)
@@ -409,32 +409,6 @@ export default function DiagramEditor() {
     setSelectedNode(null);
     setPropertyPanelOpen(false);
   }, [selectedNode, setNodes, setEdges]);
-
-  // Toggle animation for all edges
-  const toggleAllEdgesAnimation = useCallback(
-    (enabled: boolean) => {
-      setEdges((eds) =>
-        eds.map((edge) => ({
-          ...edge,
-          type: enabled ? 'workflowEdge' : 'smoothstep',
-          data: {
-            ...edge.data,
-            animated: enabled,
-          },
-        }))
-      );
-    },
-    [setEdges]
-  );
-
-  // Enhanced animation toggle handler
-  const handleAnimationToggle = useCallback(
-    (enabled: boolean) => {
-      setIsAnimationEnabled(enabled);
-      toggleAllEdgesAnimation(enabled);
-    },
-    [toggleAllEdgesAnimation]
-  );
 
   // Fit view to all nodes
   const fitView = useCallback(() => {
@@ -1137,17 +1111,13 @@ export default function DiagramEditor() {
       {/* Toolbar */}
       <DiagramToolbar
         onAddNode={addNewNode}
-        onDeleteNode={deleteSelectedNode}
         onFitView={fitView}
         onNew={newWorkflow}
         onClear={clearDiagram}
         onSave={saveDiagram}
         onLoad={loadDiagram}
-        selectedNode={selectedNode}
         backgroundVariant={backgroundVariant}
         onBackgroundVariantChange={setBackgroundVariant}
-        isAnimationEnabled={isAnimationEnabled}
-        onAnimationToggle={handleAnimationToggle}
         showMiniMap={showMiniMap}
         onMiniMapToggle={setShowMiniMap}
         onPlayWorkflow={handlePlayWorkflow}
@@ -1222,9 +1192,10 @@ export default function DiagramEditor() {
             )}
             <Background 
               variant={backgroundVariant}
-              gap={20}
-              size={1}
-              color="#e2e8f0"
+              gap={backgroundVariant === BackgroundVariant.Dots ? 32 : 24}
+              size={backgroundVariant === BackgroundVariant.Dots ? 2.5 : 2}
+              color="#64748b"
+              lineWidth={backgroundVariant === BackgroundVariant.Lines ? 1 : 1.5}
             />
           </ReactFlow>
         </div>
