@@ -21,9 +21,7 @@ const nextConfig: NextConfig = {
   // Platform-specific optimizations
   ...(isVercelDeploy && {
     // Vercel-specific optimizations
-    experimental: {
-      serverComponentsExternalPackages: ['reactflow'],
-    },
+    serverExternalPackages: ['reactflow', '@reactflow/core', '@reactflow/node-resizer', '@reactflow/node-toolbar'],
   }),
   
   ...(isNetlifyDeploy && {

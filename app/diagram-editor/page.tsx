@@ -1,3 +1,5 @@
+'use client';
+
 import DiagramEditor from '../components/DiagramEditor';
 
 export default function DiagramEditorPage() {

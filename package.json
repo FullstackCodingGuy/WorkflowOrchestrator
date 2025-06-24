@@ -1,5 +1,5 @@
 {
-  "name": "workflow-orchestrator",
+  "name": "orcha-workflow-orchestrator",
   "version": "1.0.0",
   "description": "Advanced workflow diagram editor with presentation capabilities",
   "private": true,
