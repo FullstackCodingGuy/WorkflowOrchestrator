@@ -39,6 +39,7 @@ import {
   TemplateLibraryPanel 
 } from './SidebarPanels';
 import { WorkflowTemplate } from './workflowTemplates';
+import { PresentationView } from './PresentationView';
 
 // Import enhanced configuration
 import { APP_COLORS, getNodeTypeStyles } from '../config/appConfig';
@@ -292,6 +293,9 @@ export default function DiagramEditor() {
   
   // Property panel state - opens when nodes/edges are selected
   const [propertyPanelOpen, setPropertyPanelOpen] = useState(false);
+  
+  // Presentation view state
+  const [presentationViewOpen, setPresentationViewOpen] = useState(false);
 
   // Connection handler
   const onConnect = useCallback(
@@ -858,6 +862,15 @@ export default function DiagramEditor() {
     }
   }, [workflowState, buildWorkflowSequence, highlightNode]);
 
+  // Presentation view handler
+  const handleOpenPresentationView = useCallback(() => {
+    setPresentationViewOpen(true);
+  }, []);
+
+  const handleClosePresentationView = useCallback(() => {
+    setPresentationViewOpen(false);
+  }, []);
+
   // Cleanup workflow timer on unmount
   useEffect(() => {
     return () => {
@@ -1053,6 +1066,7 @@ export default function DiagramEditor() {
         onGridSizeChange={setGridSize}
         showControls={showControls}
         onShowControlsToggle={setShowControls}
+        onOpenPresentationView={handleOpenPresentationView}
       />
 
       {/* Main Editor Area */}
@@ -1165,6 +1179,21 @@ export default function DiagramEditor() {
           <span>Del: Delete</span>
         </div>
       </div>
+
+      {/* Presentation View */}
+      <PresentationView 
+        isOpen={presentationViewOpen}
+        nodes={nodes}
+        edges={edges}
+        backgroundVariant={backgroundVariant}
+        showMiniMap={showMiniMap}
+        workflowState={workflowState}
+        onPlayWorkflow={handlePlayWorkflow}
+        onPauseWorkflow={handlePauseWorkflow}
+        onRestartWorkflow={handleRestartWorkflow}
+        onDebugWorkflow={handleDebugWorkflow}
+        onClose={handleClosePresentationView}
+      />
     </div>
   );
 }

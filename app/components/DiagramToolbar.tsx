@@ -47,6 +47,8 @@ interface DiagramToolbarProps {
   onGridSizeChange: (size: number) => void;
   showControls?: boolean;
   onShowControlsToggle: (show: boolean) => void;
+  // Presentation view controls
+  onOpenPresentationView: () => void;
 }
 
 export function DiagramToolbar({
@@ -78,6 +80,7 @@ export function DiagramToolbar({
   onGridSizeChange,
   showControls = true,
   onShowControlsToggle,
+  onOpenPresentationView,
 }: DiagramToolbarProps) {
   return (
     <div className="flex flex-col">
@@ -196,6 +199,19 @@ export function DiagramToolbar({
 
         {/* Right Section - File Operations */}
         <div className="flex items-center space-x-1.5">
+          <button
+            onClick={onOpenPresentationView}
+            className="btn btn-sm btn-primary"
+            title="Open Presentation View (Ctrl+P)"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1h4a1 1 0 011 1v18a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1h4v3m0 0h8M5 8h14M5 12h14M5 16h14" />
+            </svg>
+            <span>Present</span>
+          </button>
+
+          <div className="w-px h-5 bg-border mx-1" />
+
           <button
             onClick={onLoad}
             className="btn btn-sm btn-outline"
