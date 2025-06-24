@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Workflow Orchestrator",
+  title: "Orcha - Workflow Orchestrator",
   description: "A modern workflow orchestration tool",
 };
 

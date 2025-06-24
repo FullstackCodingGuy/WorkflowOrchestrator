@@ -11,8 +11,6 @@ import ReactFlow, {
   Connection,
   Edge,
   Node,
-  NodeTypes,
-  EdgeTypes,
   ReactFlowInstance,
   ConnectionMode,
   BackgroundVariant,
@@ -21,19 +19,33 @@ import ReactFlow, {
 
 import 'reactflow/dist/style.css';
 
-// Import custom components - will be created below
-import { AnimatedSVGEdge } from './AnimatedSVGEdge';
-import { CustomNode } from './CustomNode';
+// Import custom components
 import { DiagramToolbar } from './DiagramToolbar';
-import EnhancedPropertiesPanel from './EnhancedPropertiesPanel';
+
+// Import the Property Panel
+import { PropertyPanel } from './PropertyPanel/PropertyPanel';
 
 // Import side panel components
-import { SidePanel, PanelSection } from './SidePanel';
-import { ExplorerPanel, OutlinePanel, FileExplorer } from './PanelContent';
-import { WorkflowExamplesPanel } from './WorkflowExamplesPanel';
+import { 
+  SidePanel, 
+  PanelSection, 
+  ExplorerPanel, 
+  OutlinePanel, 
+  FileExplorer, 
+  TemplateLibraryPanel 
+} from './SidebarPanels';
+import { WorkflowTemplate } from './workflowTemplates';
+import { PresentationView } from './PresentationView';
+import { KeyboardShortcutsHelp } from './KeyboardShortcutsHelp';
+
+// Import shared ReactFlow configuration
+import { nodeTypes, edgeTypes } from './reactFlowConfig';
 
 // Import enhanced configuration
-import { APP_COLORS } from '../config/appConfig';
+import { APP_COLORS, getNodeTypeStyles, DiagramType } from '../config/appConfig';
+
+// Import workflow store for diagram type management
+import useWorkflowStore from '../store/workflowStore';
 
 // Types
 export type WorkflowNodeType = 'start' | 'process' | 'decision' | 'condition' | 'action' | 'end' | 'custom';
@@ -42,10 +54,24 @@ export interface DiagramNodeData {
   label: string;
   description?: string;
   color?: string;
+  backgroundColor?: string;
+  borderColor?: string;
+  textColor?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  fontWeight?: string;
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+  lineHeight?: number;
+  maxWidth?: number;
   icon?: string;
   nodeType?: WorkflowNodeType; // New node type attribute
   properties?: Record<string, unknown>;
   isExecuting?: boolean;
+  // Settings properties
+  snapToGrid?: boolean;
+  gridSize?: number;
+  showMinimap?: boolean;
+  showControls?: boolean;
 }
 
 export type DiagramNode = Node<DiagramNodeData>;
@@ -54,16 +80,21 @@ export interface DiagramEdgeData {
   label?: string;
   animated?: boolean;
   color?: string;
+  backgroundColor?: string;
   strokeWidth?: number;
   strokeStyle?: 'solid' | 'dashed' | 'dotted';
   animationSpeed?: 'slow' | 'normal' | 'fast';
   markerEnd?: 'arrow' | 'none';
   edgeType?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  fontWeight?: string;
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
 }
 
 export type DiagramEdge = Edge<DiagramEdgeData>;
 
-// Initial nodes with stepped waterfall layout for enhanced visibility
+// Initial nodes with enhanced default styling
 const initialNodes: DiagramNode[] = [
   {
     id: '1',
@@ -73,6 +104,15 @@ const initialNodes: DiagramNode[] = [
       label: 'Start Node',
       description: 'Begin workflow execution',
       color: APP_COLORS.nodeTypes.start,
+      backgroundColor: '#f0fdf4', // Light green background
+      borderColor: '#bbf7d0',
+      textColor: '#065f46', // Dark green text
+      fontSize: 16,
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontWeight: '600',
+      textAlign: 'center',
+      lineHeight: 1.4,
+      maxWidth: 220,
       icon: '🚀',
       nodeType: 'start',
       properties: { priority: 'high', trigger: 'manual', timeout: '30s' }
@@ -81,11 +121,20 @@ const initialNodes: DiagramNode[] = [
   {
     id: '2',
     type: 'custom',
-    position: { x: 350, y: 200 }, // First step down and right
+    position: { x: 350, y: 250 }, // First step down and right
     data: {
       label: 'Process Data',
       description: 'Transform and validate input',
       color: APP_COLORS.nodeTypes.process,
+      backgroundColor: '#eff6ff', // Light blue background
+      borderColor: '#bfdbfe',
+      textColor: '#1e40af', // Dark blue text
+      fontSize: 15,
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontWeight: '500',
+      textAlign: 'center',
+      lineHeight: 1.4,
+      maxWidth: 220,
       icon: '⚙️',
       nodeType: 'process',
       properties: { duration: '2 minutes', cpu: '0.5 cores', memory: '512MB' }
@@ -94,11 +143,20 @@ const initialNodes: DiagramNode[] = [
   {
     id: '3',
     type: 'custom',
-    position: { x: 650, y: 350 }, // Second step down and right
+    position: { x: 650, y: 450 }, // Second step down and right
     data: {
       label: 'Decision Point',
       description: 'Evaluate conditions and route',
       color: APP_COLORS.nodeTypes.decision,
+      backgroundColor: '#fffbeb', // Light amber background
+      borderColor: '#fde68a',
+      textColor: '#92400e', // Dark amber text
+      fontSize: 15,
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontWeight: '500',
+      textAlign: 'center',
+      lineHeight: 1.4,
+      maxWidth: 220,
       icon: '🔀',
       nodeType: 'decision',
       properties: { condition: 'if x > 10', branches: 2, timeout: '5s' }
@@ -107,11 +165,20 @@ const initialNodes: DiagramNode[] = [
   {
     id: '4',
     type: 'custom',
-    position: { x: 950, y: 500 }, // Final step down and right
+    position: { x: 950, y: 650 }, // Final step down and right
     data: {
       label: 'Complete',
       description: 'Workflow finished successfully',
       color: APP_COLORS.nodeTypes.end,
+      backgroundColor: '#fef2f2', // Light red background
+      borderColor: '#fecaca',
+      textColor: '#991b1b', // Dark red text
+      fontSize: 16,
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontWeight: '600',
+      textAlign: 'center',
+      lineHeight: 1.4,
+      maxWidth: 220,
       icon: '✅',
       nodeType: 'end',
       properties: { result: 'success', notify: 'email', cleanup: true }
@@ -119,34 +186,32 @@ const initialNodes: DiagramNode[] = [
   },
 ];
 
-// Edge types configuration
-const edgeTypes: EdgeTypes = {
-  animatedSvg: AnimatedSVGEdge,
-};
-
-// Node types configuration
-const nodeTypes: NodeTypes = {
-  custom: CustomNode,
-};
-
 // Initial edges with enhanced modern styling
 const initialEdges: DiagramEdge[] = [
   {
     id: '1->2',
-    type: 'animatedSvg',
+    type: 'workflowEdge',
     source: '1',
     target: '2',
     data: { 
       label: 'Execute', 
       animated: false, 
       color: APP_COLORS.edgeTypes.success,
+      backgroundColor: '#ffffff',
       strokeWidth: 3,
+      strokeStyle: 'solid',
+      animationSpeed: 'normal',
+      markerEnd: 'arrow',
+      fontSize: 12,
+      fontFamily: 'Arial, sans-serif',
+      fontWeight: 'normal',
+      textAlign: 'center',
     },
     markerEnd: { type: MarkerType.ArrowClosed, color: APP_COLORS.edgeTypes.success },
   },
   {
     id: '2->3',
-    type: 'animatedSvg',
+    type: 'workflowEdge',
     source: '2',
     target: '3',
     data: { 
@@ -159,7 +224,7 @@ const initialEdges: DiagramEdge[] = [
   },
   {
     id: '3->4',
-    type: 'animatedSvg',
+    type: 'workflowEdge',
     source: '3',
     target: '4',
     data: { 
@@ -190,14 +255,31 @@ const defaultEdgeOptions = {
 };
 
 export default function DiagramEditor() {
+  // Workflow store for diagram type management
+  const { currentDiagramType, getDefaultNodeTypeForDiagram, setDiagramType } = useWorkflowStore();
+  
   // State management
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<DiagramNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<DiagramEdge | null>(null);
   const [backgroundVariant, setBackgroundVariant] = useState<BackgroundVariant>(BackgroundVariant.Dots);
-  const [isAnimationEnabled, setIsAnimationEnabled] = useState(false);
+  
+  // Handle background variant changes, default Cross to Dots since Cross is removed
+  const handleBackgroundVariantChange = useCallback((variant: BackgroundVariant) => {
+    if (variant === BackgroundVariant.Cross) {
+      setBackgroundVariant(BackgroundVariant.Dots);
+    } else {
+      setBackgroundVariant(variant);
+    }
+  }, []);
+  const [isAnimationEnabled] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(true);
+
+  // Settings state (moved from property panel)
+  const [snapToGrid, setSnapToGrid] = useState(false);
+  const [gridSize, setGridSize] = useState(20);
+  const [showControls, setShowControls] = useState(true);
 
   // Workflow state
   const [workflowState, setWorkflowState] = useState<'idle' | 'playing' | 'paused' | 'debugging'>('idle');
@@ -212,7 +294,15 @@ export default function DiagramEditor() {
 
   // Side panel states
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
-  const [rightPanelOpen, setRightPanelOpen] = useState(false);
+  
+  // Property panel state - opens when nodes/edges are selected
+  const [propertyPanelOpen, setPropertyPanelOpen] = useState(false);
+  
+  // Presentation view state
+  const [presentationViewOpen, setPresentationViewOpen] = useState(false);
+  
+  // Keyboard shortcuts help state
+  const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
 
   // Connection handler
   const onConnect = useCallback(
@@ -224,7 +314,7 @@ export default function DiagramEditor() {
         id: `${params.source}->${params.target}`,
         source: params.source,
         target: params.target,
-        type: isAnimationEnabled ? 'animatedSvg' : 'smoothstep',
+        type: isAnimationEnabled ? 'workflowEdge' : 'smoothstep',
         data: {
           animated: isAnimationEnabled,
           color: APP_COLORS.edgeTypes.default,
@@ -237,28 +327,50 @@ export default function DiagramEditor() {
     [setEdges, isAnimationEnabled]
   );
 
-  // Node click handler
+  // Node click handler - opens property panel
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
       setSelectedNode(node as DiagramNode);
       setSelectedEdge(null); // Clear edge selection
-      setRightPanelOpen(true);
+      setPropertyPanelOpen(true); // Open property panel when node is selected
     },
     []
   );
 
-  // Pane click handler (deselect)
+  // Pane click handler (deselect and close property panel)
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
     setSelectedEdge(null);
-    setRightPanelOpen(false);
+    setPropertyPanelOpen(false);
   }, []);
 
   // Add new node with waterfall positioning for enhanced visibility
   const addNewNode = useCallback(
-    (type: string = 'custom') => {
+    (type?: string) => {
       if (!reactFlowInstance) return;
 
+      // Use diagram type to determine default node type if not specified
+      let nodeType: string = 'custom'; // Start with a safe default
+      
+      if (type) {
+        nodeType = type;
+      } else {
+        try {
+          const defaultType = getDefaultNodeTypeForDiagram();
+          if (defaultType && typeof defaultType === 'string') {
+            nodeType = defaultType;
+          }
+        } catch (error) {
+          console.warn('Error getting default node type from diagram configuration:', error);
+        }
+      }
+      
+      // Final safety check
+      if (!nodeType || typeof nodeType !== 'string') {
+        nodeType = 'custom';
+        console.warn('Invalid node type resolved, using "custom" as fallback');
+      }
+      
       // Calculate waterfall position based on existing nodes
       const nodeCount = nodes.length;
       const stepX = 300; // Horizontal step distance
@@ -274,21 +386,25 @@ export default function DiagramEditor() {
 
       const newNode: DiagramNode = {
         id: `node-${Date.now()}`,
-        type,
+        type: nodeType,
         position,
         data: {
-          label: `New Node ${nodes.length + 1}`,
+          label: `New ${nodeType.charAt(0).toUpperCase() + nodeType.slice(1)} ${nodes.length + 1}`,
           description: 'Click to customize this node',
-          color: APP_COLORS.nodeTypes.custom,
-          icon: '✨',
-          nodeType: 'custom', // Default node type
-          properties: { created: new Date().toISOString(), version: '1.0' },
+          ...getNodeTypeStyles(nodeType as WorkflowNodeType),
+          icon: nodeType === 'start' ? '🚀' : nodeType === 'end' ? '🏁' : nodeType === 'decision' ? '❓' : nodeType === 'action' ? '⚡' : '✨',
+          nodeType: nodeType as WorkflowNodeType,
+          properties: { 
+            created: new Date().toISOString(), 
+            version: '1.0',
+            diagramType: currentDiagramType,
+          },
         },
       };
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [reactFlowInstance, nodes.length, setNodes]
+    [reactFlowInstance, nodes.length, setNodes, getDefaultNodeTypeForDiagram, currentDiagramType]
   );
 
   // Delete selected node
@@ -300,76 +416,8 @@ export default function DiagramEditor() {
       eds.filter((edge) => edge.source !== selectedNode.id && edge.target !== selectedNode.id)
     );
     setSelectedNode(null);
-    setRightPanelOpen(false);
+    setPropertyPanelOpen(false);
   }, [selectedNode, setNodes, setEdges]);
-
-  // Enhanced node update callback for properties panel
-  const handleNodeUpdate = useCallback(
-    (nodeId: string, updates: Partial<DiagramNodeData>) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === nodeId
-            ? { ...node, data: { ...node.data, ...updates } }
-            : node
-        )
-      );
-    },
-    [setNodes]
-  );
-
-  // Enhanced edge update callback for properties panel
-  const handleEdgeUpdate = useCallback(
-    (edgeId: string, updates: Partial<DiagramEdgeData>) => {
-      setEdges((eds) =>
-        eds.map((edge) =>
-          edge.id === edgeId
-            ? { ...edge, data: { ...edge.data, ...updates } }
-            : edge
-        )
-      );
-    },
-    [setEdges]
-  );
-
-  // Handle node position updates
-  const handleNodePositionUpdate = useCallback(
-    (nodeId: string, position: { x: number; y: number }) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === nodeId
-            ? { ...node, position }
-            : node
-        )
-      );
-    },
-    [setNodes]
-  );
-
-  // Toggle animation for all edges
-  const toggleAllEdgesAnimation = useCallback(
-    (enabled: boolean) => {
-      setEdges((eds) =>
-        eds.map((edge) => ({
-          ...edge,
-          type: enabled ? 'animatedSvg' : 'smoothstep',
-          data: {
-            ...edge.data,
-            animated: enabled,
-          },
-        }))
-      );
-    },
-    [setEdges]
-  );
-
-  // Enhanced animation toggle handler
-  const handleAnimationToggle = useCallback(
-    (enabled: boolean) => {
-      setIsAnimationEnabled(enabled);
-      toggleAllEdgesAnimation(enabled);
-    },
-    [toggleAllEdgesAnimation]
-  );
 
   // Fit view to all nodes
   const fitView = useCallback(() => {
@@ -383,8 +431,31 @@ export default function DiagramEditor() {
     setNodes([]);
     setEdges([]);
     setSelectedNode(null);
-    setRightPanelOpen(false);
+    setPropertyPanelOpen(false);
   }, [setNodes, setEdges]);
+
+  // Create new workflow (same as clear but with confirmation)
+  const newWorkflow = useCallback(() => {
+    if (nodes.length > 0 || edges.length > 0) {
+      const confirmed = window.confirm('This will clear the current workflow. Are you sure?');
+      if (!confirmed) return;
+    }
+    
+    setNodes([]);
+    setEdges([]);
+    setSelectedNode(null);
+    setPropertyPanelOpen(false);
+    
+    // Show toast notification
+    if (window.showToast) {
+      window.showToast({
+        type: 'success',
+        title: 'New Workflow',
+        message: 'Started a new workflow. Ready to add nodes!',
+        duration: 3000,
+      });
+    }
+  }, [nodes.length, edges.length, setNodes, setEdges]);
 
   // Save diagram to localStorage
   const saveDiagram = useCallback(() => {
@@ -418,6 +489,28 @@ export default function DiagramEditor() {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Handle Escape key for closing modals
+      if (event.key === 'Escape') {
+        if (keyboardShortcutsOpen) {
+          setKeyboardShortcutsOpen(false);
+          return;
+        }
+        if (presentationViewOpen) {
+          setPresentationViewOpen(false);
+          return;
+        }
+        setSelectedNode(null);
+        setPropertyPanelOpen(false);
+        return;
+      }
+
+      // Handle ? key for showing shortcuts help
+      if (event.key === '?' && !event.ctrlKey && !event.metaKey) {
+        event.preventDefault();
+        setKeyboardShortcutsOpen(true);
+        return;
+      }
+
       if (event.ctrlKey || event.metaKey) {
         switch (event.key) {
           case 's':
@@ -429,8 +522,14 @@ export default function DiagramEditor() {
             loadDiagram();
             break;
           case 'n':
-            event.preventDefault();
-            addNewNode();
+            // Check if this is a new workflow (Shift+Ctrl+N) or add node (Ctrl+N)
+            if (event.shiftKey) {
+              event.preventDefault();
+              newWorkflow();
+            } else {
+              event.preventDefault();
+              addNewNode();
+            }
             break;
           case 'f':
             event.preventDefault();
@@ -440,20 +539,20 @@ export default function DiagramEditor() {
             event.preventDefault();
             setShowMiniMap(!showMiniMap);
             break;
+          case 'p':
+            event.preventDefault();
+            setPresentationViewOpen(true);
+            break;
         }
       }
       if (event.key === 'Delete' && selectedNode) {
         deleteSelectedNode();
       }
-      if (event.key === 'Escape') {
-        setSelectedNode(null);
-        setRightPanelOpen(false);
-      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [saveDiagram, loadDiagram, addNewNode, fitView, deleteSelectedNode, selectedNode, showMiniMap]);
+  }, [saveDiagram, loadDiagram, addNewNode, newWorkflow, fitView, deleteSelectedNode, selectedNode, showMiniMap, keyboardShortcutsOpen, presentationViewOpen]);
 
   // Workflow handlers
   const buildWorkflowSequence = useCallback(() => {
@@ -539,7 +638,7 @@ export default function DiagramEditor() {
               ...node.data,
               isExecuting: true,
             },
-            // NEVER modify style - let CustomNode handle visual feedback
+            // NEVER modify style - let WorkflowNode handle visual feedback
           };
         } else if (node.data.isExecuting) {
           // Node was executing but no longer is - ONLY modify data
@@ -821,6 +920,38 @@ export default function DiagramEditor() {
     }
   }, [workflowState, buildWorkflowSequence, highlightNode]);
 
+  // Presentation view handler
+  const handleOpenPresentationView = useCallback(() => {
+    setPresentationViewOpen(true);
+  }, []);
+
+  const handleClosePresentationView = useCallback(() => {
+    setPresentationViewOpen(false);
+  }, []);
+
+  // Diagram type change handler
+  const handleDiagramTypeChange = useCallback((diagramType: DiagramType) => {
+    setDiagramType(diagramType);
+    // Show toast notification
+    if (window.showToast) {
+      window.showToast({
+        type: 'info',
+        title: 'Diagram Type Changed',
+        message: `Changed to ${diagramType}. New nodes will use the appropriate type for this diagram.`,
+        duration: 4000,
+      });
+    }
+  }, [setDiagramType]);
+
+  // Keyboard shortcuts help handler
+  const handleShowKeyboardShortcuts = useCallback(() => {
+    setKeyboardShortcutsOpen(true);
+  }, []);
+
+  const handleCloseKeyboardShortcuts = useCallback(() => {
+    setKeyboardShortcutsOpen(false);
+  }, []);
+
   // Cleanup workflow timer on unmount
   useEffect(() => {
     return () => {
@@ -838,10 +969,10 @@ export default function DiagramEditor() {
       icon: '📚',
       defaultOpen: true,
       content: (
-        <WorkflowExamplesPanel
-          onLoadExample={(example) => {
-            setNodes(example.nodes);
-            setEdges(example.edges);
+        <TemplateLibraryPanel
+          onLoadExample={(template: WorkflowTemplate) => {
+            setNodes(template.nodes);
+            setEdges(template.edges);
             // Clear selections when loading new example
             setSelectedNode(null);
             setSelectedEdge(null);
@@ -867,7 +998,7 @@ export default function DiagramEditor() {
           selectedNode={selectedNode}
           onNodeSelect={(node) => {
             setSelectedNode(node);
-            setRightPanelOpen(true);
+            setPropertyPanelOpen(true);
           }}
           onNodeDelete={(nodeId) => {
             setNodes((nds) => nds.filter((node) => node.id !== nodeId));
@@ -890,7 +1021,7 @@ export default function DiagramEditor() {
           edges={edges}
           onNodeSelect={(node) => {
             setSelectedNode(node);
-            setRightPanelOpen(true);
+            setPropertyPanelOpen(true);
           }}
           onFitView={fitView}
         />
@@ -916,9 +1047,71 @@ export default function DiagramEditor() {
     (event: React.MouseEvent, edge: DiagramEdge) => {
       setSelectedEdge(edge);
       setSelectedNode(null); // Clear node selection
-      setRightPanelOpen(true);
+      setPropertyPanelOpen(true); // Open property panel when edge is selected
     },
     []
+  );
+
+  // Enhanced node update callback
+  const handleNodeUpdate = useCallback(
+    (nodeId: string, updates: Partial<DiagramNodeData> & Record<string, unknown>) => {
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.id !== nodeId) return node;
+          
+          // Separate node-level properties from data properties
+          const { 
+            draggable, 
+            selectable, 
+            deletable, 
+            zIndex,
+            ...dataUpdates 
+          } = updates;
+          
+          // Update node-level properties
+          const nodeUpdates: Partial<Node> = {};
+          if (draggable !== undefined) nodeUpdates.draggable = draggable as boolean;
+          if (selectable !== undefined) nodeUpdates.selectable = selectable as boolean;
+          if (deletable !== undefined) nodeUpdates.deletable = deletable as boolean;
+          if (zIndex !== undefined) nodeUpdates.zIndex = zIndex as number;
+          
+          return { 
+            ...node, 
+            ...nodeUpdates,
+            data: { ...node.data, ...dataUpdates } 
+          };
+        })
+      );
+    },
+    [setNodes]
+  );
+
+  // Enhanced edge update callback
+  const handleEdgeUpdate = useCallback(
+    (edgeId: string, updates: Partial<DiagramEdgeData>) => {
+      setEdges((eds) =>
+        eds.map((edge) =>
+          edge.id === edgeId
+            ? { ...edge, data: { ...edge.data, ...updates } }
+            : edge
+        )
+      );
+    },
+    [setEdges]
+  );
+
+  // Handle node position updates (for property panel position editing)
+  const handleNodePositionUpdate = useCallback(
+    (nodeId: string, position: { x: number; y: number }) => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, position }
+            : node
+        )
+      );
+    },
+    [setNodes]
   );
 
   const proOptions = { hideAttribution: true };
@@ -927,18 +1120,13 @@ export default function DiagramEditor() {
       {/* Toolbar */}
       <DiagramToolbar
         onAddNode={addNewNode}
-        onDeleteNode={deleteSelectedNode}
         onFitView={fitView}
+        onNew={newWorkflow}
         onClear={clearDiagram}
         onSave={saveDiagram}
         onLoad={loadDiagram}
-        selectedNode={selectedNode}
         backgroundVariant={backgroundVariant}
-        onBackgroundVariantChange={setBackgroundVariant}
-        isAnimationEnabled={isAnimationEnabled}
-        onAnimationToggle={handleAnimationToggle}
-        onTogglePropertiesPanel={() => setRightPanelOpen(!rightPanelOpen)}
-        showPropertiesPanel={rightPanelOpen}
+        onBackgroundVariantChange={handleBackgroundVariantChange}
         showMiniMap={showMiniMap}
         onMiniMapToggle={setShowMiniMap}
         onPlayWorkflow={handlePlayWorkflow}
@@ -948,8 +1136,18 @@ export default function DiagramEditor() {
         workflowState={workflowState}
         showLeftSidebar={leftPanelOpen}
         onToggleLeftSidebar={() => setLeftPanelOpen(!leftPanelOpen)}
-        showRightSidebar={rightPanelOpen}
-        onToggleRightSidebar={() => setRightPanelOpen(!rightPanelOpen)}
+        showRightSidebar={false}
+        onToggleRightSidebar={() => {}} // Placeholder - no right sidebar functionality
+        snapToGrid={snapToGrid}
+        onSnapToGridToggle={setSnapToGrid}
+        gridSize={gridSize}
+        onGridSizeChange={setGridSize}
+        showControls={showControls}
+        onShowControlsToggle={setShowControls}
+        onOpenPresentationView={handleOpenPresentationView}
+        currentDiagramType={currentDiagramType}
+        onDiagramTypeChange={handleDiagramTypeChange}
+        onShowKeyboardShortcuts={handleShowKeyboardShortcuts}
       />
 
       {/* Main Editor Area */}
@@ -958,8 +1156,6 @@ export default function DiagramEditor() {
         <div 
           className={`flex-1 transition-all duration-300 ${
             leftPanelOpen ? 'ml-[280px]' : 'ml-0'
-          } ${
-            rightPanelOpen ? 'mr-[384px]' : 'mr-0'
           }`} 
           ref={reactFlowWrapper}
         >
@@ -979,19 +1175,21 @@ export default function DiagramEditor() {
             connectionMode={ConnectionMode.Loose}
             connectionLineStyle={connectionLineStyle}
             defaultEdgeOptions={defaultEdgeOptions}
-            snapToGrid={true}
-            snapGrid={[15, 15]}
+            snapToGrid={snapToGrid}
+            snapGrid={[gridSize, gridSize]}
             fitView
             attributionPosition="bottom-left"
             className="bg-background"
           >
-            <Controls 
-              position="bottom-right"
-              showZoom={true}
-              showFitView={true}
-              showInteractive={true}
-              className="bg-card border border-border rounded-lg shadow-soft"
-            />
+            {showControls && (
+              <Controls 
+                position="bottom-right"
+                showZoom={true}
+                showFitView={true}
+                showInteractive={true}
+                className="bg-card border border-border rounded-lg shadow-soft"
+              />
+            )}
             {showMiniMap && (
               <MiniMap 
                 position="top-right"
@@ -1003,9 +1201,10 @@ export default function DiagramEditor() {
             )}
             <Background 
               variant={backgroundVariant}
-              gap={20}
-              size={1}
-              color="#e2e8f0"
+              gap={backgroundVariant === BackgroundVariant.Dots ? 32 : 24}
+              size={backgroundVariant === BackgroundVariant.Dots ? 2.5 : 2}
+              color="#cbd5e1"
+              lineWidth={backgroundVariant === BackgroundVariant.Lines ? 1 : 1.5}
             />
           </ReactFlow>
         </div>
@@ -1020,18 +1219,16 @@ export default function DiagramEditor() {
         width={280}
       />
 
-      {/* Enhanced Right Properties Panel */}
-      <div className="absolute top-0 right-0 h-full z-20">
-        <EnhancedPropertiesPanel
-          selectedNode={selectedNode}
-          selectedEdge={selectedEdge}
-          onNodeUpdate={handleNodeUpdate}
-          onEdgeUpdate={handleEdgeUpdate}
-          onPositionUpdate={handleNodePositionUpdate}
-          isOpen={rightPanelOpen}
-          onToggle={() => setRightPanelOpen(!rightPanelOpen)}
-        />
-      </div>
+      {/* Property Panel System - Opens when nodes/edges are selected */}
+      <PropertyPanel
+        selectedNode={selectedNode}
+        selectedEdge={selectedEdge}
+        onNodeUpdate={handleNodeUpdate}
+        onNodePositionUpdate={handleNodePositionUpdate}
+        onEdgeUpdate={handleEdgeUpdate}
+        isVisible={propertyPanelOpen}
+        onVisibilityChange={setPropertyPanelOpen}
+      />
 
       {/* Panel Toggle Buttons */}
       {/* <PanelToggleButton
@@ -1064,6 +1261,27 @@ export default function DiagramEditor() {
           <span>Del: Delete</span>
         </div>
       </div>
+
+      {/* Presentation View */}
+      <PresentationView 
+        isOpen={presentationViewOpen}
+        nodes={nodes}
+        edges={edges}
+        backgroundVariant={backgroundVariant}
+        showMiniMap={showMiniMap}
+        workflowState={workflowState}
+        onPlayWorkflow={handlePlayWorkflow}
+        onPauseWorkflow={handlePauseWorkflow}
+        onRestartWorkflow={handleRestartWorkflow}
+        onDebugWorkflow={handleDebugWorkflow}
+        onClose={handleClosePresentationView}
+      />
+
+      {/* Keyboard Shortcuts Help */}
+      <KeyboardShortcutsHelp
+        isOpen={keyboardShortcutsOpen}
+        onClose={handleCloseKeyboardShortcuts}
+      />
     </div>
   );
 }

@@ -267,7 +267,13 @@ body {
   writing-mode: vertical-rl;
 }
 
-/* Custom scrollbar for panels */
+/* Custom scrollbar for panels with enhanced auto-scroll */
+.panel-scrollbar {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
 .panel-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
@@ -279,10 +285,29 @@ body {
 .panel-scrollbar::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 3px;
+  transition: background-color 0.2s ease;
 }
 
 .panel-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Enhanced smooth scrolling */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  scroll-padding-top: 8px;
+  scroll-padding-bottom: 8px;
+}
+
+/* Auto-scroll on hover near edges */
+.panel-scrollbar:hover {
+  scroll-behavior: smooth;
+}
+
+/* Smooth transitions for accordion content */
+.accordion-content {
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  scroll-margin-top: 8px;
 }
 
 /* Panel animations */
@@ -558,4 +583,49 @@ body {
 /* Ensure toasts appear above everything */
 .toast-container {
   z-index: 9999;
+}
+
+/* Presentation View Styles */
+.presentation-view-flow {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.presentation-control-panel {
+  z-index: 1000;
+}
+
+.presentation-close-panel {
+  z-index: 1000;
+}
+
+.presentation-help-panel {
+  z-index: 1000;
+}
+
+/* Enhance MiniMap in presentation view */
+.presentation-view-flow .react-flow__minimap {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+/* Enhance Controls in presentation view */
+.presentation-view-flow .react-flow__controls {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.presentation-view-flow .react-flow__controls button {
+  background: transparent;
+  border: none;
+  color: #374151;
+  transition: all 0.2s ease;
+}
+
+.presentation-view-flow .react-flow__controls button:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
 }

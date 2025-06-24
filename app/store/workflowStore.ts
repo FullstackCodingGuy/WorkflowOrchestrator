@@ -9,7 +9,7 @@ import {
   Position,
 } from "reactflow";
 import dagre from "dagre";
-import { APP_COLORS, NODE_DIMENSIONS, STORAGE_KEYS } from '../config/appConfig';
+import { APP_COLORS, NODE_DIMENSIONS, STORAGE_KEYS, DEFAULT_DIAGRAM_TYPE, DiagramType, DIAGRAM_TYPE_DEFAULT_NODE } from '../config/appConfig';
 
 // Define node type for workflow logic
 export type WorkflowNodeType = 'start' | 'process' | 'decision' | 'condition' | 'action' | 'end' | 'custom';
@@ -28,6 +28,10 @@ export interface WorkflowState {
   edges: Edge[];
   areEdgesAnimated: boolean;
   selectedNodeId: string | null; // Added for properties panel
+  // Diagram type management
+  currentDiagramType: DiagramType;
+  setDiagramType: (diagramType: DiagramType) => void;
+  getDefaultNodeTypeForDiagram: () => string;
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   setNodes: (nodes: Node[]) => void;
@@ -456,6 +460,18 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
       width: maxX - minX,
       height: maxY - minY,
     };
+  },
+
+  // Diagram type management
+  currentDiagramType: DEFAULT_DIAGRAM_TYPE,
+  
+  setDiagramType: (diagramType: DiagramType) => {
+    set({ currentDiagramType: diagramType });
+  },
+  
+  getDefaultNodeTypeForDiagram: () => {
+    const { currentDiagramType } = get();
+    return DIAGRAM_TYPE_DEFAULT_NODE[currentDiagramType];
   },
 });
 
