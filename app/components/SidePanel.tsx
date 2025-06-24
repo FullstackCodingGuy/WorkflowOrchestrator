@@ -31,68 +31,18 @@ export function SidePanel({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
 
-  // Simple auto-scroll
+  // Simple scroll to top functionality
   useEffect(() => {
     const container = scrollContainerRef.current;
-    if (!container || !isOpen) return;
-
-    let scrollInterval: NodeJS.Timeout | null = null;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      const mouseY = e.clientY - rect.top;
-      
-      // Clear existing interval
-      if (scrollInterval) {
-        clearInterval(scrollInterval);
-        scrollInterval = null;
-      }
-
-      // Auto-scroll up
-      if (mouseY < 50 && container.scrollTop > 0) {
-        scrollInterval = setInterval(() => {
-          if (container.scrollTop <= 0) {
-            if (scrollInterval) clearInterval(scrollInterval);
-            return;
-          }
-          container.scrollTop -= 3;
-        }, 16);
-      }
-      // Auto-scroll down
-      else if (mouseY > rect.height - 50 && 
-               container.scrollTop < container.scrollHeight - container.clientHeight) {
-        scrollInterval = setInterval(() => {
-          if (container.scrollTop >= container.scrollHeight - container.clientHeight) {
-            if (scrollInterval) clearInterval(scrollInterval);
-            return;
-          }  
-          container.scrollTop += 3;
-        }, 16);
-      }
-    };
-
-    const handleMouseLeave = () => {
-      if (scrollInterval) {
-        clearInterval(scrollInterval);
-        scrollInterval = null;
-      }
-    };
+    if (!container) return;
 
     const handleScroll = () => {
       setShowScrollToTop(container.scrollTop > 200);
     };
 
-    container.addEventListener('mousemove', handleMouseMove);
-    container.addEventListener('mouseleave', handleMouseLeave);
     container.addEventListener('scroll', handleScroll);
-
-    return () => {
-      if (scrollInterval) clearInterval(scrollInterval);
-      container.removeEventListener('mousemove', handleMouseMove);
-      container.removeEventListener('mouseleave', handleMouseLeave);
-      container.removeEventListener('scroll', handleScroll);
-    };
-  }, [isOpen]);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const toggleSection = (sectionId: string) => {
     const newExpanded = new Set(expandedSections);
