@@ -264,6 +264,15 @@ export default function DiagramEditor() {
   const [selectedNode, setSelectedNode] = useState<DiagramNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<DiagramEdge | null>(null);
   const [backgroundVariant, setBackgroundVariant] = useState<BackgroundVariant>(BackgroundVariant.Dots);
+  
+  // Handle background variant changes, default Cross to Dots since Cross is removed
+  const handleBackgroundVariantChange = useCallback((variant: BackgroundVariant) => {
+    if (variant === BackgroundVariant.Cross) {
+      setBackgroundVariant(BackgroundVariant.Dots);
+    } else {
+      setBackgroundVariant(variant);
+    }
+  }, []);
   const [isAnimationEnabled] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(true);
 
@@ -1117,7 +1126,7 @@ export default function DiagramEditor() {
         onSave={saveDiagram}
         onLoad={loadDiagram}
         backgroundVariant={backgroundVariant}
-        onBackgroundVariantChange={setBackgroundVariant}
+        onBackgroundVariantChange={handleBackgroundVariantChange}
         showMiniMap={showMiniMap}
         onMiniMapToggle={setShowMiniMap}
         onPlayWorkflow={handlePlayWorkflow}
@@ -1194,7 +1203,7 @@ export default function DiagramEditor() {
               variant={backgroundVariant}
               gap={backgroundVariant === BackgroundVariant.Dots ? 32 : 24}
               size={backgroundVariant === BackgroundVariant.Dots ? 2.5 : 2}
-              color="#64748b"
+              color="#cbd5e1"
               lineWidth={backgroundVariant === BackgroundVariant.Lines ? 1 : 1.5}
             />
           </ReactFlow>

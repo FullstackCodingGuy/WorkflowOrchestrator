@@ -208,9 +208,7 @@ export function DiagramToolbar({
             </svg>
           </button>
 
-          <div className="w-px h-4 bg-border" />
-
-          {/* Background Variant Buttons */}
+          <div className="w-px h-4 bg-border" />          {/* Background Variant Buttons */}
           <div className="flex items-center bg-card border border-border rounded-sm overflow-hidden">
             <button
               onClick={() => onBackgroundVariantChange(BackgroundVariant.Dots)}
@@ -232,21 +230,10 @@ export function DiagramToolbar({
               className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${
                 backgroundVariant === BackgroundVariant.Lines ? 'bg-neutral-200' : ''
               }`}
-              title="Lines Background"
+              title="Grid Background"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12h18M3 6h18M3 18h18" />
-              </svg>
-            </button>
-            <button
-              onClick={() => onBackgroundVariantChange(BackgroundVariant.Cross)}
-              className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${
-                backgroundVariant === BackgroundVariant.Cross ? 'bg-neutral-200' : ''
-              }`}
-              title="Cross Background"
-            >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 3v18M3 12h18" />
               </svg>
             </button>
           </div>
