@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { workflowTemplates, WorkflowTemplate } from './workflowTemplates';
-import { PlayCircleIcon, ChevronDownIcon, ChevronRightIcon } from './Icons';
+import { workflowTemplates, WorkflowTemplate } from '../workflowTemplates';
+import { PlayCircleIcon, ChevronDownIcon, ChevronRightIcon } from '../Icons';
 
 interface TemplateLibraryPanelProps {
   onLoadExample?: (template: WorkflowTemplate) => void;

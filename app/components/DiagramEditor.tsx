@@ -30,9 +30,14 @@ import { DiagramToolbar } from './DiagramToolbar';
 import { PropertyPanel } from './PropertyPanel/PropertyPanel';
 
 // Import side panel components
-import { SidePanel, PanelSection } from './SidePanel';
-import { ExplorerPanel, OutlinePanel, FileExplorer } from './ExplorerPanelContent';
-import { TemplateLibraryPanel } from './TemplateLibraryPanel';
+import { 
+  SidePanel, 
+  PanelSection, 
+  ExplorerPanel, 
+  OutlinePanel, 
+  FileExplorer, 
+  TemplateLibraryPanel 
+} from './SidebarPanels';
 import { WorkflowTemplate } from './workflowTemplates';
 
 // Import enhanced configuration

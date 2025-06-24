@@ -1,5 +1,5 @@
 import React from 'react';
-import { DiagramNode, DiagramEdge } from './DiagramEditor';
+import { DiagramNode, DiagramEdge } from '../DiagramEditor';
 
 interface ExplorerPanelProps {
   nodes: DiagramNode[];
