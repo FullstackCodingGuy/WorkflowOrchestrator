@@ -1,12 +1,18 @@
 {
-  "name": "nextjs",
-  "version": "0.1.0",
+  "name": "workflow-orchestrator",
+  "version": "1.0.0",
+  "description": "Advanced workflow diagram editor with presentation capabilities",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:static": "NEXT_EXPORT=true next build",
+    "deploy:vercel": "npm run build && vercel --prod",
+    "deploy:netlify": "npm run build:static && netlify deploy --prod --dir=out",
+    "deploy:preview": "vercel",
+    "test:build": "npm run build && npm run lint"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
