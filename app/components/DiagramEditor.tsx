@@ -34,7 +34,7 @@ import {
   FileExplorer, 
   TemplateLibraryPanel 
 } from './SidebarPanels';
-import { WorkflowTemplate } from './workflowTemplates';
+import { WorkflowTemplate, workflowTemplates } from './workflowTemplates';
 import { PresentationView } from './PresentationView';
 import { KeyboardShortcutsHelp } from './KeyboardShortcutsHelp';
 
@@ -456,6 +456,389 @@ export default function DiagramEditor() {
       });
     }
   }, [nodes.length, edges.length, setNodes, setEdges]);
+
+  // Handle template-based workflow creation
+  const handleNewTemplate = useCallback((templateId: string) => {
+    // Check if current workflow needs to be saved
+    if (nodes.length > 0 || edges.length > 0) {
+      const confirmed = window.confirm('This will replace the current workflow. Are you sure?');
+      if (!confirmed) return;
+    }
+
+    // Create template based on ID
+    let templateNodes: Node[] = [];
+    let templateEdges: Edge[] = [];
+    let templateName = 'New Workflow';
+
+    switch (templateId) {
+      case 'basic-workflow':
+        templateName = 'Basic Workflow';
+        templateNodes = [
+          {
+            id: 'start-1',
+            type: 'start',
+            data: { 
+              label: 'Start Process',
+              nodeType: 'start',
+              ...getNodeTypeStyles('start')
+            },
+            position: { x: 100, y: 50 },
+            width: 120,
+            height: 60,
+          },
+          {
+            id: 'action-1',
+            type: 'action',
+            data: { 
+              label: 'Process Task',
+              nodeType: 'action',
+              ...getNodeTypeStyles('action')
+            },
+            position: { x: 100, y: 150 },
+            width: 120,
+            height: 60,
+          },
+          {
+            id: 'end-1',
+            type: 'end',
+            data: { 
+              label: 'Complete',
+              nodeType: 'end',
+              ...getNodeTypeStyles('end')
+            },
+            position: { x: 100, y: 250 },
+            width: 120,
+            height: 60,
+          },
+        ];
+        templateEdges = [
+          {
+            id: 'e1-2',
+            source: 'start-1',
+            target: 'action-1',
+            type: 'default',
+          },
+          {
+            id: 'e2-3',
+            source: 'action-1',
+            target: 'end-1',
+            type: 'default',
+          },
+        ];
+        break;
+
+      case 'conditional-workflow':
+        templateName = 'Conditional Workflow';
+        templateNodes = [
+          {
+            id: 'start-1',
+            type: 'start',
+            data: { 
+              label: 'Start',
+              nodeType: 'start',
+              ...getNodeTypeStyles('start')
+            },
+            position: { x: 200, y: 50 },
+            width: 120,
+            height: 60,
+          },
+          {
+            id: 'condition-1',
+            type: 'condition',
+            data: { 
+              label: 'Check Condition',
+              nodeType: 'condition',
+              ...getNodeTypeStyles('condition')
+            },
+            position: { x: 200, y: 150 },
+            width: 120,
+            height: 80,
+          },
+          {
+            id: 'action-1',
+            type: 'action',
+            data: { 
+              label: 'Action A',
+              nodeType: 'action',
+              ...getNodeTypeStyles('action')
+            },
+            position: { x: 100, y: 280 },
+            width: 120,
+            height: 60,
+          },
+          {
+            id: 'action-2',
+            type: 'action',
+            data: { 
+              label: 'Action B',
+              nodeType: 'action',
+              ...getNodeTypeStyles('action')
+            },
+            position: { x: 300, y: 280 },
+            width: 120,
+            height: 60,
+          },
+        ];
+        templateEdges = [
+          {
+            id: 'e1-2',
+            source: 'start-1',
+            target: 'condition-1',
+            type: 'default',
+          },
+          {
+            id: 'e2-3',
+            source: 'condition-1',
+            sourceHandle: 'true',
+            target: 'action-1',
+            type: 'default',
+            label: 'Yes',
+          },
+          {
+            id: 'e2-4',
+            source: 'condition-1',
+            target: 'action-2',
+            type: 'default',
+            label: 'No',
+          },
+        ];
+        break;
+
+      case 'animated-basic':
+        templateName = 'Animated Basic Flow';
+        templateNodes = [
+          {
+            id: 'start-1',
+            type: 'start',
+            data: { 
+              label: 'Start Process',
+              nodeType: 'start',
+              ...getNodeTypeStyles('start')
+            },
+            position: { x: 100, y: 50 },
+            width: 120,
+            height: 60,
+          },
+          {
+            id: 'action-1',
+            type: 'action',
+            data: { 
+              label: 'Animated Task',
+              nodeType: 'action',
+              ...getNodeTypeStyles('action')
+            },
+            position: { x: 100, y: 150 },
+            width: 120,
+            height: 60,
+          },
+          {
+            id: 'end-1',
+            type: 'end',
+            data: { 
+              label: 'Complete',
+              nodeType: 'end',
+              ...getNodeTypeStyles('end')
+            },
+            position: { x: 100, y: 250 },
+            width: 120,
+            height: 60,
+          },
+        ];
+        templateEdges = [
+          {
+            id: 'e1-2',
+            source: 'start-1',
+            target: 'action-1',
+            type: 'animatedSvg',
+            animated: true,
+          },
+          {
+            id: 'e2-3',
+            source: 'action-1',
+            target: 'end-1',
+            type: 'animatedSvg',
+            animated: true,
+          },
+        ];
+        // Enable edge animations for this template
+        setTimeout(() => {
+          const toggleButton = document.querySelector('[data-testid="edge-animation-toggle"]') as HTMLButtonElement;
+          if (toggleButton && !toggleButton.classList.contains('bg-primary')) {
+            toggleButton.click();
+          }
+        }, 100);
+        break;
+
+      case 'animated-complex':
+        templateName = 'Advanced Animated Flow';
+        templateNodes = [
+          {
+            id: 'start-1',
+            type: 'start',
+            data: { 
+              label: 'Start',
+              nodeType: 'start',
+              ...getNodeTypeStyles('start')
+            },
+            position: { x: 200, y: 50 },
+            width: 120,
+            height: 60,
+          },
+          {
+            id: 'condition-1',
+            type: 'condition',
+            data: { 
+              label: 'Complex Decision',
+              nodeType: 'condition',
+              ...getNodeTypeStyles('condition')
+            },
+            position: { x: 200, y: 150 },
+            width: 140,
+            height: 80,
+          },
+          {
+            id: 'action-1',
+            type: 'action',
+            data: { 
+              label: 'Process A',
+              nodeType: 'action',
+              ...getNodeTypeStyles('action')
+            },
+            position: { x: 50, y: 280 },
+            width: 120,
+            height: 60,
+          },
+          {
+            id: 'action-2',
+            type: 'action',
+            data: { 
+              label: 'Process B',
+              nodeType: 'action',
+              ...getNodeTypeStyles('action')
+            },
+            position: { x: 200, y: 280 },
+            width: 120,
+            height: 60,
+          },
+          {
+            id: 'action-3',
+            type: 'action',
+            data: { 
+              label: 'Process C',
+              nodeType: 'action',
+              ...getNodeTypeStyles('action')
+            },
+            position: { x: 350, y: 280 },
+            width: 120,
+            height: 60,
+          },
+          {
+            id: 'end-1',
+            type: 'end',
+            data: { 
+              label: 'Complete',
+              nodeType: 'end',
+              ...getNodeTypeStyles('end')
+            },
+            position: { x: 200, y: 400 },
+            width: 120,
+            height: 60,
+          },
+        ];
+        templateEdges = [
+          {
+            id: 'e1-2',
+            source: 'start-1',
+            target: 'condition-1',
+            type: 'animatedSvg',
+            animated: true,
+          },
+          {
+            id: 'e2-3',
+            source: 'condition-1',
+            sourceHandle: 'true',
+            target: 'action-1',
+            type: 'animatedSvg',
+            animated: true,
+          },
+          {
+            id: 'e2-4',
+            source: 'condition-1',
+            target: 'action-2',
+            type: 'animatedSvg',
+            animated: true,
+          },
+          {
+            id: 'e2-5',
+            source: 'condition-1',
+            sourceHandle: 'false',
+            target: 'action-3',
+            type: 'animatedSvg',
+            animated: true,
+          },
+          {
+            id: 'e3-6',
+            source: 'action-1',
+            target: 'end-1',
+            type: 'animatedSvg',
+            animated: true,
+          },
+          {
+            id: 'e4-6',
+            source: 'action-2',
+            target: 'end-1',
+            type: 'animatedSvg',
+            animated: true,
+          },
+          {
+            id: 'e5-6',
+            source: 'action-3',
+            target: 'end-1',
+            type: 'animatedSvg',
+            animated: true,
+          },
+        ];
+        // Enable advanced animations
+        setTimeout(() => {
+          const toggleButton = document.querySelector('[data-testid="edge-animation-toggle"]') as HTMLButtonElement;
+          if (toggleButton && !toggleButton.classList.contains('bg-primary')) {
+            toggleButton.click();
+          }
+        }, 100);
+        break;
+
+      default:
+        // Use existing template if templateId matches a known template
+        const existingTemplate = workflowTemplates.find(t => t.name.toLowerCase().replace(/\s+/g, '-') === templateId);
+        if (existingTemplate) {
+          templateName = existingTemplate.name;
+          templateNodes = existingTemplate.nodes;
+          templateEdges = existingTemplate.edges;
+        }
+        break;
+    }
+
+    // Apply the template
+    setNodes(templateNodes);
+    setEdges(templateEdges);
+    setSelectedNode(null);
+    setPropertyPanelOpen(false);
+
+    // Auto-fit view to show the template
+    setTimeout(() => {
+      fitView();
+    }, 100);
+
+    // Show toast notification
+    if (window.showToast) {
+      window.showToast({
+        type: 'success',
+        title: 'Template Applied',
+        message: `Created "${templateName}" workflow from template`,
+        duration: 3000,
+      });
+    }
+  }, [nodes.length, edges.length, setNodes, setEdges, fitView]);
 
   // Save diagram to localStorage
   const saveDiagram = useCallback(() => {
@@ -1122,6 +1505,7 @@ export default function DiagramEditor() {
         onAddNode={addNewNode}
         onFitView={fitView}
         onNew={newWorkflow}
+        onNewTemplate={handleNewTemplate}
         onClear={clearDiagram}
         onSave={saveDiagram}
         onLoad={loadDiagram}

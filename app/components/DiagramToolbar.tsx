@@ -1,12 +1,13 @@
 import React from 'react';
 import { BackgroundVariant } from 'reactflow';
-import { FileMenu } from './FileMenu';
+import { MegaFileMenu } from './MegaFileMenu';
 import { DIAGRAM_TYPES, DiagramType } from '../config/appConfig';
 
 interface DiagramToolbarProps {
   onAddNode: () => void;
   onFitView: () => void;
   onNew: () => void;
+  onNewTemplate: (templateId: string) => void;
   onClear: () => void;
   onSave: () => void;
   onLoad: () => void;
@@ -45,6 +46,7 @@ export function DiagramToolbar({
   onAddNode,
   onFitView,
   onNew,
+  onNewTemplate,
   onClear,
   onSave,
   onLoad,
@@ -78,8 +80,9 @@ export function DiagramToolbar({
       <div id="main-toolbar" className="h-12 bg-header border-b border-border flex items-center px-3 shadow-soft">
         {/* Left Section - File Menu + Main Actions */}
         <div className="flex items-center space-x-1.5">
-          <FileMenu
+          <MegaFileMenu
             onNew={onNew}
+            onNewTemplate={onNewTemplate}
             onLoad={onLoad}
             onSave={onSave}
             onClear={onClear}
