@@ -18,6 +18,21 @@ const nextConfig: NextConfig = {
     unoptimized: isStaticExport || isNetlifyDeploy,
   },
   
+  // Webpack configuration for ReactFlow
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Prevent ReactFlow from being processed on the server
+      config.externals = config.externals || [];
+      config.externals.push({
+        'reactflow': 'reactflow',
+        '@reactflow/core': '@reactflow/core',
+        '@reactflow/node-resizer': '@reactflow/node-resizer',
+        '@reactflow/node-toolbar': '@reactflow/node-toolbar',
+      });
+    }
+    return config;
+  },
+  
   // Platform-specific optimizations
   ...(isVercelDeploy && {
     // Vercel-specific optimizations

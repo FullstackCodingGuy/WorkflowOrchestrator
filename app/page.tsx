@@ -1,38 +1,28 @@
 "use client";
-import { ReactFlowProvider } from 'reactflow';
-import DiagramEditorPage from "./diagram-editor/page";
+import dynamic from 'next/dynamic';
+
+// Dynamically import ReactFlowProvider and DiagramEditorPage to prevent SSR issues
+const ReactFlowProvider = dynamic(
+  () => import('reactflow').then((mod) => ({ default: mod.ReactFlowProvider })),
+  { ssr: false }
+);
+
+const DiagramEditorPage = dynamic(() => import("./diagram-editor/page"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">Loading Workflow Orchestrator...</p>
+      </div>
+    </div>
+  ),
+});
 
 export default function Home() {
-
   return (
-    <ReactFlowProvider> {/* <-- Wrap the entire content with ReactFlowProvider */}
+    <ReactFlowProvider>
       <DiagramEditorPage />
-      
-      {/* <div className="flex flex-col h-screen bg-[var(--background)] text-[var(--foreground)]">
-        <header 
-          className="flex items-center justify-between p-4 shadow-md border-b border-[var(--border-color)] bg-[var(--header-bg)] text-[var(--header-foreground)] sticky top-0 z-50"
-        >
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-full hover:bg-[var(--accent-hover)] hover:text-[var(--accent-foreground)] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-              aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
-            >
-              {isSidebarOpen ? <XIcon className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}
-            </button>
-          </div>
-          <div className="flex items-center gap-3">
-            <Toolbar />
-            <ThemeSwitcher /> 
-          </div>
-        </header>
-        <div className="flex flex-1 overflow-hidden">
-          <Sidebar isOpen={isSidebarOpen} />
-          <main className="flex-1 overflow-auto p-1 bg-[var(--background)]">
-            <WorkflowCanvas />
-          </main>
-        </div>
-      </div> */}
     </ReactFlowProvider>
   );
 }
