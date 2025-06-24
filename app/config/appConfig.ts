@@ -47,7 +47,7 @@ export const APP_COLORS = {
  */
 export const DEFAULT_NODE_STYLES = {
   // Typography
-  fontSize: 16,
+  fontSize: 18,
   fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
   fontWeight: '600',
   textAlign: 'center' as const,

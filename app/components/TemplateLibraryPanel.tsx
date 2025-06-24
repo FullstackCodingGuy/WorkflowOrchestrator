@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { workflowTemplates, WorkflowTemplate } from './workflowTemplates';
 import { PlayCircleIcon, ChevronDownIcon, ChevronRightIcon } from './Icons';
 
@@ -13,6 +13,7 @@ export function TemplateLibraryPanel({ onLoadExample }: TemplateLibraryPanelProp
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   const [popoverPosition, setPopoverPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isPopoverHovered, setIsPopoverHovered] = useState(false);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Group templates by category based on name patterns
   const categorizedTemplates = workflowTemplates.reduce((acc, template) => {
@@ -51,11 +52,22 @@ export function TemplateLibraryPanel({ onLoadExample }: TemplateLibraryPanelProp
     if (onLoadExample) {
       onLoadExample(template);
     }
+    // Clear any pending hide timeout
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
     setHoveredTemplate(null);
     setIsPopoverHovered(false);
   };
 
   const handleMouseEnter = (template: WorkflowTemplate, event: React.MouseEvent) => {
+    // Clear any pending hide timeout
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+
     const rect = event.currentTarget.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
@@ -83,15 +95,20 @@ export function TemplateLibraryPanel({ onLoadExample }: TemplateLibraryPanelProp
   };
 
   const handleMouseLeave = () => {
-    // Add a small delay to allow moving to popover
-    setTimeout(() => {
+    // Set a timeout to hide the popover, but allow it to be cancelled
+    hideTimeoutRef.current = setTimeout(() => {
       if (!isPopoverHovered) {
         setHoveredTemplate(null);
       }
-    }, 100);
+    }, 150); // 150ms delay to allow moving to popover
   };
 
   const handlePopoverMouseEnter = () => {
+    // Clear any pending hide timeout
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
     setIsPopoverHovered(true);
   };
 
