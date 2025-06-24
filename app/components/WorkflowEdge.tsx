@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   EdgeProps,
   getSmoothStepPath,
   BaseEdge,
   EdgeLabelRenderer,
+  useReactFlow,
 } from 'reactflow';
 import { getEdgeStyles } from '../config/appConfig';
 
@@ -20,6 +21,10 @@ export function WorkflowEdge({
   data,
   selected,
 }: EdgeProps) {
+  const { setEdges } = useReactFlow();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(data?.label || '');
+  const inputRef = useRef<HTMLInputElement>(null);
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
@@ -48,6 +53,46 @@ export function WorkflowEdge({
   const fontSize = data?.fontSize || defaultStyles.labelFontSize;
   const fontFamily = data?.fontFamily || defaultStyles.labelFontFamily;
   const fontWeight = data?.fontWeight || defaultStyles.labelFontWeight;
+  
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+    setEditValue(data?.label || '');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      saveEdit();
+    } else if (e.key === 'Escape') {
+      cancelEdit();
+    }
+  };
+
+  const saveEdit = () => {
+    setEdges((edges) =>
+      edges.map((edge) =>
+        edge.id === id
+          ? { ...edge, data: { ...edge.data, label: editValue.trim() } }
+          : edge
+      )
+    );
+    setIsEditing(false);
+  };
+
+  const cancelEdit = () => {
+    setEditValue(data?.label || '');
+    setIsEditing(false);
+  };
+
+  const handleBlur = () => {
+    saveEdit();
+  };
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
   const textColor = data?.textColor || defaultStyles.labelTextColor;
 
   // Animation duration based on speed
@@ -143,8 +188,8 @@ export function WorkflowEdge({
         </circle>
       )}
 
-      {/* Edge label with dynamic typography */}
-      {data?.label && (
+      {/* Edge label with inline editing */}
+      {(data?.label || isEditing) && (
         <EdgeLabelRenderer>
           <div
             style={{
@@ -162,7 +207,33 @@ export function WorkflowEdge({
             }}
             className="nodrag nopan"
           >
-            {data.label}
+            {isEditing ? (
+              <input
+                ref={inputRef}
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onBlur={handleBlur}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  fontSize: fontSize,
+                  fontFamily: fontFamily,
+                  fontWeight: fontWeight,
+                  color: textColor,
+                  minWidth: '60px',
+                }}
+              />
+            ) : (
+              <span
+                onDoubleClick={handleDoubleClick}
+                style={{ cursor: 'pointer' }}
+                title="Double-click to edit"
+              >
+                {data?.label || 'Label'}
+              </span>
+            )}
           </div>
         </EdgeLabelRenderer>
       )}

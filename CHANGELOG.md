@@ -1,3 +1,101 @@
+# 0.0.17 - Inline Editing for Nodes and Edges
+
+### 🎯 **INLINE EDITING FUNCTIONALITY**
+
+**Date**: June 24, 2025  
+**Status**: ✅ **PRODUCTION READY**  
+**Build Status**: ✅ **ZERO ERRORS** (TypeScript + ESLint)  
+**Implementation**: ✅ **FEATURE COMPLETE** (Node & Edge Inline Editing)
+
+---
+
+## 🔧 **INLINE EDITING SYSTEM**
+
+### **1.1 Node Inline Editing - NEW**
+#### **Implementation:**
+- **Updated**: `app/components/WorkflowNode.tsx`
+- **Features**:
+  - ✅ Double-click node title to edit inline
+  - ✅ Auto-focus and text selection on edit start
+  - ✅ Enter key to save changes
+  - ✅ Escape key to cancel editing
+  - ✅ Auto-save on blur (click outside)
+  - ✅ Visual consistency with node styling
+  - ✅ Tooltip hints ("Double-click to edit")
+
+#### **Technical Details:**
+```typescript
+// Added state management for inline editing
+const [isEditing, setIsEditing] = useState(false);
+const [editValue, setEditValue] = useState(data.label);
+const inputRef = useRef<HTMLInputElement>(null);
+
+// Integration with ReactFlow's setNodes
+const { setNodes } = useReactFlow();
+```
+
+### **1.2 Edge Inline Editing - NEW**
+#### **Implementation:**
+- **Updated**: `app/components/WorkflowEdge.tsx`
+- **Features**:
+  - ✅ Double-click edge label to edit inline
+  - ✅ Create new labels by double-clicking on edges without labels
+  - ✅ Same keyboard shortcuts (Enter/Escape)
+  - ✅ Auto-save on blur functionality
+  - ✅ Styled inputs matching edge label appearance
+  - ✅ Proper positioning and visual feedback
+
+#### **Technical Details:**
+```typescript
+// Added inline editing for edge labels
+const [isEditing, setIsEditing] = useState(false);
+const [editValue, setEditValue] = useState(data?.label || '');
+const inputRef = useRef<HTMLInputElement>(null);
+
+// Integration with ReactFlow's setEdges
+const { setEdges } = useReactFlow();
+```
+
+### **1.3 User Experience Enhancements**
+#### **Interaction Design:**
+- ✅ **Intuitive double-click**: Standard desktop interaction pattern
+- ✅ **Keyboard shortcuts**: Enter (save) / Escape (cancel)
+- ✅ **Visual feedback**: Inputs inherit original styling
+- ✅ **Error prevention**: Empty values are trimmed
+- ✅ **Accessibility**: Proper focus management and tooltips
+
+#### **Files Modified:**
+- `app/components/WorkflowNode.tsx`: Added inline editing for node titles
+- `app/components/WorkflowEdge.tsx`: Added inline editing for edge labels
+
+---
+
+## 📋 **USAGE INSTRUCTIONS**
+
+### **Node Editing:**
+1. Double-click any node title to start editing
+2. Type new name
+3. Press Enter to save or Escape to cancel
+4. Click outside to auto-save
+
+### **Edge Editing:**
+1. Double-click any edge label to edit
+2. Double-click on unlabeled edges to add labels
+3. Use same keyboard shortcuts as nodes
+4. Changes save automatically on blur
+
+---
+
+## 🎯 **BENEFITS**
+
+- **Quick Editing**: No need to open property panels for simple text changes
+- **Workflow Efficiency**: Edit multiple elements rapidly
+- **Standard UX**: Familiar double-click interaction pattern
+- **Visual Consistency**: Editing preserves original styling
+- **Error Prevention**: Input validation and trimming
+
+---
+
 # 0.0.16 - Property Panel Custom Configuration & Node Type Display
 
 ### 🎯 **CUSTOM KEY-VALUE CONFIGURATION & ENHANCED NODE PROPERTIES**

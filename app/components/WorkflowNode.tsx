@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import React, { memo, useState, useRef, useEffect } from 'react';
+import { Handle, Position, NodeProps, useReactFlow } from 'reactflow';
 import { getNodeTypeStyles, DEFAULT_NODE_STYLES } from '../config/appConfig';
 
 interface DiagramNodeData {
@@ -21,7 +21,12 @@ interface DiagramNodeData {
   isExecuting?: boolean;
 }
 
-export const WorkflowNode = memo(({ data, selected }: NodeProps<DiagramNodeData>) => {
+export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeData>) => {
+  const { setNodes } = useReactFlow();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(data.label);
+  const inputRef = useRef<HTMLInputElement>(null);
+
   // Get default styles from centralized configuration
   const defaultStyles = getNodeTypeStyles((data.nodeType as 'start' | 'process' | 'action' | 'condition' | 'decision' | 'end' | 'custom') || 'custom');
   
@@ -57,6 +62,48 @@ export const WorkflowNode = memo(({ data, selected }: NodeProps<DiagramNodeData>
     maxWidth: `${maxWidth}px`,
     minWidth: `${DEFAULT_NODE_STYLES.minWidth}px`,
   };
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+    setEditValue(data.label);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      saveEdit();
+    } else if (e.key === 'Escape') {
+      cancelEdit();
+    }
+  };
+
+  const saveEdit = () => {
+    if (editValue.trim() !== '') {
+      setNodes((nodes) =>
+        nodes.map((node) =>
+          node.id === id
+            ? { ...node, data: { ...node.data, label: editValue.trim() } }
+            : node
+        )
+      );
+    }
+    setIsEditing(false);
+  };
+
+  const cancelEdit = () => {
+    setEditValue(data.label);
+    setIsEditing(false);
+  };
+
+  const handleBlur = () => {
+    saveEdit();
+  };
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
 
   return (
     <div
@@ -141,7 +188,30 @@ export const WorkflowNode = memo(({ data, selected }: NodeProps<DiagramNodeData>
               lineHeight: dynamicStyles.lineHeight,
             }}
           >
-            <span className="truncate">{label}</span>
+            {isEditing ? (
+              <input
+                ref={inputRef}
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onBlur={handleBlur}
+                className="bg-transparent border-none outline-none w-full"
+                style={{
+                  color: dynamicStyles.color,
+                  fontSize: Math.max(fontSize, 14) + 'px',
+                  fontFamily: dynamicStyles.fontFamily,
+                  fontWeight: dynamicStyles.fontWeight,
+                }}
+              />
+            ) : (
+              <span 
+                className="truncate cursor-pointer" 
+                onDoubleClick={handleDoubleClick}
+                title="Double-click to edit"
+              >
+                {label}
+              </span>
+            )}
             {isExecuting && (
               <div className="flex items-center ml-2" style={{ color: '#6366f1' }}>
                 <div className="relative">
