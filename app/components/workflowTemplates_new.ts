@@ -14,7 +14,7 @@ const createNodeData = (
   id: string, 
   label: string, 
   nodeType: 'start' | 'process' | 'action' | 'condition' | 'decision' | 'end' | 'custom',
-  customOverrides: Record<string, unknown> = {}
+  customOverrides: Record<string, any> = {}
 ) => {
   const baseStyles = getNodeTypeStyles(nodeType);
   return {

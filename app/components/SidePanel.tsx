@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 export interface PanelSection {
   id: string;
@@ -28,6 +28,71 @@ export function SidePanel({
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(sections.filter(s => s.defaultOpen).map(s => s.id))
   );
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+
+  // Simple auto-scroll
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container || !isOpen) return;
+
+    let scrollInterval: NodeJS.Timeout | null = null;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      const mouseY = e.clientY - rect.top;
+      
+      // Clear existing interval
+      if (scrollInterval) {
+        clearInterval(scrollInterval);
+        scrollInterval = null;
+      }
+
+      // Auto-scroll up
+      if (mouseY < 50 && container.scrollTop > 0) {
+        scrollInterval = setInterval(() => {
+          if (container.scrollTop <= 0) {
+            if (scrollInterval) clearInterval(scrollInterval);
+            return;
+          }
+          container.scrollTop -= 3;
+        }, 16);
+      }
+      // Auto-scroll down
+      else if (mouseY > rect.height - 50 && 
+               container.scrollTop < container.scrollHeight - container.clientHeight) {
+        scrollInterval = setInterval(() => {
+          if (container.scrollTop >= container.scrollHeight - container.clientHeight) {
+            if (scrollInterval) clearInterval(scrollInterval);
+            return;
+          }  
+          container.scrollTop += 3;
+        }, 16);
+      }
+    };
+
+    const handleMouseLeave = () => {
+      if (scrollInterval) {
+        clearInterval(scrollInterval);
+        scrollInterval = null;
+      }
+    };
+
+    const handleScroll = () => {
+      setShowScrollToTop(container.scrollTop > 200);
+    };
+
+    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mouseleave', handleMouseLeave);
+    container.addEventListener('scroll', handleScroll);
+
+    return () => {
+      if (scrollInterval) clearInterval(scrollInterval);
+      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('mouseleave', handleMouseLeave);
+      container.removeEventListener('scroll', handleScroll);
+    };
+  }, [isOpen]);
 
   const toggleSection = (sectionId: string) => {
     const newExpanded = new Set(expandedSections);
@@ -35,8 +100,26 @@ export function SidePanel({
       newExpanded.delete(sectionId);
     } else {
       newExpanded.add(sectionId);
+      
+      // Auto-scroll to the expanded section after a brief delay
+      setTimeout(() => {
+        const sectionElement = document.querySelector(`[data-section-id="${sectionId}"]`);
+        if (sectionElement && scrollContainerRef.current) {
+          sectionElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'nearest',
+            inline: 'nearest'
+          });
+        }
+      }, 100);
     }
     setExpandedSections(newExpanded);
+  };
+
+  const scrollToTop = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const collapseAllSections = () => {
@@ -109,10 +192,14 @@ export function SidePanel({
           </div>
         </div>
 
-        {/* Panel Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto panel-scrollbar">
+        {/* Panel Content - Scrollable with Enhanced Auto-Scroll */}
+        <div 
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto panel-scrollbar smooth-scroll relative"
+        >
+          
           {sections.map((section) => (
-            <div key={section.id} className="border-b border-border last:border-b-0">
+            <div key={section.id} className="border-b border-border last:border-b-0" data-section-id={section.id}>
               {/* Section Header */}
               <button
                 onClick={() => toggleSection(section.id)}
@@ -151,6 +238,19 @@ export function SidePanel({
               </div>
             </div>
           ))}
+          
+          {/* Scroll to Top Button */}
+          {showScrollToTop && (
+            <button
+              onClick={scrollToTop}
+              className="absolute bottom-4 right-4 z-20 w-8 h-8 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary-hover transition-all duration-200 flex items-center justify-center"
+              title="Scroll to top"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+            </button>
+          )}
         </div>
 
         {/* Panel Footer */}

@@ -267,7 +267,13 @@ body {
   writing-mode: vertical-rl;
 }
 
-/* Custom scrollbar for panels */
+/* Custom scrollbar for panels with enhanced auto-scroll */
+.panel-scrollbar {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
 .panel-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
@@ -279,10 +285,29 @@ body {
 .panel-scrollbar::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 3px;
+  transition: background-color 0.2s ease;
 }
 
 .panel-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Enhanced smooth scrolling */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  scroll-padding-top: 8px;
+  scroll-padding-bottom: 8px;
+}
+
+/* Auto-scroll on hover near edges */
+.panel-scrollbar:hover {
+  scroll-behavior: smooth;
+}
+
+/* Smooth transitions for accordion content */
+.accordion-content {
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  scroll-margin-top: 8px;
 }
 
 /* Panel animations */

@@ -5,6 +5,7 @@ import {
   BaseEdge,
   EdgeLabelRenderer,
 } from 'reactflow';
+import { getEdgeStyles } from '../config/appConfig';
 
 export function WorkflowEdge({
   id,
@@ -32,19 +33,22 @@ export function WorkflowEdge({
   const pathId = `path-${id}`;
   const gradientId = `gradient-${id}`;
 
-  // Get styling properties from data
-  const edgeColor = data?.color || '#6366f1'; // Modern indigo instead of gray
-  const isAnimated = data?.animated ?? false;
-  const strokeWidth = data?.strokeWidth || 3; // Increased for better visibility
+  // Get default styles from centralized configuration
+  const defaultStyles = getEdgeStyles();
+  
+  // Get styling properties from data with defaults
+  const edgeColor = data?.color || defaultStyles.stroke;
+  const isAnimated = data?.animated ?? defaultStyles.animated;
+  const strokeWidth = data?.strokeWidth || defaultStyles.strokeWidth;
   const strokeStyle = data?.strokeStyle || 'solid';
   const animationSpeed = data?.animationSpeed || 'normal';
   const markerEndType = data?.markerEnd || 'arrow';
   
-  // Typography properties for edge labels
-  const fontSize = data?.fontSize || 12;
-  const fontFamily = data?.fontFamily || 'Arial, sans-serif';
-  const fontWeight = data?.fontWeight || 'normal';
-  const textColor = data?.textColor || edgeColor;
+  // Typography properties for edge labels using centralized config
+  const fontSize = data?.fontSize || defaultStyles.labelFontSize;
+  const fontFamily = data?.fontFamily || defaultStyles.labelFontFamily;
+  const fontWeight = data?.fontWeight || defaultStyles.labelFontWeight;
+  const textColor = data?.textColor || defaultStyles.labelTextColor;
 
   // Animation duration based on speed
   const animationDurations = {

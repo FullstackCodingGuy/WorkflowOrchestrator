@@ -37,6 +37,149 @@ export const APP_COLORS = {
   }
 };
 
+// ============================================================================
+// CENTRALIZED DEFAULT STYLES CONFIGURATION
+// ============================================================================
+
+/**
+ * Default Node Styles - Single source of truth for all node styling
+ * Change these values to update the appearance across the entire application
+ */
+export const DEFAULT_NODE_STYLES = {
+  // Typography
+  fontSize: 16,
+  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+  fontWeight: '600',
+  textAlign: 'center' as const,
+  lineHeight: 1.5,
+  
+  // Colors
+  backgroundColor: '#ffffff', // Pure white for clean look
+  borderColor: '#d1d5db', // Soft gray border
+  textColor: '#1f2937', // Dark gray for better contrast
+  color: '#6366f1', // Primary accent color
+  
+  // Dimensions
+  maxWidth: 240,
+  minWidth: 180,
+  
+  // Visual enhancements
+  borderRadius: '12px',
+  borderWidth: '2px',
+  borderLeftWidth: '4px', // Emphasis border
+  
+  // Shadow and effects
+  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+  hoverBoxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+  
+  // Spacing
+  padding: '16px',
+  
+  // Transitions
+  transition: 'all 300ms ease-in-out',
+};
+
+/**
+ * Node Type Specific Style Overrides
+ * These extend the DEFAULT_NODE_STYLES for specific node types
+ */
+export const NODE_TYPE_STYLES = {
+  start: {
+    backgroundColor: '#f0fdf4', // Light green
+    textColor: '#065f46', // Dark green
+    borderColor: '#bbf7d0',
+    color: '#10b981',
+  },
+  process: {
+    backgroundColor: '#eff6ff', // Light blue
+    textColor: '#1e40af', // Dark blue
+    borderColor: '#bfdbfe',
+    color: '#3b82f6',
+  },
+  action: {
+    backgroundColor: '#ecfeff', // Light cyan
+    textColor: '#155e75', // Dark cyan
+    borderColor: '#a5f3fc',
+    color: '#06b6d4',
+  },
+  condition: {
+    backgroundColor: '#f3e8ff', // Light purple
+    textColor: '#5b21b6', // Dark purple
+    borderColor: '#c4b5fd',
+    color: '#8b5cf6',
+  },
+  decision: {
+    backgroundColor: '#fff7ed', // Light orange
+    textColor: '#9a3412', // Dark orange
+    borderColor: '#fed7aa',
+    color: '#ea580c',
+  },
+  end: {
+    backgroundColor: '#fef2f2', // Light red
+    textColor: '#991b1b', // Dark red
+    borderColor: '#fecaca',
+    color: '#dc2626',
+  },
+  custom: {
+    backgroundColor: '#ffffff', // Pure white
+    textColor: '#1f2937', // Dark gray
+    borderColor: '#d1d5db',
+    color: '#64748b',
+  },
+};
+
+/**
+ * Default Edge Styles - Single source of truth for all edge styling
+ */
+export const DEFAULT_EDGE_STYLES = {
+  // Colors
+  stroke: '#64748b',
+  strokeWidth: 2,
+  
+  // Label styling
+  labelBackgroundColor: '#ffffff',
+  labelBorderRadius: '6px',
+  labelPadding: '4px 8px',
+  labelFontSize: 12,
+  labelFontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+  labelFontWeight: '500',
+  labelTextColor: '#374151',
+  labelBorder: '1px solid #d1d5db',
+  labelBoxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+  
+  // Animation
+  animated: false,
+  animationDuration: '2s',
+  
+  // Edge types
+  markerEnd: {
+    type: 'arrowclosed',
+    width: 20,
+    height: 20,
+    color: '#64748b',
+  },
+};
+
+/**
+ * Utility function to get complete node styles for a specific type
+ */
+export const getNodeTypeStyles = (nodeType: keyof typeof NODE_TYPE_STYLES = 'custom') => {
+  return {
+    ...DEFAULT_NODE_STYLES,
+    ...NODE_TYPE_STYLES[nodeType],
+  };
+};
+
+/**
+ * Utility function to get complete edge styles with optional overrides
+ */
+export const getEdgeStyles = (styleOverrides: Partial<typeof DEFAULT_EDGE_STYLES> = {}) => {
+  return {
+    ...DEFAULT_EDGE_STYLES,
+    ...styleOverrides,
+  };
+};
+
 export const NODE_DIMENSIONS = {
   defaultWidth: 200, // Increased for better readability
   defaultHeight: 80, // Increased for better spacing

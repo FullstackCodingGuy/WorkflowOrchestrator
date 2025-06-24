@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
+import { getNodeTypeStyles, DEFAULT_NODE_STYLES } from '../config/appConfig';
 
 interface DiagramNodeData {
   label: string;
@@ -21,88 +22,40 @@ interface DiagramNodeData {
 }
 
 export const WorkflowNode = memo(({ data, selected }: NodeProps<DiagramNodeData>) => {
+  // Get default styles from centralized configuration
+  const defaultStyles = getNodeTypeStyles((data.nodeType as 'start' | 'process' | 'action' | 'condition' | 'decision' | 'end' | 'custom') || 'custom');
+  
   const {
     label,
     description,
-    color = '#64748b',
-    backgroundColor = '#ffffff', // Pure white for clean look
-    borderColor = '#d1d5db', // Soft gray border
-    textColor = '#1f2937', // Dark gray for better contrast
-    fontSize = 16, // Larger for better readability
-    fontFamily = 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-    fontWeight = '600', // Semi-bold for better visibility
-    textAlign = 'center',
-    lineHeight = 1.5, // Better line spacing
-    maxWidth = 240, // Wider for better content display
+    color = defaultStyles.color,
+    backgroundColor = defaultStyles.backgroundColor,
+    borderColor = defaultStyles.borderColor,
+    textColor = defaultStyles.textColor,
+    fontSize = defaultStyles.fontSize,
+    fontFamily = defaultStyles.fontFamily,
+    fontWeight = defaultStyles.fontWeight,
+    textAlign = defaultStyles.textAlign,
+    lineHeight = defaultStyles.lineHeight,
+    maxWidth = defaultStyles.maxWidth,
     icon = '📋',
     nodeType = 'custom',
     properties = {},
     isExecuting = false,
   } = data;
 
-  // Enhanced node type styling with dynamic colors
-  const getNodeTypeStyles = (type: string) => {
-    const styles = {
-      start: {
-        fallbackBg: '#f0fdf4',
-        fallbackBorder: '#bbf7d0',
-        fallbackAccent: '#059669',
-        fallbackText: '#065f46',
-      },
-      process: {
-        fallbackBg: '#eff6ff',
-        fallbackBorder: '#bfdbfe',
-        fallbackAccent: '#2563eb',
-        fallbackText: '#1e40af',
-      },
-      decision: {
-        fallbackBg: '#fff7ed',
-        fallbackBorder: '#fed7aa',
-        fallbackAccent: '#ea580c',
-        fallbackText: '#9a3412',
-      },
-      condition: {
-        fallbackBg: '#f3e8ff',
-        fallbackBorder: '#c4b5fd',
-        fallbackAccent: '#7c3aed',
-        fallbackText: '#5b21b6',
-      },
-      action: {
-        fallbackBg: '#ecfeff',
-        fallbackBorder: '#a5f3fc',
-        fallbackAccent: '#0891b2',
-        fallbackText: '#155e75',
-      },
-      end: {
-        fallbackBg: '#fef2f2',
-        fallbackBorder: '#fecaca',
-        fallbackAccent: '#dc2626',
-        fallbackText: '#991b1b',
-      },
-      custom: {
-        fallbackBg: '#ffffff',
-        fallbackBorder: '#d1d5db',
-        fallbackAccent: '#64748b',
-        fallbackText: '#1f2937',
-      },
-    };
-    return styles[type as keyof typeof styles] || styles.custom;
-  };
-
-  const nodeStyles = getNodeTypeStyles(nodeType);
-
-  // Create dynamic styles from Property Panel data
+  // Create dynamic styles from Property Panel data using centralized config
   const dynamicStyles = {
-    backgroundColor: backgroundColor || nodeStyles.fallbackBg,
-    borderColor: borderColor || nodeStyles.fallbackBorder,
-    color: textColor || nodeStyles.fallbackText,
+    backgroundColor: backgroundColor,
+    borderColor: borderColor,
+    color: textColor,
     fontSize: `${fontSize}px`,
     fontFamily: fontFamily,
     fontWeight: fontWeight,
     textAlign: textAlign,
     lineHeight: lineHeight,
     maxWidth: `${maxWidth}px`,
-    minWidth: '180px',
+    minWidth: `${DEFAULT_NODE_STYLES.minWidth}px`,
   };
 
   return (
@@ -120,10 +73,10 @@ export const WorkflowNode = memo(({ data, selected }: NodeProps<DiagramNodeData>
         borderRightColor: selected ? '#6366f1' : dynamicStyles.borderColor,
         borderBottomColor: selected ? '#6366f1' : dynamicStyles.borderColor,
         borderLeftColor: color, // Always use the primary color for left border
-        borderLeftWidth: '4px',
-        borderTopWidth: '2px',
-        borderRightWidth: '2px',
-        borderBottomWidth: '2px',
+        borderLeftWidth: DEFAULT_NODE_STYLES.borderLeftWidth,
+        borderTopWidth: DEFAULT_NODE_STYLES.borderWidth,
+        borderRightWidth: DEFAULT_NODE_STYLES.borderWidth,
+        borderBottomWidth: DEFAULT_NODE_STYLES.borderWidth,
         maxWidth: dynamicStyles.maxWidth,
         minWidth: dynamicStyles.minWidth,
         color: dynamicStyles.color,

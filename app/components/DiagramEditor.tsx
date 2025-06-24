@@ -36,7 +36,7 @@ import { TemplateLibraryPanel } from './TemplateLibraryPanel';
 import { WorkflowTemplate } from './workflowTemplates';
 
 // Import enhanced configuration
-import { APP_COLORS } from '../config/appConfig';
+import { APP_COLORS, getNodeTypeStyles } from '../config/appConfig';
 
 // Types
 export type WorkflowNodeType = 'start' | 'process' | 'decision' | 'condition' | 'action' | 'end' | 'custom';
@@ -353,16 +353,7 @@ export default function DiagramEditor() {
         data: {
           label: `New Node ${nodes.length + 1}`,
           description: 'Click to customize this node',
-          color: APP_COLORS.nodeTypes.custom,
-          backgroundColor: '#ffffff', // Pure white for clean look
-          borderColor: '#d1d5db', // Soft gray border
-          textColor: '#1f2937', // Dark gray for better contrast
-          fontSize: 16, // Larger for better readability
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-          fontWeight: '600', // Semi-bold for better visibility
-          textAlign: 'center',
-          lineHeight: 1.5, // Better line spacing
-          maxWidth: 240, // Wider for better content display
+          ...getNodeTypeStyles('custom'),
           icon: '✨',
           nodeType: 'custom', // Default node type
           properties: { created: new Date().toISOString(), version: '1.0' },
