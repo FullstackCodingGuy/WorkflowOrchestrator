@@ -11,8 +11,6 @@ import ReactFlow, {
   Connection,
   Edge,
   Node,
-  NodeTypes,
-  EdgeTypes,
   ReactFlowInstance,
   ConnectionMode,
   BackgroundVariant,
@@ -22,8 +20,6 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 // Import custom components
-import { WorkflowEdge } from './WorkflowEdge';
-import { WorkflowNode } from './WorkflowNode';
 import { DiagramToolbar } from './DiagramToolbar';
 
 // Import the Property Panel
@@ -40,6 +36,9 @@ import {
 } from './SidebarPanels';
 import { WorkflowTemplate } from './workflowTemplates';
 import { PresentationView } from './PresentationView';
+
+// Import shared ReactFlow configuration
+import { nodeTypes, edgeTypes } from './reactFlowConfig';
 
 // Import enhanced configuration
 import { APP_COLORS, getNodeTypeStyles } from '../config/appConfig';
@@ -182,17 +181,6 @@ const initialNodes: DiagramNode[] = [
     },
   },
 ];
-
-// Edge types configuration
-const edgeTypes: EdgeTypes = {
-  workflowEdge: WorkflowEdge,
-  animatedSvg: WorkflowEdge, // Keep backward compatibility
-};
-
-// Node types configuration
-const nodeTypes: NodeTypes = {
-  custom: WorkflowNode,
-};
 
 // Initial edges with enhanced modern styling
 const initialEdges: DiagramEdge[] = [

@@ -11,8 +11,7 @@ import {
   MiniMap,
   Controls
 } from 'reactflow';
-import { WorkflowNode } from './WorkflowNode';
-import { WorkflowEdge } from './WorkflowEdge';
+import { nodeTypes, edgeTypes } from './reactFlowConfig';
 
 interface PresentationViewProps {
   isOpen: boolean;
@@ -27,14 +26,6 @@ interface PresentationViewProps {
   onRestartWorkflow?: () => void;
   onDebugWorkflow?: () => void;
 }
-
-const nodeTypes = {
-  workflowNode: WorkflowNode,
-};
-
-const edgeTypes = {
-  workflowEdge: WorkflowEdge,
-};
 
 function PresentationViewContent({
   nodes,
