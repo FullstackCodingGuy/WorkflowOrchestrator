@@ -41,7 +41,7 @@ export function WorkflowEdge({
   // Get default styles from centralized configuration
   const defaultStyles = getEdgeStyles();
   
-  // Get styling properties from data with defaults
+  // Get styling properties from data with proper priority (template data first, then defaults)
   const edgeColor = data?.color || defaultStyles.stroke;
   const isAnimated = data?.animated ?? defaultStyles.animated;
   const strokeWidth = data?.strokeWidth || defaultStyles.strokeWidth;
@@ -49,10 +49,11 @@ export function WorkflowEdge({
   const animationSpeed = data?.animationSpeed || 'normal';
   const markerEndType = data?.markerEnd || 'arrow';
   
-  // Typography properties for edge labels using centralized config
+  // Typography properties for edge labels - prioritize template data
   const fontSize = data?.fontSize || defaultStyles.labelFontSize;
   const fontFamily = data?.fontFamily || defaultStyles.labelFontFamily;
   const fontWeight = data?.fontWeight || defaultStyles.labelFontWeight;
+  const textColor = data?.textColor || '#374151';
   
   const handleDoubleClick = () => {
     setIsEditing(true);
@@ -93,7 +94,6 @@ export function WorkflowEdge({
       inputRef.current.select();
     }
   }, [isEditing]);
-  const textColor = data?.textColor || defaultStyles.labelTextColor;
 
   // Animation duration based on speed
   const animationDurations = {

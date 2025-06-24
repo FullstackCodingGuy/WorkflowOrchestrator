@@ -200,4 +200,608 @@ export const workflowTemplates: WorkflowTemplate[] = [
       { id: 'bla-e-reject-rejected', type: 'dotFlow', source: 'bla-action-reject', target: 'bla-end-rejected', animated: false, data: { animatedColor: APP_COLORS.animatedEdge, completedColor: APP_COLORS.completedEdge } },
     ],
   },
+
+  // Enhanced Design Example 1: AI-Powered Content Creation Pipeline
+  {
+    name: 'AI Content Creation Pipeline',
+    description: 'Advanced AI-driven content workflow with enhanced visual design: Content Request → AI Analysis → Multi-format Generation → Quality Review → Publishing with rich styling and animations.',
+    layoutDirection: 'LR',
+    nodes: [
+      {
+        id: 'ai-start',
+        type: 'start',
+        data: createNodeData('ai-start', '🚀 Content Request', 'start', {
+          backgroundColor: '#4f46e5',
+          borderColor: '#6366f1',
+          textColor: '#ffffff',
+          fontSize: 16,
+          fontWeight: 'bold',
+          icon: '🚀',
+        }),
+        position: { x: 50, y: 200 },
+        width: 180,
+        height: 80,
+      },
+      {
+        id: 'ai-analyze',
+        type: 'process',
+        data: createNodeData('ai-analyze', '🧠 AI Topic Analysis', 'process', {
+          backgroundColor: '#06b6d4',
+          borderColor: '#0891b2',
+          textColor: '#ffffff',
+          fontSize: 14,
+          fontWeight: '600',
+          icon: '🧠',
+        }),
+        position: { x: 300, y: 200 },
+        width: 200,
+        height: 80,
+      },
+      {
+        id: 'ai-generate',
+        type: 'action',
+        data: createNodeData('ai-generate', '✨ Generate Content', 'action', {
+          backgroundColor: '#8b5cf6',
+          borderColor: '#7c3aed',
+          textColor: '#ffffff',
+          fontSize: 14,
+          fontWeight: '600',
+          icon: '✨',
+        }),
+        position: { x: 580, y: 200 },
+        width: 180,
+        height: 80,
+      },
+      {
+        id: 'ai-branch',
+        type: 'decision',
+        data: createNodeData('ai-branch', '🔀 Content Type?', 'decision', {
+          backgroundColor: '#f59e0b',
+          borderColor: '#d97706',
+          textColor: '#ffffff',
+          fontSize: 13,
+          fontWeight: '600',
+          icon: '🔀',
+        }),
+        position: { x: 840, y: 200 },
+        width: 160,
+        height: 100,
+      },
+      {
+        id: 'ai-blog',
+        type: 'action',
+        data: createNodeData('ai-blog', '📝 Blog Article', 'action', {
+          backgroundColor: '#10b981',
+          borderColor: '#059669',
+          textColor: '#ffffff',
+          fontSize: 13,
+          fontWeight: '600',
+          icon: '📝',
+        }),
+        position: { x: 1100, y: 80 },
+        width: 160,
+        height: 70,
+      },
+      {
+        id: 'ai-social',
+        type: 'action',
+        data: createNodeData('ai-social', '📱 Social Posts', 'action', {
+          backgroundColor: '#ec4899',
+          borderColor: '#db2777',
+          textColor: '#ffffff',
+          fontSize: 13,
+          fontWeight: '600',
+          icon: '📱',
+        }),
+        position: { x: 1100, y: 200 },
+        width: 160,
+        height: 70,
+      },
+      {
+        id: 'ai-video',
+        type: 'action',
+        data: createNodeData('ai-video', '🎥 Video Script', 'action', {
+          backgroundColor: '#ef4444',
+          borderColor: '#dc2626',
+          textColor: '#ffffff',
+          fontSize: 13,
+          fontWeight: '600',
+          icon: '🎥',
+        }),
+        position: { x: 1100, y: 320 },
+        width: 160,
+        height: 70,
+      },
+      {
+        id: 'ai-review',
+        type: 'condition',
+        data: createNodeData('ai-review', '👁️ Quality Review', 'condition', {
+          backgroundColor: '#6366f1',
+          borderColor: '#4f46e5',
+          textColor: '#ffffff',
+          fontSize: 13,
+          fontWeight: '600',
+          icon: '👁️',
+        }),
+        position: { x: 1380, y: 200 },
+        width: 160,
+        height: 100,
+      },
+      {
+        id: 'ai-publish',
+        type: 'action',
+        data: createNodeData('ai-publish', '🌐 Publish Content', 'action', {
+          backgroundColor: '#059669',
+          borderColor: '#047857',
+          textColor: '#ffffff',
+          fontSize: 14,
+          fontWeight: 'bold',
+          icon: '🌐',
+        }),
+        position: { x: 1660, y: 200 },
+        width: 180,
+        height: 80,
+      },
+      {
+        id: 'ai-end',
+        type: 'end',
+        data: createNodeData('ai-end', '✅ Content Live', 'end', {
+          backgroundColor: '#16a34a',
+          borderColor: '#15803d',
+          textColor: '#ffffff',
+          fontSize: 16,
+          fontWeight: 'bold',
+          icon: '✅',
+        }),
+        position: { x: 1920, y: 200 },
+        width: 160,
+        height: 80,
+      },
+    ],
+    edges: [
+      { 
+        id: 'ai-e1', 
+        type: 'animated', 
+        source: 'ai-start', 
+        target: 'ai-analyze', 
+        animated: true, 
+        data: { 
+          label: 'Request', 
+          strokeWidth: 3,
+          color: '#4f46e5',
+          animationSpeed: 'fast',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'ai-e2', 
+        type: 'animated', 
+        source: 'ai-analyze', 
+        target: 'ai-generate', 
+        animated: true, 
+        data: { 
+          label: 'Analysis Complete', 
+          strokeWidth: 3,
+          color: '#06b6d4',
+          animationSpeed: 'normal',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'ai-e3', 
+        type: 'animated', 
+        source: 'ai-generate', 
+        target: 'ai-branch', 
+        animated: true, 
+        data: { 
+          label: 'Content Ready', 
+          strokeWidth: 3,
+          color: '#8b5cf6',
+          animationSpeed: 'normal',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'ai-e4', 
+        type: 'smoothstep', 
+        source: 'ai-branch', 
+        sourceHandle: 'ai-branch-source-top',
+        target: 'ai-blog', 
+        data: { 
+          label: 'Blog', 
+          strokeWidth: 2,
+          color: '#10b981',
+          strokeStyle: 'dashed'
+        } 
+      },
+      { 
+        id: 'ai-e5', 
+        type: 'smoothstep', 
+        source: 'ai-branch', 
+        target: 'ai-social', 
+        data: { 
+          label: 'Social', 
+          strokeWidth: 2,
+          color: '#ec4899',
+          strokeStyle: 'dashed'
+        } 
+      },
+      { 
+        id: 'ai-e6', 
+        type: 'smoothstep', 
+        source: 'ai-branch', 
+        sourceHandle: 'ai-branch-source-bottom',
+        target: 'ai-video', 
+        data: { 
+          label: 'Video', 
+          strokeWidth: 2,
+          color: '#ef4444',
+          strokeStyle: 'dashed'
+        } 
+      },
+      { 
+        id: 'ai-e7', 
+        type: 'smoothstep', 
+        source: 'ai-blog', 
+        target: 'ai-review', 
+        data: { 
+          strokeWidth: 2,
+          color: '#10b981',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'ai-e8', 
+        type: 'smoothstep', 
+        source: 'ai-social', 
+        target: 'ai-review', 
+        data: { 
+          strokeWidth: 2,
+          color: '#ec4899',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'ai-e9', 
+        type: 'smoothstep', 
+        source: 'ai-video', 
+        target: 'ai-review', 
+        data: { 
+          strokeWidth: 2,
+          color: '#ef4444',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'ai-e10', 
+        type: 'animated', 
+        source: 'ai-review', 
+        target: 'ai-publish', 
+        animated: true, 
+        data: { 
+          label: 'Approved', 
+          strokeWidth: 4,
+          color: '#059669',
+          animationSpeed: 'fast',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'ai-e11', 
+        type: 'animated', 
+        source: 'ai-publish', 
+        target: 'ai-end', 
+        animated: true, 
+        data: { 
+          label: 'Published', 
+          strokeWidth: 4,
+          color: '#16a34a',
+          animationSpeed: 'fast',
+          strokeStyle: 'solid'
+        } 
+      },
+    ],
+  },
+
+  // Enhanced Design Example 2: Smart Healthcare Diagnosis System
+  {
+    name: 'Smart Healthcare Diagnosis',
+    description: 'Advanced medical diagnosis workflow with premium visual design: Patient Data → Symptom Analysis → AI Diagnosis → Treatment Plan → Follow-up with gradient colors and sophisticated animations.',
+    layoutDirection: 'TB',
+    nodes: [
+      {
+        id: 'med-start',
+        type: 'start',
+        data: createNodeData('med-start', '🏥 Patient Check-in', 'start', {
+          backgroundColor: '#0ea5e9',
+          borderColor: '#0284c7',
+          textColor: '#ffffff',
+          fontSize: 16,
+          fontWeight: 'bold',
+          icon: '🏥',
+        }),
+        position: { x: 400, y: 50 },
+        width: 200,
+        height: 80,
+      },
+      {
+        id: 'med-data',
+        type: 'process',
+        data: createNodeData('med-data', '📋 Collect Medical History', 'process', {
+          backgroundColor: '#7c3aed',
+          borderColor: '#6d28d9',
+          textColor: '#ffffff',
+          fontSize: 14,
+          fontWeight: '600',
+          icon: '📋',
+        }),
+        position: { x: 400, y: 180 },
+        width: 200,
+        height: 80,
+      },
+      {
+        id: 'med-symptoms',
+        type: 'action',
+        data: createNodeData('med-symptoms', '🔍 Symptom Analysis', 'action', {
+          backgroundColor: '#f59e0b',
+          borderColor: '#d97706',
+          textColor: '#ffffff',
+          fontSize: 14,
+          fontWeight: '600',
+          icon: '🔍',
+        }),
+        position: { x: 400, y: 310 },
+        width: 200,
+        height: 80,
+      },
+      {
+        id: 'med-ai',
+        type: 'process',
+        data: createNodeData('med-ai', '🤖 AI Diagnostic Engine', 'process', {
+          backgroundColor: '#dc2626',
+          borderColor: '#b91c1c',
+          textColor: '#ffffff',
+          fontSize: 14,
+          fontWeight: 'bold',
+          icon: '🤖',
+        }),
+        position: { x: 400, y: 440 },
+        width: 200,
+        height: 80,
+      },
+      {
+        id: 'med-decision',
+        type: 'decision',
+        data: createNodeData('med-decision', '⚕️ Diagnosis Type?', 'decision', {
+          backgroundColor: '#059669',
+          borderColor: '#047857',
+          textColor: '#ffffff',
+          fontSize: 13,
+          fontWeight: '600',
+          icon: '⚕️',
+        }),
+        position: { x: 400, y: 570 },
+        width: 200,
+        height: 100,
+      },
+      {
+        id: 'med-routine',
+        type: 'action',
+        data: createNodeData('med-routine', '💊 Routine Treatment', 'action', {
+          backgroundColor: '#10b981',
+          borderColor: '#059669',
+          textColor: '#ffffff',
+          fontSize: 13,
+          fontWeight: '600',
+          icon: '💊',
+        }),
+        position: { x: 100, y: 720 },
+        width: 180,
+        height: 70,
+      },
+      {
+        id: 'med-specialist',
+        type: 'action',
+        data: createNodeData('med-specialist', '👨‍⚕️ Specialist Referral', 'action', {
+          backgroundColor: '#ec4899',
+          borderColor: '#db2777',
+          textColor: '#ffffff',
+          fontSize: 13,
+          fontWeight: '600',
+          icon: '👨‍⚕️',
+        }),
+        position: { x: 400, y: 720 },
+        width: 180,
+        height: 70,
+      },
+      {
+        id: 'med-emergency',
+        type: 'action',
+        data: createNodeData('med-emergency', '🚨 Emergency Protocol', 'action', {
+          backgroundColor: '#ef4444',
+          borderColor: '#dc2626',
+          textColor: '#ffffff',
+          fontSize: 13,
+          fontWeight: 'bold',
+          icon: '🚨',
+        }),
+        position: { x: 700, y: 720 },
+        width: 180,
+        height: 70,
+      },
+      {
+        id: 'med-followup',
+        type: 'condition',
+        data: createNodeData('med-followup', '📅 Schedule Follow-up', 'condition', {
+          backgroundColor: '#6366f1',
+          borderColor: '#4f46e5',
+          textColor: '#ffffff',
+          fontSize: 13,
+          fontWeight: '600',
+          icon: '📅',
+        }),
+        position: { x: 400, y: 850 },
+        width: 180,
+        height: 80,
+      },
+      {
+        id: 'med-end',
+        type: 'end',
+        data: createNodeData('med-end', '✅ Treatment Complete', 'end', {
+          backgroundColor: '#16a34a',
+          borderColor: '#15803d',
+          textColor: '#ffffff',
+          fontSize: 16,
+          fontWeight: 'bold',
+          icon: '✅',
+        }),
+        position: { x: 400, y: 980 },
+        width: 200,
+        height: 80,
+      },
+    ],
+    edges: [
+      { 
+        id: 'med-e1', 
+        type: 'animated', 
+        source: 'med-start', 
+        target: 'med-data', 
+        animated: true, 
+        data: { 
+          label: 'Check-in', 
+          strokeWidth: 3,
+          color: '#0ea5e9',
+          animationSpeed: 'normal',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'med-e2', 
+        type: 'animated', 
+        source: 'med-data', 
+        target: 'med-symptoms', 
+        animated: true, 
+        data: { 
+          label: 'History Recorded', 
+          strokeWidth: 3,
+          color: '#7c3aed',
+          animationSpeed: 'normal',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'med-e3', 
+        type: 'animated', 
+        source: 'med-symptoms', 
+        target: 'med-ai', 
+        animated: true, 
+        data: { 
+          label: 'Symptoms Analyzed', 
+          strokeWidth: 3,
+          color: '#f59e0b',
+          animationSpeed: 'slow',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'med-e4', 
+        type: 'animated', 
+        source: 'med-ai', 
+        target: 'med-decision', 
+        animated: true, 
+        data: { 
+          label: 'AI Analysis', 
+          strokeWidth: 4,
+          color: '#dc2626',
+          animationSpeed: 'fast',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'med-e5', 
+        type: 'smoothstep', 
+        source: 'med-decision', 
+        sourceHandle: 'med-decision-source-left',
+        target: 'med-routine', 
+        data: { 
+          label: 'Routine', 
+          strokeWidth: 2,
+          color: '#10b981',
+          strokeStyle: 'dashed'
+        } 
+      },
+      { 
+        id: 'med-e6', 
+        type: 'smoothstep', 
+        source: 'med-decision', 
+        target: 'med-specialist', 
+        data: { 
+          label: 'Complex', 
+          strokeWidth: 2,
+          color: '#ec4899',
+          strokeStyle: 'dashed'
+        } 
+      },
+      { 
+        id: 'med-e7', 
+        type: 'smoothstep', 
+        source: 'med-decision', 
+        sourceHandle: 'med-decision-source-right',
+        target: 'med-emergency', 
+        data: { 
+          label: 'Critical', 
+          strokeWidth: 3,
+          color: '#ef4444',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'med-e8', 
+        type: 'smoothstep', 
+        source: 'med-routine', 
+        target: 'med-followup', 
+        data: { 
+          strokeWidth: 2,
+          color: '#10b981',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'med-e9', 
+        type: 'smoothstep', 
+        source: 'med-specialist', 
+        target: 'med-followup', 
+        data: { 
+          strokeWidth: 2,
+          color: '#ec4899',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'med-e10', 
+        type: 'smoothstep', 
+        source: 'med-emergency', 
+        target: 'med-followup', 
+        data: { 
+          strokeWidth: 3,
+          color: '#ef4444',
+          strokeStyle: 'solid'
+        } 
+      },
+      { 
+        id: 'med-e11', 
+        type: 'animated', 
+        source: 'med-followup', 
+        target: 'med-end', 
+        animated: true, 
+        data: { 
+          label: 'Complete', 
+          strokeWidth: 4,
+          color: '#16a34a',
+          animationSpeed: 'fast',
+          strokeStyle: 'solid'
+        } 
+      },
+    ],
+  },
 ];

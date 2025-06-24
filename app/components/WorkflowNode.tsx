@@ -29,37 +29,18 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
 
   // Get default styles from centralized configuration
   const defaultStyles = getNodeTypeStyles((data.nodeType as 'start' | 'process' | 'action' | 'condition' | 'decision' | 'end' | 'custom') || 'custom');
-  
-  const {
-    label,
-    description,
-    color = defaultStyles.color,
-    backgroundColor = defaultStyles.backgroundColor,
-    borderColor = defaultStyles.borderColor,
-    textColor = defaultStyles.textColor,
-    fontSize = defaultStyles.fontSize,
-    fontFamily = defaultStyles.fontFamily,
-    fontWeight = defaultStyles.fontWeight,
-    textAlign = defaultStyles.textAlign,
-    lineHeight = defaultStyles.lineHeight,
-    maxWidth = defaultStyles.maxWidth,
-    icon = '📋',
-    nodeType = 'custom',
-    properties = {},
-    isExecuting = false,
-  } = data;
 
-  // Create dynamic styles from Property Panel data using centralized config
+  // Create dynamic styles from template data with proper fallbacks
   const dynamicStyles = {
-    backgroundColor: backgroundColor,
-    borderColor: borderColor,
-    color: textColor,
-    fontSize: `${fontSize}px`,
-    fontFamily: fontFamily,
-    fontWeight: fontWeight,
-    textAlign: textAlign,
-    lineHeight: lineHeight,
-    maxWidth: `${maxWidth}px`,
+    backgroundColor: data.backgroundColor || defaultStyles.backgroundColor,
+    borderColor: data.borderColor || defaultStyles.borderColor,
+    color: data.textColor || defaultStyles.textColor,
+    fontSize: `${data.fontSize || defaultStyles.fontSize}px`,
+    fontFamily: data.fontFamily || defaultStyles.fontFamily,
+    fontWeight: data.fontWeight || defaultStyles.fontWeight,
+    textAlign: data.textAlign || defaultStyles.textAlign,
+    lineHeight: data.lineHeight || defaultStyles.lineHeight,
+    maxWidth: `${data.maxWidth || defaultStyles.maxWidth}px`,
     minWidth: `${DEFAULT_NODE_STYLES.minWidth}px`,
   };
 
@@ -112,14 +93,14 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
         transition-all duration-300 hover:shadow-xl hover:scale-[1.02]
         backdrop-blur-sm
         ${selected ? 'shadow-xl ring-2 ring-indigo-200' : ''}
-        ${isExecuting ? 'shadow-2xl scale-[1.04]' : ''}
+        ${data.isExecuting ? 'shadow-2xl scale-[1.04]' : ''}
       `}
       style={{
         backgroundColor: dynamicStyles.backgroundColor,
         borderTopColor: selected ? '#6366f1' : dynamicStyles.borderColor,
         borderRightColor: selected ? '#6366f1' : dynamicStyles.borderColor,
         borderBottomColor: selected ? '#6366f1' : dynamicStyles.borderColor,
-        borderLeftColor: color, // Always use the primary color for left border
+        borderLeftColor: data.color || defaultStyles.color, // Always use the primary color for left border
         borderLeftWidth: DEFAULT_NODE_STYLES.borderLeftWidth,
         borderTopWidth: DEFAULT_NODE_STYLES.borderWidth,
         borderRightWidth: DEFAULT_NODE_STYLES.borderWidth,
@@ -132,7 +113,7 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
         fontWeight: dynamicStyles.fontWeight,
         textAlign: dynamicStyles.textAlign,
         lineHeight: dynamicStyles.lineHeight,
-        ...(isExecuting && {
+        ...(data.isExecuting && {
           borderTopColor: '#6366f1',
           borderRightColor: '#6366f1',
           borderBottomColor: '#6366f1',
@@ -143,7 +124,7 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
       }}
     >
       {/* Enhanced execution glow effect */}
-      {isExecuting && (
+      {data.isExecuting && (
         <>
           <div 
             className="absolute inset-0 rounded-xl animate-pulse pointer-events-none" 
@@ -171,7 +152,7 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
       <div className="flex items-start space-x-3">
         {/* Enhanced Icon */}
         <div className="text-2xl flex-shrink-0 mt-1 filter drop-shadow-sm">
-          {icon}
+          {data.icon || '📋'}
         </div>
 
         {/* Content */}
@@ -181,7 +162,7 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
             className="font-bold text-base leading-tight mb-2 flex items-center justify-between"
             style={{
               color: dynamicStyles.color,
-              fontSize: Math.max(fontSize, 14) + 'px',
+              fontSize: Math.max(data.fontSize || defaultStyles.fontSize, 14) + 'px',
               fontFamily: dynamicStyles.fontFamily,
               fontWeight: dynamicStyles.fontWeight,
               textAlign: dynamicStyles.textAlign,
@@ -198,7 +179,7 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
                 className="bg-transparent border-none outline-none w-full"
                 style={{
                   color: dynamicStyles.color,
-                  fontSize: Math.max(fontSize, 14) + 'px',
+                  fontSize: Math.max(data.fontSize || defaultStyles.fontSize, 14) + 'px',
                   fontFamily: dynamicStyles.fontFamily,
                   fontWeight: dynamicStyles.fontWeight,
                 }}
@@ -209,10 +190,10 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
                 onDoubleClick={handleDoubleClick}
                 title="Double-click to edit"
               >
-                {label}
+                {data.label}
               </span>
             )}
-            {isExecuting && (
+            {data.isExecuting && (
               <div className="flex items-center ml-2" style={{ color: '#6366f1' }}>
                 <div className="relative">
                   <div className="w-3 h-3 rounded-full animate-ping" style={{ backgroundColor: '#6366f1' }}></div>
@@ -224,19 +205,19 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
           </div>
 
           {/* Enhanced Description */}
-          {description && (
+          {data.description && (
             <div 
               className="text-sm leading-relaxed mb-1.5 font-medium"
               style={{
                 color: dynamicStyles.color,
                 opacity: 0.8,
-                fontSize: Math.max(fontSize - 2, 12) + 'px',
+                fontSize: Math.max((data.fontSize || defaultStyles.fontSize) - 2, 12) + 'px',
                 fontFamily: dynamicStyles.fontFamily,
                 textAlign: dynamicStyles.textAlign,
                 lineHeight: dynamicStyles.lineHeight,
               }}
             >
-              {description}
+              {data.description}
             </div>
           )}
 
@@ -246,28 +227,28 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
             style={{
               color: dynamicStyles.color,
               opacity: 0.6,
-              fontSize: Math.max(fontSize - 4, 10) + 'px',
+              fontSize: Math.max((data.fontSize || defaultStyles.fontSize) - 4, 10) + 'px',
               fontFamily: dynamicStyles.fontFamily,
             }}
           >
-            {properties && Object.keys(properties).length > 0 ? (
+            {data.properties && Object.keys(data.properties).length > 0 ? (
               <div className="flex flex-wrap gap-1">
-                {Object.entries(properties).slice(0, 2).map(([key, value]) => (
+                {Object.entries(data.properties).slice(0, 2).map(([key, value]) => (
                   <span 
                     key={key} 
                     className="px-1.5 py-0.5 rounded text-xs"
                     style={{
                       backgroundColor: 'rgba(0,0,0,0.05)',
                       color: dynamicStyles.color,
-                      fontSize: Math.max(fontSize - 4, 10) + 'px',
+                      fontSize: Math.max((data.fontSize || defaultStyles.fontSize) - 4, 10) + 'px',
                     }}
                   >
                     {key}: {String(value).length > 10 ? String(value).substring(0, 10) + '...' : String(value)}
                   </span>
                 ))}
-                {Object.keys(properties).length > 2 && (
+                {Object.keys(data.properties).length > 2 && (
                   <span style={{ color: dynamicStyles.color, opacity: 0.5 }}>
-                    +{Object.keys(properties).length - 2} more
+                    +{Object.keys(data.properties).length - 2} more
                   </span>
                 )}
               </div>
@@ -290,16 +271,16 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
                 borderLeftColor: dynamicStyles.borderColor,
                 borderWidth: '1px',
                 color: dynamicStyles.color,
-                fontSize: Math.max(fontSize - 4, 10) + 'px',
+                fontSize: Math.max((data.fontSize || defaultStyles.fontSize) - 4, 10) + 'px',
                 fontFamily: dynamicStyles.fontFamily,
               }}
             >
               <div className="flex items-center">
                 <div
                   className="w-2 h-2 rounded-full mr-2 ring-2 ring-white shadow-sm"
-                  style={{ backgroundColor: color }}
+                  style={{ backgroundColor: data.color || defaultStyles.color }}
                 />
-                {nodeType.charAt(0).toUpperCase() + nodeType.slice(1)}
+                {(data.nodeType || 'custom').charAt(0).toUpperCase() + (data.nodeType || 'custom').slice(1)}
               </div>
             </div>
           </div>
