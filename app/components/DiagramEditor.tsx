@@ -36,6 +36,7 @@ import {
 } from './SidebarPanels';
 import { WorkflowTemplate } from './workflowTemplates';
 import { PresentationView } from './PresentationView';
+import { KeyboardShortcutsHelp } from './KeyboardShortcutsHelp';
 
 // Import shared ReactFlow configuration
 import { nodeTypes, edgeTypes } from './reactFlowConfig';
@@ -290,6 +291,9 @@ export default function DiagramEditor() {
   
   // Presentation view state
   const [presentationViewOpen, setPresentationViewOpen] = useState(false);
+  
+  // Keyboard shortcuts help state
+  const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
 
   // Connection handler
   const onConnect = useCallback(
@@ -502,6 +506,28 @@ export default function DiagramEditor() {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Handle Escape key for closing modals
+      if (event.key === 'Escape') {
+        if (keyboardShortcutsOpen) {
+          setKeyboardShortcutsOpen(false);
+          return;
+        }
+        if (presentationViewOpen) {
+          setPresentationViewOpen(false);
+          return;
+        }
+        setSelectedNode(null);
+        setPropertyPanelOpen(false);
+        return;
+      }
+
+      // Handle ? key for showing shortcuts help
+      if (event.key === '?' && !event.ctrlKey && !event.metaKey) {
+        event.preventDefault();
+        setKeyboardShortcutsOpen(true);
+        return;
+      }
+
       if (event.ctrlKey || event.metaKey) {
         switch (event.key) {
           case 's':
@@ -539,15 +565,11 @@ export default function DiagramEditor() {
       if (event.key === 'Delete' && selectedNode) {
         deleteSelectedNode();
       }
-      if (event.key === 'Escape') {
-        setSelectedNode(null);
-        setPropertyPanelOpen(false);
-      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [saveDiagram, loadDiagram, addNewNode, newWorkflow, fitView, deleteSelectedNode, selectedNode, showMiniMap]);
+  }, [saveDiagram, loadDiagram, addNewNode, newWorkflow, fitView, deleteSelectedNode, selectedNode, showMiniMap, keyboardShortcutsOpen, presentationViewOpen]);
 
   // Workflow handlers
   const buildWorkflowSequence = useCallback(() => {
@@ -938,6 +960,15 @@ export default function DiagramEditor() {
     }
   }, [setDiagramType]);
 
+  // Keyboard shortcuts help handler
+  const handleShowKeyboardShortcuts = useCallback(() => {
+    setKeyboardShortcutsOpen(true);
+  }, []);
+
+  const handleCloseKeyboardShortcuts = useCallback(() => {
+    setKeyboardShortcutsOpen(false);
+  }, []);
+
   // Cleanup workflow timer on unmount
   useEffect(() => {
     return () => {
@@ -1137,6 +1168,7 @@ export default function DiagramEditor() {
         onOpenPresentationView={handleOpenPresentationView}
         currentDiagramType={currentDiagramType}
         onDiagramTypeChange={handleDiagramTypeChange}
+        onShowKeyboardShortcuts={handleShowKeyboardShortcuts}
       />
 
       {/* Main Editor Area */}
@@ -1263,6 +1295,12 @@ export default function DiagramEditor() {
         onRestartWorkflow={handleRestartWorkflow}
         onDebugWorkflow={handleDebugWorkflow}
         onClose={handleClosePresentationView}
+      />
+
+      {/* Keyboard Shortcuts Help */}
+      <KeyboardShortcutsHelp
+        isOpen={keyboardShortcutsOpen}
+        onClose={handleCloseKeyboardShortcuts}
       />
     </div>
   );

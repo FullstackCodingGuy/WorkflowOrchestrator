@@ -1,5 +1,5 @@
 import React, { memo, useState, useRef, useEffect } from 'react';
-import { Handle, Position, NodeProps, useReactFlow } from 'reactflow';
+import { Handle, Position, NodeProps, useReactFlow, NodeResizer } from 'reactflow';
 import { getNodeTypeStyles, DEFAULT_NODE_STYLES } from '../config/appConfig';
 
 interface DiagramNodeData {
@@ -123,6 +123,16 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
         }),
       }}
     >
+      {/* Node Resizer - only show when selected */}
+      <NodeResizer
+        color="#6366f1"
+        isVisible={selected}
+        minWidth={180}
+        minHeight={80}
+        maxWidth={400}
+        maxHeight={300}
+      />
+
       {/* Enhanced execution glow effect */}
       {data.isExecuting && (
         <>
