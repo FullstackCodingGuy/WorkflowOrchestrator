@@ -1,5 +1,45 @@
 // Application-wide configuration and constants
 
+// ============================================================================
+// DIAGRAM TYPE CONFIGURATION
+// ============================================================================
+
+export const DIAGRAM_TYPES = {
+  INTERACTIVE_FLOW: 'Interactive Flow Diagram',
+  ANIMATED_WORKFLOW: 'Animated Workflow Diagram',
+  PROCESS_FLOW: 'Process Flow Diagram',
+  DECISION_TREE: 'Decision Tree Diagram',
+} as const;
+
+export type DiagramType = typeof DIAGRAM_TYPES[keyof typeof DIAGRAM_TYPES];
+
+/**
+ * Default diagram type when creating new workflows
+ */
+export const DEFAULT_DIAGRAM_TYPE: DiagramType = DIAGRAM_TYPES.INTERACTIVE_FLOW;
+
+/**
+ * Node types available for each diagram type
+ */
+export const DIAGRAM_TYPE_NODE_TYPES: Record<DiagramType, string[]> = {
+  [DIAGRAM_TYPES.INTERACTIVE_FLOW]: ['start', 'process', 'decision', 'action', 'end', 'custom'],
+  [DIAGRAM_TYPES.ANIMATED_WORKFLOW]: ['start', 'process', 'condition', 'action', 'end', 'custom'],
+  [DIAGRAM_TYPES.PROCESS_FLOW]: ['start', 'process', 'decision', 'end', 'custom'],
+  [DIAGRAM_TYPES.DECISION_TREE]: ['start', 'decision', 'condition', 'end', 'custom'],
+};
+
+/**
+ * Default node type when adding new nodes for each diagram type
+ */
+export const DIAGRAM_TYPE_DEFAULT_NODE: Record<DiagramType, string> = {
+  [DIAGRAM_TYPES.INTERACTIVE_FLOW]: 'process',
+  [DIAGRAM_TYPES.ANIMATED_WORKFLOW]: 'action',
+  [DIAGRAM_TYPES.PROCESS_FLOW]: 'process',
+  [DIAGRAM_TYPES.DECISION_TREE]: 'decision',
+};
+
+// Application-wide configuration and constants
+
 export const APP_COLORS = {
   defaultBg: '#f8fafc',
   defaultEdge: '#64748b',

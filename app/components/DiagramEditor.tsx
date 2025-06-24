@@ -41,7 +41,10 @@ import { PresentationView } from './PresentationView';
 import { nodeTypes, edgeTypes } from './reactFlowConfig';
 
 // Import enhanced configuration
-import { APP_COLORS, getNodeTypeStyles } from '../config/appConfig';
+import { APP_COLORS, getNodeTypeStyles, DiagramType } from '../config/appConfig';
+
+// Import workflow store for diagram type management
+import useWorkflowStore from '../store/workflowStore';
 
 // Types
 export type WorkflowNodeType = 'start' | 'process' | 'decision' | 'condition' | 'action' | 'end' | 'custom';
@@ -251,6 +254,9 @@ const defaultEdgeOptions = {
 };
 
 export default function DiagramEditor() {
+  // Workflow store for diagram type management
+  const { currentDiagramType, getDefaultNodeTypeForDiagram, setDiagramType } = useWorkflowStore();
+  
   // State management
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -327,9 +333,31 @@ export default function DiagramEditor() {
 
   // Add new node with waterfall positioning for enhanced visibility
   const addNewNode = useCallback(
-    (type: string = 'custom') => {
+    (type?: string) => {
       if (!reactFlowInstance) return;
 
+      // Use diagram type to determine default node type if not specified
+      let nodeType: string = 'custom'; // Start with a safe default
+      
+      if (type) {
+        nodeType = type;
+      } else {
+        try {
+          const defaultType = getDefaultNodeTypeForDiagram();
+          if (defaultType && typeof defaultType === 'string') {
+            nodeType = defaultType;
+          }
+        } catch (error) {
+          console.warn('Error getting default node type from diagram configuration:', error);
+        }
+      }
+      
+      // Final safety check
+      if (!nodeType || typeof nodeType !== 'string') {
+        nodeType = 'custom';
+        console.warn('Invalid node type resolved, using "custom" as fallback');
+      }
+      
       // Calculate waterfall position based on existing nodes
       const nodeCount = nodes.length;
       const stepX = 300; // Horizontal step distance
@@ -345,21 +373,25 @@ export default function DiagramEditor() {
 
       const newNode: DiagramNode = {
         id: `node-${Date.now()}`,
-        type,
+        type: nodeType,
         position,
         data: {
-          label: `New Node ${nodes.length + 1}`,
+          label: `New ${nodeType.charAt(0).toUpperCase() + nodeType.slice(1)} ${nodes.length + 1}`,
           description: 'Click to customize this node',
-          ...getNodeTypeStyles('custom'),
-          icon: '✨',
-          nodeType: 'custom', // Default node type
-          properties: { created: new Date().toISOString(), version: '1.0' },
+          ...getNodeTypeStyles(nodeType as WorkflowNodeType),
+          icon: nodeType === 'start' ? '🚀' : nodeType === 'end' ? '🏁' : nodeType === 'decision' ? '❓' : nodeType === 'action' ? '⚡' : '✨',
+          nodeType: nodeType as WorkflowNodeType,
+          properties: { 
+            created: new Date().toISOString(), 
+            version: '1.0',
+            diagramType: currentDiagramType,
+          },
         },
       };
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [reactFlowInstance, nodes.length, setNodes]
+    [reactFlowInstance, nodes.length, setNodes, getDefaultNodeTypeForDiagram, currentDiagramType]
   );
 
   // Delete selected node
@@ -415,6 +447,29 @@ export default function DiagramEditor() {
     setPropertyPanelOpen(false);
   }, [setNodes, setEdges]);
 
+  // Create new workflow (same as clear but with confirmation)
+  const newWorkflow = useCallback(() => {
+    if (nodes.length > 0 || edges.length > 0) {
+      const confirmed = window.confirm('This will clear the current workflow. Are you sure?');
+      if (!confirmed) return;
+    }
+    
+    setNodes([]);
+    setEdges([]);
+    setSelectedNode(null);
+    setPropertyPanelOpen(false);
+    
+    // Show toast notification
+    if (window.showToast) {
+      window.showToast({
+        type: 'success',
+        title: 'New Workflow',
+        message: 'Started a new workflow. Ready to add nodes!',
+        duration: 3000,
+      });
+    }
+  }, [nodes.length, edges.length, setNodes, setEdges]);
+
   // Save diagram to localStorage
   const saveDiagram = useCallback(() => {
     const diagramData = {
@@ -458,8 +513,14 @@ export default function DiagramEditor() {
             loadDiagram();
             break;
           case 'n':
-            event.preventDefault();
-            addNewNode();
+            // Check if this is a new workflow (Shift+Ctrl+N) or add node (Ctrl+N)
+            if (event.shiftKey) {
+              event.preventDefault();
+              newWorkflow();
+            } else {
+              event.preventDefault();
+              addNewNode();
+            }
             break;
           case 'f':
             event.preventDefault();
@@ -468,6 +529,10 @@ export default function DiagramEditor() {
           case 'm':
             event.preventDefault();
             setShowMiniMap(!showMiniMap);
+            break;
+          case 'p':
+            event.preventDefault();
+            setPresentationViewOpen(true);
             break;
         }
       }
@@ -482,7 +547,7 @@ export default function DiagramEditor() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [saveDiagram, loadDiagram, addNewNode, fitView, deleteSelectedNode, selectedNode, showMiniMap]);
+  }, [saveDiagram, loadDiagram, addNewNode, newWorkflow, fitView, deleteSelectedNode, selectedNode, showMiniMap]);
 
   // Workflow handlers
   const buildWorkflowSequence = useCallback(() => {
@@ -859,6 +924,20 @@ export default function DiagramEditor() {
     setPresentationViewOpen(false);
   }, []);
 
+  // Diagram type change handler
+  const handleDiagramTypeChange = useCallback((diagramType: DiagramType) => {
+    setDiagramType(diagramType);
+    // Show toast notification
+    if (window.showToast) {
+      window.showToast({
+        type: 'info',
+        title: 'Diagram Type Changed',
+        message: `Changed to ${diagramType}. New nodes will use the appropriate type for this diagram.`,
+        duration: 4000,
+      });
+    }
+  }, [setDiagramType]);
+
   // Cleanup workflow timer on unmount
   useEffect(() => {
     return () => {
@@ -1029,6 +1108,7 @@ export default function DiagramEditor() {
         onAddNode={addNewNode}
         onDeleteNode={deleteSelectedNode}
         onFitView={fitView}
+        onNew={newWorkflow}
         onClear={clearDiagram}
         onSave={saveDiagram}
         onLoad={loadDiagram}
@@ -1055,6 +1135,8 @@ export default function DiagramEditor() {
         showControls={showControls}
         onShowControlsToggle={setShowControls}
         onOpenPresentationView={handleOpenPresentationView}
+        currentDiagramType={currentDiagramType}
+        onDiagramTypeChange={handleDiagramTypeChange}
       />
 
       {/* Main Editor Area */}

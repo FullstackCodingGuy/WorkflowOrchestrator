@@ -1,5 +1,7 @@
 import React from 'react';
 import { BackgroundVariant } from 'reactflow';
+import { FileMenu } from './FileMenu';
+import { DIAGRAM_TYPES, DiagramType } from '../config/appConfig';
 
 interface DiagramNode {
   id: string;
@@ -19,6 +21,7 @@ interface DiagramToolbarProps {
   onAddNode: () => void;
   onDeleteNode: () => void;
   onFitView: () => void;
+  onNew: () => void;
   onClear: () => void;
   onSave: () => void;
   onLoad: () => void;
@@ -49,12 +52,16 @@ interface DiagramToolbarProps {
   onShowControlsToggle: (show: boolean) => void;
   // Presentation view controls
   onOpenPresentationView: () => void;
+  // Diagram type controls
+  currentDiagramType: DiagramType;
+  onDiagramTypeChange: (diagramType: DiagramType) => void;
 }
 
 export function DiagramToolbar({
   onAddNode,
   onDeleteNode,
   onFitView,
+  onNew,
   onClear,
   onSave,
   onLoad,
@@ -81,13 +88,25 @@ export function DiagramToolbar({
   showControls = true,
   onShowControlsToggle,
   onOpenPresentationView,
+  currentDiagramType,
+  onDiagramTypeChange,
 }: DiagramToolbarProps) {
   return (
     <div className="flex flex-col">
       {/* Main Toolbar */}
       <div id="main-toolbar" className="h-12 bg-header border-b border-border flex items-center px-3 shadow-soft">
-        {/* Left Section - Main Actions */}
+        {/* Left Section - File Menu + Main Actions */}
         <div className="flex items-center space-x-1.5">
+          <FileMenu
+            onNew={onNew}
+            onLoad={onLoad}
+            onSave={onSave}
+            onClear={onClear}
+            onOpenPresentationView={onOpenPresentationView}
+          />
+
+          <div className="w-px h-5 bg-border mx-1" />
+
           <button
             onClick={onAddNode}
             className="btn btn-sm btn-outline"
@@ -99,7 +118,7 @@ export function DiagramToolbar({
             <span>Add Node</span>
           </button>
 
-          <button
+          {/* <button
             onClick={onDeleteNode}
             disabled={!selectedNode}
             className="btn btn-sm btn-outline disabled:opacity-50 disabled:cursor-not-allowed"
@@ -109,7 +128,7 @@ export function DiagramToolbar({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
             <span>Delete</span>
-          </button>
+          </button> */}
 
           <div className="w-px h-5 bg-border mx-1" />
 
@@ -122,17 +141,6 @@ export function DiagramToolbar({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
             </svg>
             <span>Fit View</span>
-          </button>
-
-          <button
-            onClick={onClear}
-            className="btn btn-sm btn-outline"
-            title="Clear All"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            <span>Clear</span>
           </button>
         </div>
 
@@ -197,7 +205,7 @@ export function DiagramToolbar({
           </div>
         </div>
 
-        {/* Right Section - File Operations */}
+        {/* Right Section - Presentation & Future Actions */}
         <div className="flex items-center space-x-1.5">
           <button
             onClick={onOpenPresentationView}
@@ -208,30 +216,6 @@ export function DiagramToolbar({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1h4a1 1 0 011 1v18a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1h4v3m0 0h8M5 8h14M5 12h14M5 16h14" />
             </svg>
             <span>Present</span>
-          </button>
-
-          <div className="w-px h-5 bg-border mx-1" />
-
-          <button
-            onClick={onLoad}
-            className="btn btn-sm btn-outline"
-            title="Load Diagram (Ctrl+O)"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-            </svg>
-            <span>Load</span>
-          </button>
-
-          <button
-            onClick={onSave}
-            className="btn btn-sm btn-outline"
-            title="Save Diagram (Ctrl+S)"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-            </svg>
-            <span>Save</span>
           </button>
         </div>
       </div>
@@ -262,7 +246,7 @@ export function DiagramToolbar({
             <button
               onClick={() => onBackgroundVariantChange(BackgroundVariant.Dots)}
               className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${
-                backgroundVariant === BackgroundVariant.Dots ? 'bg-accent' : ''
+                backgroundVariant === BackgroundVariant.Dots ? 'bg-neutral-200' : ''
               }`}
               title="Dots Background"
             >
@@ -277,7 +261,7 @@ export function DiagramToolbar({
             <button
               onClick={() => onBackgroundVariantChange(BackgroundVariant.Lines)}
               className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${
-                backgroundVariant === BackgroundVariant.Lines ? 'bg-accent' : ''
+                backgroundVariant === BackgroundVariant.Lines ? 'bg-neutral-200' : ''
               }`}
               title="Lines Background"
             >
@@ -288,7 +272,7 @@ export function DiagramToolbar({
             <button
               onClick={() => onBackgroundVariantChange(BackgroundVariant.Cross)}
               className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${
-                backgroundVariant === BackgroundVariant.Cross ? 'bg-accent' : ''
+                backgroundVariant === BackgroundVariant.Cross ? 'bg-neutral-200' : ''
               }`}
               title="Cross Background"
             >
@@ -299,7 +283,7 @@ export function DiagramToolbar({
           </div>
 
           {/* Animation Toggle */}
-          <button
+          {/* <button
             onClick={() => onAnimationToggle(!isAnimationEnabled)}
             className={`btn btn-xs ${
               isAnimationEnabled
@@ -317,7 +301,26 @@ export function DiagramToolbar({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6M7 3h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7a4 4 0 014-4z" />
               </svg>
             )}
-          </button>
+          </button> */}
+
+          <div className="w-px h-4 bg-border" />
+
+          {/* Diagram Type Selector */}
+          <div className="flex items-center space-x-1 text-xs text-muted">
+            <label>Type:</label>
+            <select
+              value={currentDiagramType}
+              onChange={(e) => onDiagramTypeChange(e.target.value as DiagramType)}
+              className="px-1 py-0.5 text-xs border border-border rounded bg-background text-foreground min-w-0 max-w-48"
+              title="Diagram Type"
+            >
+              {Object.values(DIAGRAM_TYPES).map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Right Section - Settings + MiniMap Toggle + Right Sidebar Toggle */}
