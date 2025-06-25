@@ -3,7 +3,7 @@ export { SidePanel } from './SidePanel';
 export type { PanelSection } from './SidePanel';
 
 // Content panels
-export { ExplorerPanel, OutlinePanel, FileExplorer } from './ExplorerPanelContent';
+export { ExplorerPanel, OutlinePanel } from './ExplorerPanelContent';
 export { TemplateLibraryPanel } from './TemplateLibraryPanel';
 
 // Re-export types for convenience

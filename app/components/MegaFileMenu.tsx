@@ -29,6 +29,14 @@ export function MegaFileMenu({
   onOpenPresentationView,
   className = ''
 }: MegaFileMenuProps) {
+  // Recent files state (session only)
+  const [recentFiles, setRecentFiles] = useState<Array<{ name: string; date: string; size: string }>>([
+    { name: 'Workflow_1.json', date: '2 hours ago', size: '12 KB' },
+    { name: 'Process_Flow.json', date: '1 day ago', size: '8 KB' },
+    { name: 'Decision_Tree.json', date: '3 days ago', size: '15 KB' },
+    { name: 'MyDiagram.json', date: '5 days ago', size: '10 KB' },
+    { name: 'Demo.json', date: '1 week ago', size: '7 KB' },
+  ]);
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -150,15 +158,30 @@ export function MegaFileMenu({
       {/* Mega Dropdown Menu */}
       {isOpen && (
         <div className="absolute top-full mt-1 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden min-w-[800px] max-w-[900px]">
-          
-          {/* Single Unified View */}
           <div className="p-6">
             <div className="grid grid-cols-3 gap-6">
-              
-              {/* Left Column - Quick Actions */}
+              {/* Left Column - Quick Actions & Recent Files */}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
-                
+
+                {/* Recent Files Section */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Recent Files</h4>
+                  <ul className="space-y-1">
+                    {recentFiles.slice(0, 5).map((file, idx) => (
+                      <li key={file.name}>
+                        <button
+                          className="w-full flex items-center justify-between px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-left text-sm"
+                          onClick={() => { handleMenuItemClick(onLoad); setIsOpen(false); }}
+                        >
+                          <span className="truncate flex-1">{file.name}</span>
+                          <span className="ml-2 text-xs text-gray-400">{file.size}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
                 {/* Quick New Templates */}
                 <div
                   onClick={() => handleTemplateSelect('blank')}

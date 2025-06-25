@@ -1410,19 +1410,6 @@ export default function DiagramEditor() {
         />
       ),
     },
-    {
-      id: 'files',
-      title: 'Files',
-      icon: '💾',
-      defaultOpen: false,
-      content: (
-        <FileExplorer
-          onSave={saveDiagram}
-          onLoad={loadDiagram}
-          onClear={clearDiagram}
-        />
-      ),
-    },
   ];
 
   // Edge click handler
