@@ -30,7 +30,7 @@ export function MegaFileMenu({
   className = ''
 }: MegaFileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<'main' | 'new'>('main');
+  const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Diagram templates
@@ -94,7 +94,6 @@ export function MegaFileMenu({
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
-        setActiveSection('main');
       }
     }
 
@@ -108,11 +107,7 @@ export function MegaFileMenu({
   useEffect(() => {
     function handleEscape(event: KeyboardEvent) {
       if (event.key === 'Escape') {
-        if (activeSection === 'new') {
-          setActiveSection('main');
-        } else {
-          setIsOpen(false);
-        }
+        setIsOpen(false);
       }
     }
 
@@ -120,11 +115,7 @@ export function MegaFileMenu({
       document.addEventListener('keydown', handleEscape);
       return () => document.removeEventListener('keydown', handleEscape);
     }
-  }, [isOpen, activeSection]);
-
-  const handleNewClick = () => {
-    setActiveSection('new');
-  };
+  }, [isOpen]);
 
   const handleTemplateSelect = (templateId: string) => {
     if (templateId === 'blank') {
@@ -133,17 +124,11 @@ export function MegaFileMenu({
       onNewTemplate(templateId);
     }
     setIsOpen(false);
-    setActiveSection('main');
-  };
-
-  const handleBackToMain = () => {
-    setActiveSection('main');
   };
 
   const handleMenuItemClick = (action: () => void) => {
     action();
     setIsOpen(false);
-    setActiveSection('main');
   };
 
   const trigger = (
@@ -164,255 +149,240 @@ export function MegaFileMenu({
 
       {/* Mega Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full mt-1 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden min-w-[600px]">
+        <div className="absolute top-full mt-1 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden min-w-[800px] max-w-[900px]">
           
-          {/* Main Menu */}
-          {activeSection === 'main' && (
-            <div className="p-4">
-              <div className="grid grid-cols-2 gap-6">
-                {/* Left Column - Main Actions */}
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">File Operations</h3>
-                  
-                  {/* New */}
-                  <div
-                    onClick={handleNewClick}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer group transition-colors"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                        <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">New Workflow</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Create from templates</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs text-gray-400 font-mono">Shift+Ctrl+N</span>
-                      <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Separator */}
-                  <div className="border-t border-gray-200 dark:border-gray-600 my-2"></div>
-
-                  {/* Open */}
-                  <div
-                    onClick={() => handleMenuItemClick(onLoad)}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                        <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">Open...</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Load existing workflow</div>
-                      </div>
-                    </div>
-                    <span className="text-xs text-gray-400 font-mono">Ctrl+O</span>
-                  </div>
-
-                  {/* Save */}
-                  <div
-                    onClick={() => handleMenuItemClick(onSave)}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
-                        <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">Save</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Save current workflow</div>
-                      </div>
-                    </div>
-                    <span className="text-xs text-gray-400 font-mono">Ctrl+S</span>
-                  </div>
-                </div>
-
-                {/* Right Column - Additional Actions */}
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Tools & Export</h3>
-                  
-                  {/* Presentation View */}
-                  <div
-                    onClick={() => handleMenuItemClick(onOpenPresentationView)}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
-                        <svg className="w-4 h-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1h4a1 1 0 011 1v18a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1h4v3m0 0h8M5 8h14M5 12h14M5 16h14" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">Presentation View</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Present workflow</div>
-                      </div>
-                    </div>
-                    <span className="text-xs text-gray-400 font-mono">Ctrl+P</span>
-                  </div>
-
-                  {/* Separator */}
-                  <div className="border-t border-gray-200 dark:border-gray-600 my-2"></div>
-
-                  {/* Clear All */}
-                  <div
-                    onClick={() => handleMenuItemClick(onClear)}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer transition-colors group"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900 flex items-center justify-center">
-                        <svg className="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="font-medium text-red-700 dark:text-red-400 group-hover:text-red-800 dark:group-hover:text-red-300">Clear All</div>
-                        <div className="text-sm text-red-500 dark:text-red-500">Remove all nodes</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* New Template Selection */}
-          {activeSection === 'new' && (
-            <div className="p-4">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={handleBackToMain}
-                    className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <svg className="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Choose Template</h3>
-                </div>
-              </div>
-
-              {/* Basic Templates */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Basic Workflows</h4>
+          {/* Single Unified View */}
+          <div className="p-6">
+            <div className="grid grid-cols-3 gap-6">
+              
+              {/* Left Column - Quick Actions */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
                 
-                {/* Blank Workflow Option */}
+                {/* Quick New Templates */}
                 <div
                   onClick={() => handleTemplateSelect('blank')}
-                  className="p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-green-300 dark:hover:border-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 cursor-pointer transition-all group mb-3"
+                  className="flex items-center p-3 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all group border border-transparent hover:border-blue-200 dark:hover:border-blue-700"
+                  onMouseEnter={() => setHoveredTemplate('blank')}
+                  onMouseLeave={() => setHoveredTemplate(null)}
                 >
-                  <div className="flex items-start space-x-3">
-                    <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900 flex items-center justify-center text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 dark:text-white group-hover:text-green-700 dark:group-hover:text-green-300 transition-colors">
-                        Blank Workflow
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Start with an empty canvas
-                      </div>
-                    </div>
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
                   </div>
-                  <div className="mt-3 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-700 group-hover:ring-2 group-hover:ring-green-300 dark:group-hover:ring-green-600 transition-all h-24 flex items-center justify-center">
-                    <div className="text-gray-400 dark:text-gray-500">
-                      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4v16m8-8H4" />
-                      </svg>
-                    </div>
+                  <div className="ml-3 flex-1">
+                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">Blank Canvas</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Start fresh</div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  {diagramTemplates.filter(t => t.category === 'basic').map((template) => (
-                    <div
-                      key={template.id}
-                      onClick={() => handleTemplateSelect(template.id)}
-                      className="p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all group"
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
-                          {template.icon}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-gray-900 dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
-                            {template.name}
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            {template.description}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-3 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-700 group-hover:ring-2 group-hover:ring-blue-300 dark:group-hover:ring-blue-600 transition-all">
-                        <Image
-                          src={template.image}
-                          alt={template.name}
-                          width={200}
-                          height={96}
-                          className="w-full h-24 object-cover"
-                          unoptimized={true}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                <div
+                  onClick={() => handleTemplateSelect('basic-workflow')}
+                  className="flex items-center p-3 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 cursor-pointer transition-all group border border-transparent hover:border-green-200 dark:hover:border-green-700"
+                  onMouseEnter={() => setHoveredTemplate('basic-workflow')}
+                  onMouseLeave={() => setHoveredTemplate(null)}
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400">Basic Flow</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Simple process</div>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => handleTemplateSelect('conditional-workflow')}
+                  className="flex items-center p-3 rounded-xl hover:bg-amber-50 dark:hover:bg-amber-900/20 cursor-pointer transition-all group border border-transparent hover:border-amber-200 dark:hover:border-amber-700"
+                  onMouseEnter={() => setHoveredTemplate('conditional-workflow')}
+                  onMouseLeave={() => setHoveredTemplate(null)}
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16l2.879-2.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400">Decision Flow</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">With branches</div>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => handleTemplateSelect('animated-basic')}
+                  className="flex items-center p-3 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 cursor-pointer transition-all group border border-transparent hover:border-purple-200 dark:hover:border-purple-700"
+                  onMouseEnter={() => setHoveredTemplate('animated-basic')}
+                  onMouseLeave={() => setHoveredTemplate(null)}
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400">Animated Flow</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">With motion</div>
+                  </div>
+                </div>
+
+                {/* Separator */}
+                <div className="border-t border-gray-200 dark:border-gray-600 my-4"></div>
+
+                {/* File Operations */}
+                <div
+                  onClick={() => handleMenuItemClick(onLoad)}
+                  className="flex items-center p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-all group"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center text-white">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                    </svg>
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <div className="font-medium text-gray-900 dark:text-white">Open File</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Ctrl+O</div>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => handleMenuItemClick(onSave)}
+                  className="flex items-center p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-all group"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center text-white">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                    </svg>
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <div className="font-medium text-gray-900 dark:text-white">Save</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Ctrl+S</div>
+                  </div>
                 </div>
               </div>
 
-              {/* Animated Templates */}
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Animated Workflows</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  {diagramTemplates.filter(t => t.category === 'animated').map((template) => (
-                    <div
-                      key={template.id}
-                      onClick={() => handleTemplateSelect(template.id)}
-                      className="p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-purple-300 dark:hover:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 cursor-pointer transition-all group"
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
-                          {template.icon}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-gray-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors">
-                            {template.name}
+              {/* Center Column - Template Preview */}
+              <div className="col-span-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Preview</h3>
+                
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 h-[400px] flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                  {hoveredTemplate ? (
+                    <div className="text-center">
+                      {hoveredTemplate === 'blank' && (
+                        <div className="space-y-4">
+                          <div className="w-24 h-24 mx-auto bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-2xl flex items-center justify-center">
+                            <svg className="w-12 h-12 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                            </svg>
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            {template.description}
+                          <div>
+                            <h4 className="text-xl font-semibold text-gray-900 dark:text-white">Blank Canvas</h4>
+                            <p className="text-gray-600 dark:text-gray-400 mt-2">Start with an empty workspace and build your workflow from scratch. Perfect for unique processes that don't fit standard templates.</p>
                           </div>
                         </div>
-                      </div>
-                      <div className="mt-3 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-700 group-hover:ring-2 group-hover:ring-purple-300 dark:group-hover:ring-purple-600 transition-all">
-                        <Image
-                          src={template.image}
-                          alt={template.name}
-                          width={200}
-                          height={96}
-                          className="w-full h-24 object-cover"
-                          unoptimized={true}
-                        />
-                      </div>
+                      )}
+                      
+                      {hoveredTemplate === 'basic-workflow' && (
+                        <div className="space-y-4">
+                          <div className="w-full h-32 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center space-x-4">
+                            <div className="w-16 h-8 bg-green-500 rounded flex items-center justify-center text-white text-xs font-medium">Start</div>
+                            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                            <div className="w-16 h-8 bg-blue-500 rounded flex items-center justify-center text-white text-xs font-medium">Action</div>
+                            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                            <div className="w-16 h-8 bg-red-500 rounded flex items-center justify-center text-white text-xs font-medium">End</div>
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-semibold text-gray-900 dark:text-white">Basic Sequential Flow</h4>
+                            <p className="text-gray-600 dark:text-gray-400 mt-2">A simple linear workflow with start, action, and end nodes. Ideal for straightforward processes.</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {hoveredTemplate === 'conditional-workflow' && (
+                        <div className="space-y-4">
+                          <div className="w-full h-32 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center">
+                            <div className="flex flex-col items-center space-y-2">
+                              <div className="w-12 h-6 bg-green-500 rounded flex items-center justify-center text-white text-xs">Start</div>
+                              <div className="w-16 h-6 bg-amber-500 rounded flex items-center justify-center text-white text-xs">Decision</div>
+                              <div className="flex space-x-8">
+                                <div className="w-12 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs">Yes</div>
+                                <div className="w-12 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs">No</div>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-semibold text-gray-900 dark:text-white">Conditional Branching</h4>
+                            <p className="text-gray-600 dark:text-gray-400 mt-2">Decision-based workflow with branching paths. Perfect for approval processes and conditional logic.</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {hoveredTemplate === 'animated-basic' && (
+                        <div className="space-y-4">
+                          <div className="w-full h-32 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center space-x-4">
+                            <div className="w-16 h-8 bg-purple-500 rounded flex items-center justify-center text-white text-xs font-medium animate-pulse">Start</div>
+                            <div className="flex items-center space-x-1">
+                              <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
+                              <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                              <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                            </div>
+                            <div className="w-16 h-8 bg-purple-500 rounded flex items-center justify-center text-white text-xs font-medium animate-pulse">End</div>
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-semibold text-gray-900 dark:text-white">Animated Workflow</h4>
+                            <p className="text-gray-600 dark:text-gray-400 mt-2">Enhanced workflow with smooth animations and visual effects. Great for presentations and demos.</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  ))}
+                  ) : (
+                    <div className="text-center text-gray-500 dark:text-gray-400">
+                      <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <p className="text-lg font-medium">Hover over a template to preview</p>
+                      <p className="text-sm mt-1">See how each workflow type looks before creating</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Quick Access Footer */}
+                <div className="mt-4 flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-4">
+                    <button
+                      onClick={() => handleMenuItemClick(onOpenPresentationView)}
+                      className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1h4a1 1 0 011 1v18a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1h4v3m0 0h8M5 8h14M5 12h14M5 16h14" />
+                      </svg>
+                      <span>Present</span>
+                    </button>
+                    <div className="w-px h-4 bg-gray-300 dark:bg-gray-600"></div>
+                    <button
+                      onClick={() => handleMenuItemClick(onClear)}
+                      className="flex items-center space-x-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      <span>Clear All</span>
+                    </button>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Use keyboard shortcuts for faster access
+                  </div>
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>
