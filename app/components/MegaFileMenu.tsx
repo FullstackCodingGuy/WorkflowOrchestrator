@@ -39,6 +39,7 @@ export function MegaFileMenu({
   ]);
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<string>('new');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Diagram templates
@@ -140,9 +141,17 @@ export function MegaFileMenu({
   };
 
   const trigger = (
-    <button className={`btn btn-sm btn-ghost text-foreground hover:bg-secondary ${className}`}>
+    <button className={`
+      px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 
+      border border-gray-200 rounded-sm transition-all duration-150 
+      flex items-center space-x-2 min-w-[80px] justify-center
+      shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
+      ${isOpen ? 'bg-blue-50 border-blue-300 text-blue-700' : ''}
+      ${className}
+    `}>
       <span>File</span>
-      <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+           fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
       </svg>
     </button>
@@ -157,251 +166,410 @@ export function MegaFileMenu({
 
       {/* Mega Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full mt-1 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden min-w-[800px] max-w-[900px]">
-          <div className="p-6">
-            <div className="grid grid-cols-3 gap-6">
-              {/* Left Column - Quick Actions & Recent Files */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
-
-                {/* Recent Files Section */}
-                <div className="mb-4">
-                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Recent Files</h4>
-                  <ul className="space-y-1">
-                    {recentFiles.slice(0, 5).map((file, idx) => (
-                      <li key={file.name}>
-                        <button
-                          className="w-full flex items-center justify-between px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-left text-sm"
-                          onClick={() => { handleMenuItemClick(onLoad); setIsOpen(false); }}
-                        >
-                          <span className="truncate flex-1">{file.name}</span>
-                          <span className="ml-2 text-xs text-gray-400">{file.size}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+        <div className="absolute top-full left-0 z-50 mt-1 overflow-hidden shadow-2xl">
+          <div className="bg-white border border-gray-200 rounded-sm w-[800px]">
+            {/* Header Strip */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 px-6 py-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-800">File</h2>
+                <div className="flex items-center space-x-2 text-xs text-gray-600">
+                  <span>Navigate with arrow keys</span>
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                  <span>Press Esc to close</span>
                 </div>
+              </div>
+            </div>
 
-                {/* Quick New Templates */}
-                <div
-                  onClick={() => handleTemplateSelect('blank')}
-                  className="flex items-center p-3 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all group border border-transparent hover:border-blue-200 dark:hover:border-blue-700"
-                  onMouseEnter={() => setHoveredTemplate('blank')}
-                  onMouseLeave={() => setHoveredTemplate(null)}
-                >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+            <div className="grid grid-cols-2 bg-white min-h-[450px]">
+              {/* Left Column - First Level Menu */}
+              <div className="bg-gray-50 border-r border-gray-200">
+                <div className="p-4 space-y-1">
+                  {/* New Section */}
+                  <div
+                    className={`w-full text-left px-4 py-3 rounded-sm text-sm font-medium transition-all duration-150 cursor-pointer flex items-center space-x-3 ${
+                      activeSection === 'new' 
+                        ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                    onClick={() => setActiveSection('new')}
+                  >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
+                    <span>New</span>
                   </div>
-                  <div className="ml-3 flex-1">
-                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">Blank Canvas</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Start fresh</div>
-                  </div>
-                </div>
 
-                <div
-                  onClick={() => handleTemplateSelect('basic-workflow')}
-                  className="flex items-center p-3 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 cursor-pointer transition-all group border border-transparent hover:border-green-200 dark:hover:border-green-700"
-                  onMouseEnter={() => setHoveredTemplate('basic-workflow')}
-                  onMouseLeave={() => setHoveredTemplate(null)}
-                >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                  {/* Open Section */}
+                  <div
+                    className={`w-full text-left px-4 py-3 rounded-sm text-sm font-medium transition-all duration-150 cursor-pointer flex items-center space-x-3 ${
+                      activeSection === 'open' 
+                        ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                    onClick={() => setActiveSection('open')}
+                  >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
                     </svg>
+                    <span>Open</span>
                   </div>
-                  <div className="ml-3 flex-1">
-                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400">Basic Flow</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Simple process</div>
-                  </div>
-                </div>
 
-                <div
-                  onClick={() => handleTemplateSelect('conditional-workflow')}
-                  className="flex items-center p-3 rounded-xl hover:bg-amber-50 dark:hover:bg-amber-900/20 cursor-pointer transition-all group border border-transparent hover:border-amber-200 dark:hover:border-amber-700"
-                  onMouseEnter={() => setHoveredTemplate('conditional-workflow')}
-                  onMouseLeave={() => setHoveredTemplate(null)}
-                >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                  {/* Save Section */}
+                  <div
+                    className={`w-full text-left px-4 py-3 rounded-sm text-sm font-medium transition-all duration-150 cursor-pointer flex items-center space-x-3 ${
+                      activeSection === 'save' 
+                        ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                    onClick={() => setActiveSection('save')}
+                  >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16l2.879-2.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                     </svg>
+                    <span>Save</span>
                   </div>
-                  <div className="ml-3 flex-1">
-                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400">Decision Flow</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">With branches</div>
-                  </div>
-                </div>
 
-                <div
-                  onClick={() => handleTemplateSelect('animated-basic')}
-                  className="flex items-center p-3 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 cursor-pointer transition-all group border border-transparent hover:border-purple-200 dark:hover:border-purple-700"
-                  onMouseEnter={() => setHoveredTemplate('animated-basic')}
-                  onMouseLeave={() => setHoveredTemplate(null)}
-                >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                  {/* Share Section */}
+                  <div
+                    className={`w-full text-left px-4 py-3 rounded-sm text-sm font-medium transition-all duration-150 cursor-pointer flex items-center space-x-3 ${
+                      activeSection === 'share' 
+                        ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                    onClick={() => setActiveSection('share')}
+                  >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                     </svg>
+                    <span>Share & Export</span>
                   </div>
-                  <div className="ml-3 flex-1">
-                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400">Animated Flow</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">With motion</div>
-                  </div>
-                </div>
 
-                {/* Separator */}
-                <div className="border-t border-gray-200 dark:border-gray-600 my-4"></div>
-
-                {/* File Operations */}
-                <div
-                  onClick={() => handleMenuItemClick(onLoad)}
-                  className="flex items-center p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-all group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center text-white">
+                  {/* Tools Section */}
+                  <div
+                    className={`w-full text-left px-4 py-3 rounded-sm text-sm font-medium transition-all duration-150 cursor-pointer flex items-center space-x-3 ${
+                      activeSection === 'tools' 
+                        ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                    onClick={() => setActiveSection('tools')}
+                  >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
+                    <span>Tools</span>
                   </div>
-                  <div className="ml-3 flex-1">
-                    <div className="font-medium text-gray-900 dark:text-white">Open File</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Ctrl+O</div>
-                  </div>
-                </div>
 
-                <div
-                  onClick={() => handleMenuItemClick(onSave)}
-                  className="flex items-center p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-all group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center text-white">
+                  {/* Divider */}
+                  <div className="border-t border-gray-300 my-3"></div>
+
+                  {/* Recent Section */}
+                  <div
+                    className={`w-full text-left px-4 py-3 rounded-sm text-sm font-medium transition-all duration-150 cursor-pointer flex items-center space-x-3 ${
+                      activeSection === 'recent' 
+                        ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                    onClick={() => setActiveSection('recent')}
+                  >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                  </div>
-                  <div className="ml-3 flex-1">
-                    <div className="font-medium text-gray-900 dark:text-white">Save</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Ctrl+S</div>
+                    <span>Recent</span>
                   </div>
                 </div>
               </div>
 
-              {/* Center Column - Template Preview */}
-              <div className="col-span-2">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Preview</h3>
-                
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 h-[400px] flex items-center justify-center border border-gray-200 dark:border-gray-700">
-                  {hoveredTemplate ? (
-                    <div className="text-center">
-                      {hoveredTemplate === 'blank' && (
-                        <div className="space-y-4">
-                          <div className="w-24 h-24 mx-auto bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-2xl flex items-center justify-center">
-                            <svg className="w-12 h-12 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
-                            </svg>
-                          </div>
-                          <div>
-                            <h4 className="text-xl font-semibold text-gray-900 dark:text-white">Blank Canvas</h4>
-                            <p className="text-gray-600 dark:text-gray-400 mt-2">Start with an empty workspace and build your workflow from scratch. Perfect for unique processes that don't fit standard templates.</p>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {hoveredTemplate === 'basic-workflow' && (
-                        <div className="space-y-4">
-                          <div className="w-full h-32 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center space-x-4">
-                            <div className="w-16 h-8 bg-green-500 rounded flex items-center justify-center text-white text-xs font-medium">Start</div>
-                            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                            <div className="w-16 h-8 bg-blue-500 rounded flex items-center justify-center text-white text-xs font-medium">Action</div>
-                            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                            <div className="w-16 h-8 bg-red-500 rounded flex items-center justify-center text-white text-xs font-medium">End</div>
-                          </div>
-                          <div>
-                            <h4 className="text-xl font-semibold text-gray-900 dark:text-white">Basic Sequential Flow</h4>
-                            <p className="text-gray-600 dark:text-gray-400 mt-2">A simple linear workflow with start, action, and end nodes. Ideal for straightforward processes.</p>
-                          </div>
-                        </div>
-                      )}
+              {/* Right Column - Second Level Content */}
+              <div className="bg-white p-6">
+                {/* New Section Content */}
+                {activeSection === 'new' && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Create New Document</h3>
+                      <p className="text-sm text-gray-600 mb-6">Choose how you want to start your workflow design.</p>
+                    </div>
 
-                      {hoveredTemplate === 'conditional-workflow' && (
-                        <div className="space-y-4">
-                          <div className="w-full h-32 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center">
-                            <div className="flex flex-col items-center space-y-2">
-                              <div className="w-12 h-6 bg-green-500 rounded flex items-center justify-center text-white text-xs">Start</div>
-                              <div className="w-16 h-6 bg-amber-500 rounded flex items-center justify-center text-white text-xs">Decision</div>
-                              <div className="flex space-x-8">
-                                <div className="w-12 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs">Yes</div>
-                                <div className="w-12 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs">No</div>
-                              </div>
+                    {/* Blank Canvas */}
+                    <div
+                      onClick={() => handleTemplateSelect('blank')}
+                      className="group p-6 rounded-sm border border-gray-200 hover:border-blue-300 
+                                hover:bg-blue-50 cursor-pointer transition-all duration-200 
+                                hover:shadow-lg bg-white"
+                      onMouseEnter={() => setHoveredTemplate('blank')}
+                      onMouseLeave={() => setHoveredTemplate(null)}
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 
+                                      rounded-lg flex items-center justify-center text-white 
+                                      group-hover:scale-105 transition-transform duration-200">
+                          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-lg font-semibold text-gray-800 group-hover:text-blue-700">Blank Canvas</h4>
+                          <p className="text-sm text-gray-600 mt-1">Start with an empty workspace and build your workflow from scratch</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Templates */}
+                    <div>
+                      <h4 className="text-md font-semibold text-gray-800 mb-3">Templates</h4>
+                      <div className="grid grid-cols-1 gap-3">
+                        <div
+                          onClick={() => handleTemplateSelect('basic-workflow')}
+                          className="group p-4 rounded-sm border border-gray-200 hover:border-green-300 
+                                    hover:bg-green-50 cursor-pointer transition-all duration-200 bg-white"
+                          onMouseEnter={() => setHoveredTemplate('basic-workflow')}
+                          onMouseLeave={() => setHoveredTemplate(null)}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 
+                                          rounded-sm flex items-center justify-center text-white">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                      d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-gray-800 group-hover:text-green-700">Basic Sequential Flow</div>
+                              <div className="text-sm text-gray-600">Simple linear workflow with start, action, and end nodes</div>
                             </div>
                           </div>
-                          <div>
-                            <h4 className="text-xl font-semibold text-gray-900 dark:text-white">Conditional Branching</h4>
-                            <p className="text-gray-600 dark:text-gray-400 mt-2">Decision-based workflow with branching paths. Perfect for approval processes and conditional logic.</p>
-                          </div>
                         </div>
-                      )}
 
-                      {hoveredTemplate === 'animated-basic' && (
-                        <div className="space-y-4">
-                          <div className="w-full h-32 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center space-x-4">
-                            <div className="w-16 h-8 bg-purple-500 rounded flex items-center justify-center text-white text-xs font-medium animate-pulse">Start</div>
-                            <div className="flex items-center space-x-1">
-                              <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
-                              <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                              <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                        <div
+                          onClick={() => handleTemplateSelect('conditional-workflow')}
+                          className="group p-4 rounded-sm border border-gray-200 hover:border-amber-300 
+                                    hover:bg-amber-50 cursor-pointer transition-all duration-200 bg-white"
+                          onMouseEnter={() => setHoveredTemplate('conditional-workflow')}
+                          onMouseLeave={() => setHoveredTemplate(null)}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 
+                                          rounded-sm flex items-center justify-center text-white">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                      d="M8 16l2.879-2.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
                             </div>
-                            <div className="w-16 h-8 bg-purple-500 rounded flex items-center justify-center text-white text-xs font-medium animate-pulse">End</div>
-                          </div>
-                          <div>
-                            <h4 className="text-xl font-semibold text-gray-900 dark:text-white">Animated Workflow</h4>
-                            <p className="text-gray-600 dark:text-gray-400 mt-2">Enhanced workflow with smooth animations and visual effects. Great for presentations and demos.</p>
+                            <div className="flex-1">
+                              <div className="font-medium text-gray-800 group-hover:text-amber-700">Decision-Based Flow</div>
+                              <div className="text-sm text-gray-600">Workflow with decision points and branching logic</div>
+                            </div>
                           </div>
                         </div>
-                      )}
+
+                        <div
+                          onClick={() => handleTemplateSelect('animated-basic')}
+                          className="group p-4 rounded-sm border border-gray-200 hover:border-purple-300 
+                                    hover:bg-purple-50 cursor-pointer transition-all duration-200 bg-white"
+                          onMouseEnter={() => setHoveredTemplate('animated-basic')}
+                          onMouseLeave={() => setHoveredTemplate(null)}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 
+                                          rounded-sm flex items-center justify-center text-white">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                      d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-gray-800 group-hover:text-purple-700">Animated Workflow</div>
+                              <div className="text-sm text-gray-600">Enhanced workflow with motion effects and transitions</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="text-center text-gray-500 dark:text-gray-400">
-                      <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                      <p className="text-lg font-medium">Hover over a template to preview</p>
-                      <p className="text-sm mt-1">See how each workflow type looks before creating</p>
+                  </div>
+                )}
+
+                {/* Open Section Content */}
+                {activeSection === 'open' && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Open Document</h3>
+                      <p className="text-sm text-gray-600 mb-6">Open an existing workflow from your device.</p>
                     </div>
-                  )}
+
+                    <div
+                      onClick={() => handleMenuItemClick(onLoad)}
+                      className="group p-6 rounded-sm border border-gray-200 hover:border-blue-300 
+                                hover:bg-blue-50 cursor-pointer transition-all duration-200 
+                                hover:shadow-lg bg-white"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-600 
+                                      rounded-lg flex items-center justify-center text-white 
+                                      group-hover:scale-105 transition-transform duration-200">
+                          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-lg font-semibold text-gray-800 group-hover:text-blue-700">Browse Files</h4>
+                          <p className="text-sm text-gray-600 mt-1">Open a workflow file from your computer</p>
+                          <p className="text-xs text-gray-500 mt-2">Keyboard shortcut: Ctrl+O</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Save Section Content */}
+                {activeSection === 'save' && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Save Document</h3>
+                      <p className="text-sm text-gray-600 mb-6">Save your current workflow to your device.</p>
+                    </div>
+
+                    <div
+                      onClick={() => handleMenuItemClick(onSave)}
+                      className="group p-6 rounded-sm border border-gray-200 hover:border-green-300 
+                                hover:bg-green-50 cursor-pointer transition-all duration-200 
+                                hover:shadow-lg bg-white"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 
+                                      rounded-lg flex items-center justify-center text-white 
+                                      group-hover:scale-105 transition-transform duration-200">
+                          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                  d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-lg font-semibold text-gray-800 group-hover:text-green-700">Save Workflow</h4>
+                          <p className="text-sm text-gray-600 mt-1">Save your current workflow as a JSON file</p>
+                          <p className="text-xs text-gray-500 mt-2">Keyboard shortcut: Ctrl+S</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Share Section Content */}
+                {activeSection === 'share' && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Share & Export</h3>
+                      <p className="text-sm text-gray-600 mb-6">Present your workflow or export in different formats.</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div
+                        onClick={() => handleMenuItemClick(onOpenPresentationView)}
+                        className="group p-4 rounded-sm border border-gray-200 hover:border-blue-300 
+                                  hover:bg-blue-50 cursor-pointer transition-all duration-200 bg-white"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 
+                                        rounded-lg flex items-center justify-center text-white">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                    d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1h4a1 1 0 011 1v18a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1h4v3m0 0h8M5 8h14M5 12h14M5 16h14" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-800 group-hover:text-blue-700">Presentation Mode</div>
+                            <div className="text-sm text-gray-600">View your workflow in fullscreen presentation mode</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tools Section Content */}
+                {activeSection === 'tools' && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Tools & Actions</h3>
+                      <p className="text-sm text-gray-600 mb-6">Additional tools and workflow management options.</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div
+                        onClick={() => handleMenuItemClick(onClear)}
+                        className="group p-4 rounded-sm border border-gray-200 hover:border-red-300 
+                                  hover:bg-red-50 cursor-pointer transition-all duration-200 bg-white"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 
+                                        rounded-lg flex items-center justify-center text-white">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-800 group-hover:text-red-700">Clear Canvas</div>
+                            <div className="text-sm text-gray-600">Remove all nodes and start over</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Recent Section Content */}
+                {activeSection === 'recent' && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Files</h3>
+                      <p className="text-sm text-gray-600 mb-6">Quickly access your recently opened workflows.</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      {recentFiles.map((file, idx) => (
+                        <div key={file.name}
+                             className="group p-3 rounded-sm hover:bg-gray-50 cursor-pointer 
+                                       transition-colors duration-150 border border-transparent 
+                                       hover:border-gray-200"
+                             onClick={() => { handleMenuItemClick(onLoad); setIsOpen(false); }}>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-500 
+                                          rounded-sm flex items-center justify-center text-white">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-gray-800 group-hover:text-blue-700">{file.name}</div>
+                              <div className="text-sm text-gray-600">{file.date} • {file.size}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gray-50 border-t border-gray-200 px-6 py-3">
+              <div className="flex items-center justify-between text-xs text-gray-600">
+                <div className="flex items-center space-x-4">
+                  <span>💡 Tip: Click on menu items to explore options</span>
                 </div>
-
-                {/* Quick Access Footer */}
-                <div className="mt-4 flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center space-x-4">
-                    <button
-                      onClick={() => handleMenuItemClick(onOpenPresentationView)}
-                      className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1h4a1 1 0 011 1v18a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1h4v3m0 0h8M5 8h14M5 12h14M5 16h14" />
-                      </svg>
-                      <span>Present</span>
-                    </button>
-                    <div className="w-px h-4 bg-gray-300 dark:bg-gray-600"></div>
-                    <button
-                      onClick={() => handleMenuItemClick(onClear)}
-                      className="flex items-center space-x-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                      <span>Clear All</span>
-                    </button>
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Use keyboard shortcuts for faster access
-                  </div>
+                <div className="flex items-center space-x-2">
+                  <kbd className="px-2 py-1 bg-white border border-gray-300 rounded text-xs">Ctrl</kbd>
+                  <span>+</span>
+                  <kbd className="px-2 py-1 bg-white border border-gray-300 rounded text-xs">N</kbd>
+                  <span>for new document</span>
                 </div>
               </div>
             </div>
