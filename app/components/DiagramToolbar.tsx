@@ -88,6 +88,29 @@ export function DiagramToolbar({
             onClear={onClear}
             onOpenPresentationView={onOpenPresentationView}
           />
+          <div className="w-px h-5 bg-border mx-1" />
+
+          <button
+            onClick={onLoad}
+            className="btn btn-sm btn-outline"
+            title="Open Workflow (Ctrl+O)"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Open</span>
+          </button>
+
+          <button
+            onClick={onSave}
+            className="btn btn-sm btn-outline"
+            title="Save Workflow (Ctrl+S)"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Save</span>
+          </button>
 
           <div className="w-px h-5 bg-border mx-1" />
 
@@ -114,6 +137,8 @@ export function DiagramToolbar({
             </svg>
             <span>Fit View</span>
           </button>
+
+
         </div>
 
         {/* Center Section - Workflow Controls */}
@@ -122,9 +147,8 @@ export function DiagramToolbar({
             <button
               onClick={onPlayWorkflow}
               disabled={workflowState === 'playing'}
-              className={`btn btn-sm ${
-                workflowState === 'playing' ? 'btn-success' : 'btn-outline'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`btn btn-sm ${workflowState === 'playing' ? 'btn-success' : 'btn-outline'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               title="Play Workflow"
             >
               {workflowState === 'playing' ? (
@@ -143,9 +167,8 @@ export function DiagramToolbar({
             <button
               onClick={onPauseWorkflow}
               disabled={workflowState !== 'playing'}
-              className={`btn btn-sm ${
-                workflowState === 'paused' ? 'btn-warning' : 'btn-outline'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`btn btn-sm ${workflowState === 'paused' ? 'btn-warning' : 'btn-outline'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               title="Pause Workflow"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,9 +188,8 @@ export function DiagramToolbar({
 
             <button
               onClick={onDebugWorkflow}
-              className={`btn btn-sm ${
-                workflowState === 'debugging' ? 'btn-accent' : 'btn-outline'
-              }`}
+              className={`btn btn-sm ${workflowState === 'debugging' ? 'btn-accent' : 'btn-outline'
+                }`}
               title="Debug Workflow"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,11 +221,10 @@ export function DiagramToolbar({
           {/* Left Sidebar Toggle */}
           <button
             onClick={onToggleLeftSidebar}
-            className={`btn btn-xs ${
-              showLeftSidebar
+            className={`btn btn-xs ${showLeftSidebar
                 ? 'btn-primary'
                 : 'btn-outline'
-            }`}
+              }`}
             title={`${showLeftSidebar ? 'Hide' : 'Show'} left sidebar`}
           >
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,9 +236,8 @@ export function DiagramToolbar({
           <div className="flex items-center bg-card border border-border rounded-sm overflow-hidden">
             <button
               onClick={() => onBackgroundVariantChange(BackgroundVariant.Dots)}
-              className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${
-                backgroundVariant === BackgroundVariant.Dots ? 'bg-neutral-200' : ''
-              }`}
+              className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${backgroundVariant === BackgroundVariant.Dots ? 'bg-neutral-200' : ''
+                }`}
               title="Dots Background"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,9 +250,8 @@ export function DiagramToolbar({
             </button>
             <button
               onClick={() => onBackgroundVariantChange(BackgroundVariant.Lines)}
-              className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${
-                backgroundVariant === BackgroundVariant.Lines ? 'bg-neutral-200' : ''
-              }`}
+              className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${backgroundVariant === BackgroundVariant.Lines ? 'bg-neutral-200' : ''
+                }`}
               title="Grid Background"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -316,11 +335,10 @@ export function DiagramToolbar({
           {/* Right Sidebar Toggle */}
           <button
             onClick={onToggleRightSidebar}
-            className={`btn btn-xs ${
-              showRightSidebar
+            className={`btn btn-xs ${showRightSidebar
                 ? 'btn-primary'
                 : 'btn-outline'
-            }`}
+              }`}
             title={`${showRightSidebar ? 'Hide' : 'Show'} right sidebar`}
           >
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

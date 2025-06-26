@@ -115,36 +115,6 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
       ]
     },
     {
-      id: 'open',
-      label: 'Open',
-      icon: FolderOpen,
-      actions: [
-        {
-          id: 'open-file',
-          label: 'Open File',
-          description: 'Open an existing workflow file',
-          icon: FolderOpen,
-          shortcut: 'Ctrl+O',
-          action: () => { onOpen(); onClose(); }
-        }
-      ]
-    },
-    {
-      id: 'save',
-      label: 'Save',
-      icon: Save,
-      actions: [
-        {
-          id: 'save-file',
-          label: 'Save Workflow',
-          description: 'Save the current workflow',
-          icon: Save,
-          shortcut: 'Ctrl+S',
-          action: () => { onSave(); onClose(); }
-        }
-      ]
-    },
-    {
       id: 'share',
       label: 'Share',
       icon: Share2,
