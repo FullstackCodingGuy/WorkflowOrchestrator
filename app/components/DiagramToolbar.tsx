@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BackgroundVariant } from 'reactflow';
 import { MegaFileMenu } from './MegaFileMenu';
-import { DIAGRAM_TYPES, DiagramType } from '../config/appConfig';
+
 import { EnhancedExportShareMenu } from './EnhancedExportShareMenu';
 import { ExportOptions } from './ExportManager';
 
@@ -39,9 +39,7 @@ interface DiagramToolbarProps {
   onOpenPresentationView: () => void;
   // Keyboard shortcuts help
   onShowKeyboardShortcuts: () => void;
-  // Diagram type controls
-  currentDiagramType: DiagramType;
-  onDiagramTypeChange: (diagramType: DiagramType) => void;
+  
   // Export handlers
   onExportSVG: (options: ExportOptions) => void;
   onExportImage: (format: 'png' | 'jpeg', options: ExportOptions) => void;
@@ -80,8 +78,6 @@ export function DiagramToolbar({
   showControls = true,
   onShowControlsToggle,
   onOpenPresentationView,
-  currentDiagramType,
-  onDiagramTypeChange,
   onShowKeyboardShortcuts,
   onExportSVG,
   onExportImage,
@@ -306,22 +302,7 @@ export function DiagramToolbar({
             </button>
           </div>
 
-          {/* Diagram Type Selector */}
-          <div className="flex items-center space-x-1 text-xs text-muted">
-            <label>Type:</label>
-            <select
-              value={currentDiagramType}
-              onChange={(e) => onDiagramTypeChange(e.target.value as DiagramType)}
-              className="px-1 py-0.5 text-xs border border-border rounded bg-background text-foreground min-w-0 max-w-48"
-              title="Diagram Type"
-            >
-              {Object.values(DIAGRAM_TYPES).map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
+          
         </div>
 
         {/* Right Section - Settings + MiniMap Toggle + Right Sidebar Toggle */}

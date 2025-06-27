@@ -1075,19 +1075,7 @@ export default function DiagramEditor() {
     setPresentationViewOpen(false);
   }, []);
 
-  // Diagram type change handler
-  const handleDiagramTypeChange = useCallback((diagramType: DiagramType) => {
-    setDiagramType(diagramType);
-    // Show toast notification
-    if (window.showToast) {
-      window.showToast({
-        type: 'info',
-        title: 'Diagram Type Changed',
-        message: `Changed to ${diagramType}. New nodes will use the appropriate type for this diagram.`,
-        duration: 4000,
-      });
-    }
-  }, [setDiagramType]);
+  
 
   // Keyboard shortcuts help handler
   const handleShowKeyboardShortcuts = useCallback(() => {
@@ -1279,8 +1267,6 @@ export default function DiagramEditor() {
         showControls={showControls}
         onShowControlsToggle={setShowControls}
         onOpenPresentationView={handleOpenPresentationView}
-        currentDiagramType={currentDiagramType}
-        onDiagramTypeChange={handleDiagramTypeChange}
         onShowKeyboardShortcuts={handleShowKeyboardShortcuts}
         onExportSVG={handleExportSVG}
         onExportImage={handleExportImage}
