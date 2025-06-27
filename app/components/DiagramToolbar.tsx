@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BackgroundVariant } from 'reactflow';
 import { MegaFileMenu } from './MegaFileMenu';
 import { DIAGRAM_TYPES, DiagramType } from '../config/appConfig';
+import { ExportShareMenu } from './ExportShareMenu';
 
 interface DiagramToolbarProps {
   onAddNode: () => void;
@@ -40,6 +41,11 @@ interface DiagramToolbarProps {
   // Diagram type controls
   currentDiagramType: DiagramType;
   onDiagramTypeChange: (diagramType: DiagramType) => void;
+  // Export handlers
+  onExportSVG: () => void;
+  onExportImage: (format: 'png' | 'jpeg') => void;
+  onExportPDF: () => void;
+  onExportGIF: () => void;
 }
 
 export function DiagramToolbar({
@@ -73,7 +79,13 @@ export function DiagramToolbar({
   currentDiagramType,
   onDiagramTypeChange,
   onShowKeyboardShortcuts,
+  onExportSVG,
+  onExportImage,
+  onExportPDF,
+  onExportGIF,
 }: DiagramToolbarProps) {
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+
   return (
     <div className="flex flex-col">
       {/* Main Toolbar */}
@@ -211,6 +223,30 @@ export function DiagramToolbar({
             </svg>
             <span>Present</span>
           </button>
+          <div className="relative">
+            <button
+              onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
+              className="btn btn-sm btn-outline"
+              title="Export & Share"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                <path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                <path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+              </svg>
+              <span>Export</span>
+            </button>
+            {isExportMenuOpen && (
+              <ExportShareMenu
+                onExportSVG={onExportSVG}
+                onExportImage={onExportImage}
+                onExportPDF={onExportPDF}
+                onExportGIF={onExportGIF}
+                onClose={() => setIsExportMenuOpen(false)}
+              />
+            )}
+          </div>
         </div>
       </div>
 
