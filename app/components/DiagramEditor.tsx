@@ -21,6 +21,7 @@ import 'reactflow/dist/style.css';
 
 // Import custom components
 import { DiagramToolbar } from './DiagramToolbar';
+import { useExportManager, ExportOptions } from './ExportManager';
 
 // Import the Property Panel
 import { PropertyPanel } from './PropertyPanel/PropertyPanel';
@@ -31,7 +32,6 @@ import {
   PanelSection, 
   ExplorerPanel, 
   OutlinePanel, 
-  FileExplorer, 
   TemplateLibraryPanel 
 } from './SidebarPanels';
 import { WorkflowTemplate, workflowTemplates } from './workflowTemplates';
@@ -292,6 +292,49 @@ export default function DiagramEditor() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
+  // Export functionality
+  const {
+    exportAsImage,
+    exportAsPDF,
+    exportAsGIF,
+    shareToClipboard,
+    generateSocialMediaLinks,
+    exportWorkflowData,
+  } = useExportManager(reactFlowInstance, nodes, edges);
+
+  // Export handlers for DiagramToolbar
+  const handleExportSVG = useCallback(async (options: ExportOptions) => {
+    try {
+      await exportAsImage({ ...options, format: 'svg' });
+    } catch (error) {
+      console.error('SVG export failed:', error);
+    }
+  }, [exportAsImage]);
+
+  const handleExportImage = useCallback(async (format: 'png' | 'jpeg', options: ExportOptions) => {
+    try {
+      await exportAsImage({ ...options, format });
+    } catch (error) {
+      console.error(`${format.toUpperCase()} export failed:`, error);
+    }
+  }, [exportAsImage]);
+
+  const handleExportPDF = useCallback(async (options: ExportOptions) => {
+    try {
+      await exportAsPDF(options);
+    } catch (error) {
+      console.error('PDF export failed:', error);
+    }
+  }, [exportAsPDF]);
+
+  const handleExportGIF = useCallback(async (options: ExportOptions) => {
+    try {
+      await exportAsGIF(options);
+    } catch (error) {
+      console.error('GIF export failed:', error);
+    }
+  }, [exportAsGIF]);
+
   // Side panel states
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
   
@@ -525,286 +568,6 @@ export default function DiagramEditor() {
             type: 'default',
           },
         ];
-        break;
-
-      case 'conditional-workflow':
-        templateName = 'Conditional Workflow';
-        templateNodes = [
-          {
-            id: 'start-1',
-            type: 'start',
-            data: { 
-              label: 'Start',
-              nodeType: 'start',
-              ...getNodeTypeStyles('start')
-            },
-            position: { x: 200, y: 50 },
-            width: 120,
-            height: 60,
-          },
-          {
-            id: 'condition-1',
-            type: 'condition',
-            data: { 
-              label: 'Check Condition',
-              nodeType: 'condition',
-              ...getNodeTypeStyles('condition')
-            },
-            position: { x: 200, y: 150 },
-            width: 120,
-            height: 80,
-          },
-          {
-            id: 'action-1',
-            type: 'action',
-            data: { 
-              label: 'Action A',
-              nodeType: 'action',
-              ...getNodeTypeStyles('action')
-            },
-            position: { x: 100, y: 280 },
-            width: 120,
-            height: 60,
-          },
-          {
-            id: 'action-2',
-            type: 'action',
-            data: { 
-              label: 'Action B',
-              nodeType: 'action',
-              ...getNodeTypeStyles('action')
-            },
-            position: { x: 300, y: 280 },
-            width: 120,
-            height: 60,
-          },
-        ];
-        templateEdges = [
-          {
-            id: 'e1-2',
-            source: 'start-1',
-            target: 'condition-1',
-            type: 'default',
-          },
-          {
-            id: 'e2-3',
-            source: 'condition-1',
-            sourceHandle: 'true',
-            target: 'action-1',
-            type: 'default',
-            label: 'Yes',
-          },
-          {
-            id: 'e2-4',
-            source: 'condition-1',
-            target: 'action-2',
-            type: 'default',
-            label: 'No',
-          },
-        ];
-        break;
-
-      case 'animated-basic':
-        templateName = 'Animated Basic Flow';
-        templateNodes = [
-          {
-            id: 'start-1',
-            type: 'start',
-            data: { 
-              label: 'Start Process',
-              nodeType: 'start',
-              ...getNodeTypeStyles('start')
-            },
-            position: { x: 100, y: 50 },
-            width: 120,
-            height: 60,
-          },
-          {
-            id: 'action-1',
-            type: 'action',
-            data: { 
-              label: 'Animated Task',
-              nodeType: 'action',
-              ...getNodeTypeStyles('action')
-            },
-            position: { x: 100, y: 150 },
-            width: 120,
-            height: 60,
-          },
-          {
-            id: 'end-1',
-            type: 'end',
-            data: { 
-              label: 'Complete',
-              nodeType: 'end',
-              ...getNodeTypeStyles('end')
-            },
-            position: { x: 100, y: 250 },
-            width: 120,
-            height: 60,
-          },
-        ];
-        templateEdges = [
-          {
-            id: 'e1-2',
-            source: 'start-1',
-            target: 'action-1',
-            type: 'animatedSvg',
-            animated: true,
-          },
-          {
-            id: 'e2-3',
-            source: 'action-1',
-            target: 'end-1',
-            type: 'animatedSvg',
-            animated: true,
-          },
-        ];
-        // Enable edge animations for this template
-        setTimeout(() => {
-          const toggleButton = document.querySelector('[data-testid="edge-animation-toggle"]') as HTMLButtonElement;
-          if (toggleButton && !toggleButton.classList.contains('bg-primary')) {
-            toggleButton.click();
-          }
-        }, 100);
-        break;
-
-      case 'animated-complex':
-        templateName = 'Advanced Animated Flow';
-        templateNodes = [
-          {
-            id: 'start-1',
-            type: 'start',
-            data: { 
-              label: 'Start',
-              nodeType: 'start',
-              ...getNodeTypeStyles('start')
-            },
-            position: { x: 200, y: 50 },
-            width: 120,
-            height: 60,
-          },
-          {
-            id: 'condition-1',
-            type: 'condition',
-            data: { 
-              label: 'Complex Decision',
-              nodeType: 'condition',
-              ...getNodeTypeStyles('condition')
-            },
-            position: { x: 200, y: 150 },
-            width: 140,
-            height: 80,
-          },
-          {
-            id: 'action-1',
-            type: 'action',
-            data: { 
-              label: 'Process A',
-              nodeType: 'action',
-              ...getNodeTypeStyles('action')
-            },
-            position: { x: 50, y: 280 },
-            width: 120,
-            height: 60,
-          },
-          {
-            id: 'action-2',
-            type: 'action',
-            data: { 
-              label: 'Process B',
-              nodeType: 'action',
-              ...getNodeTypeStyles('action')
-            },
-            position: { x: 200, y: 280 },
-            width: 120,
-            height: 60,
-          },
-          {
-            id: 'action-3',
-            type: 'action',
-            data: { 
-              label: 'Process C',
-              nodeType: 'action',
-              ...getNodeTypeStyles('action')
-            },
-            position: { x: 350, y: 280 },
-            width: 120,
-            height: 60,
-          },
-          {
-            id: 'end-1',
-            type: 'end',
-            data: { 
-              label: 'Complete',
-              nodeType: 'end',
-              ...getNodeTypeStyles('end')
-            },
-            position: { x: 200, y: 400 },
-            width: 120,
-            height: 60,
-          },
-        ];
-        templateEdges = [
-          {
-            id: 'e1-2',
-            source: 'start-1',
-            target: 'condition-1',
-            type: 'animatedSvg',
-            animated: true,
-          },
-          {
-            id: 'e2-3',
-            source: 'condition-1',
-            sourceHandle: 'true',
-            target: 'action-1',
-            type: 'animatedSvg',
-            animated: true,
-          },
-          {
-            id: 'e2-4',
-            source: 'condition-1',
-            target: 'action-2',
-            type: 'animatedSvg',
-            animated: true,
-          },
-          {
-            id: 'e2-5',
-            source: 'condition-1',
-            sourceHandle: 'false',
-            target: 'action-3',
-            type: 'animatedSvg',
-            animated: true,
-          },
-          {
-            id: 'e3-6',
-            source: 'action-1',
-            target: 'end-1',
-            type: 'animatedSvg',
-            animated: true,
-          },
-          {
-            id: 'e4-6',
-            source: 'action-2',
-            target: 'end-1',
-            type: 'animatedSvg',
-            animated: true,
-          },
-          {
-            id: 'e5-6',
-            source: 'action-3',
-            target: 'end-1',
-            type: 'animatedSvg',
-            animated: true,
-          },
-        ];
-        // Enable advanced animations
-        setTimeout(() => {
-          const toggleButton = document.querySelector('[data-testid="edge-animation-toggle"]') as HTMLButtonElement;
-          if (toggleButton && !toggleButton.classList.contains('bg-primary')) {
-            toggleButton.click();
-          }
-        }, 100);
         break;
 
       default:
@@ -1519,6 +1282,13 @@ export default function DiagramEditor() {
         currentDiagramType={currentDiagramType}
         onDiagramTypeChange={handleDiagramTypeChange}
         onShowKeyboardShortcuts={handleShowKeyboardShortcuts}
+        onExportSVG={handleExportSVG}
+        onExportImage={handleExportImage}
+        onExportPDF={handleExportPDF}
+        onExportGIF={handleExportGIF}
+        onShareToClipboard={shareToClipboard}
+        onGenerateSocialMediaLinks={generateSocialMediaLinks}
+        onExportWorkflowData={exportWorkflowData}
       />
 
       {/* Main Editor Area */}
@@ -1600,21 +1370,6 @@ export default function DiagramEditor() {
         isVisible={propertyPanelOpen}
         onVisibilityChange={setPropertyPanelOpen}
       />
-
-      {/* Panel Toggle Buttons */}
-      {/* <PanelToggleButton
-        side="left"
-        isOpen={leftPanelOpen}
-        onToggle={() => setLeftPanelOpen(!leftPanelOpen)}
-        label="Explorer"
-      /> */}
-
-      {/* <PanelToggleButton
-        side="right"
-        isOpen={rightPanelOpen}
-        onToggle={() => setRightPanelOpen(!rightPanelOpen)}
-        label="Properties"
-      /> */}
 
       {/* Status Bar */}
       <div className="h-7 bg-sidebar border-t border-border flex items-center justify-between px-3 text-xs text-muted relative z-10">

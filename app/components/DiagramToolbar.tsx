@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { BackgroundVariant } from 'reactflow';
 import { MegaFileMenu } from './MegaFileMenu';
 import { DIAGRAM_TYPES, DiagramType } from '../config/appConfig';
-import { ExportShareMenu } from './ExportShareMenu';
+import { EnhancedExportShareMenu } from './EnhancedExportShareMenu';
+import { ExportOptions } from './ExportManager';
 
 interface DiagramToolbarProps {
   onAddNode: () => void;
@@ -42,10 +43,13 @@ interface DiagramToolbarProps {
   currentDiagramType: DiagramType;
   onDiagramTypeChange: (diagramType: DiagramType) => void;
   // Export handlers
-  onExportSVG: () => void;
-  onExportImage: (format: 'png' | 'jpeg') => void;
-  onExportPDF: () => void;
-  onExportGIF: () => void;
+  onExportSVG: (options: ExportOptions) => void;
+  onExportImage: (format: 'png' | 'jpeg', options: ExportOptions) => void;
+  onExportPDF: (options: ExportOptions) => void;
+  onExportGIF: (options: ExportOptions) => void;
+  onShareToClipboard: () => Promise<void>;
+  onGenerateSocialMediaLinks: () => { twitter: string; linkedin: string; facebook: string; email: string };
+  onExportWorkflowData: () => void;
 }
 
 export function DiagramToolbar({
@@ -83,6 +87,9 @@ export function DiagramToolbar({
   onExportImage,
   onExportPDF,
   onExportGIF,
+  onShareToClipboard,
+  onGenerateSocialMediaLinks,
+  onExportWorkflowData,
 }: DiagramToolbarProps) {
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
 
@@ -238,11 +245,14 @@ export function DiagramToolbar({
               <span>Export</span>
             </button>
             {isExportMenuOpen && (
-              <ExportShareMenu
+              <EnhancedExportShareMenu
                 onExportSVG={onExportSVG}
                 onExportImage={onExportImage}
                 onExportPDF={onExportPDF}
                 onExportGIF={onExportGIF}
+                onShareToClipboard={onShareToClipboard}
+                onGenerateSocialMediaLinks={onGenerateSocialMediaLinks}
+                onExportWorkflowData={onExportWorkflowData}
                 onClose={() => setIsExportMenuOpen(false)}
               />
             )}
