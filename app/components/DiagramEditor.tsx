@@ -42,7 +42,7 @@ import { KeyboardShortcutsHelp } from './KeyboardShortcutsHelp';
 import { nodeTypes, edgeTypes } from './reactFlowConfig';
 
 // Import enhanced configuration
-import { APP_COLORS, getNodeTypeStyles, DiagramType } from '../config/appConfig';
+import { APP_COLORS, getNodeTypeStyles, DIAGRAM_TYPE_CONTROLS } from '../config/appConfig';
 
 // Import workflow store for diagram type management
 import useWorkflowStore from '../store/workflowStore';
@@ -273,7 +273,9 @@ export default function DiagramEditor() {
       setBackgroundVariant(variant);
     }
   }, []);
-  const [isAnimationEnabled] = useState(false);
+  const [isAnimationEnabled, setIsAnimationEnabled] = useState(() => 
+    DIAGRAM_TYPE_CONTROLS[currentDiagramType].defaultAnimationEnabled
+  );
   const [showMiniMap, setShowMiniMap] = useState(true);
 
   // Settings state (moved from property panel)
@@ -1173,6 +1175,20 @@ export default function DiagramEditor() {
     []
   );
 
+  // Animation toggle handler
+  const handleAnimationToggle = useCallback(() => {
+    const diagramConfig = DIAGRAM_TYPE_CONTROLS[currentDiagramType];
+    if (diagramConfig.showAnimationControls) {
+      setIsAnimationEnabled(!isAnimationEnabled);
+    }
+  }, [currentDiagramType, isAnimationEnabled, setIsAnimationEnabled]);
+
+  // Update animation state when diagram type changes
+  useEffect(() => {
+    const diagramConfig = DIAGRAM_TYPE_CONTROLS[currentDiagramType];
+    setIsAnimationEnabled(diagramConfig.defaultAnimationEnabled);
+  }, [currentDiagramType]);
+
   // Enhanced node update callback
   const handleNodeUpdate = useCallback(
     (nodeId: string, updates: Partial<DiagramNodeData> & Record<string, unknown>) => {
@@ -1251,11 +1267,15 @@ export default function DiagramEditor() {
         onBackgroundVariantChange={handleBackgroundVariantChange}
         showMiniMap={showMiniMap}
         onMiniMapToggle={setShowMiniMap}
+        currentDiagramType={currentDiagramType}
+        onDiagramTypeChange={setDiagramType}
         onPlayWorkflow={handlePlayWorkflow}
         onPauseWorkflow={handlePauseWorkflow}
         onRestartWorkflow={handleRestartWorkflow}
         onDebugWorkflow={handleDebugWorkflow}
         workflowState={workflowState}
+        isAnimationEnabled={isAnimationEnabled}
+        onAnimationToggle={handleAnimationToggle}
         showLeftSidebar={leftPanelOpen}
         onToggleLeftSidebar={() => setLeftPanelOpen(!leftPanelOpen)}
         showRightSidebar={false}

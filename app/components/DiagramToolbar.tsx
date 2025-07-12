@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { BackgroundVariant } from 'reactflow';
 import { MegaFileMenu } from './MegaFileMenu';
-
 import { EnhancedExportShareMenu } from './EnhancedExportShareMenu';
 import { ExportOptions } from './ExportManager';
+import { DiagramType, DIAGRAM_TYPES, DIAGRAM_TYPE_CONTROLS, COMMON_TOOLBAR_SETTINGS } from '../config/appConfig';
+import { CommonSettingsSection } from './CommonSettingsSection';
 
 interface DiagramToolbarProps {
   onAddNode: () => void;
@@ -17,17 +18,28 @@ interface DiagramToolbarProps {
   onBackgroundVariantChange: (variant: BackgroundVariant) => void;
   showMiniMap: boolean;
   onMiniMapToggle: (show: boolean) => void;
-  // Workflow controls
+  
+  // Diagram type selection
+  currentDiagramType: DiagramType;
+  onDiagramTypeChange: (type: DiagramType) => void;
+  
+  // Workflow controls (conditional based on diagram type)
   onPlayWorkflow: () => void;
   onPauseWorkflow: () => void;
   onRestartWorkflow: () => void;
   onDebugWorkflow: () => void;
   workflowState: 'idle' | 'playing' | 'paused' | 'debugging';
+  
+  // Animation controls (conditional based on diagram type)
+  isAnimationEnabled?: boolean;
+  onAnimationToggle?: () => void;
+  
   // Sidebar controls
   showLeftSidebar: boolean;
   onToggleLeftSidebar: () => void;
   showRightSidebar: boolean;
   onToggleRightSidebar: () => void;
+  
   // Settings controls (moved from settings tab)
   snapToGrid?: boolean;
   onSnapToGridToggle: (enabled: boolean) => void;
@@ -35,6 +47,7 @@ interface DiagramToolbarProps {
   onGridSizeChange: (size: number) => void;
   showControls?: boolean;
   onShowControlsToggle: (show: boolean) => void;
+  
   // Presentation view controls
   onOpenPresentationView: () => void;
   // Keyboard shortcuts help
@@ -62,20 +75,24 @@ export function DiagramToolbar({
   onBackgroundVariantChange,
   showMiniMap,
   onMiniMapToggle,
+  currentDiagramType,
+  onDiagramTypeChange,
   onPlayWorkflow,
   onPauseWorkflow,
   onRestartWorkflow,
   onDebugWorkflow,
   workflowState,
+  isAnimationEnabled = false,
+  onAnimationToggle,
   showLeftSidebar,
   onToggleLeftSidebar,
   showRightSidebar,
   onToggleRightSidebar,
-  snapToGrid = false,
+  snapToGrid = COMMON_TOOLBAR_SETTINGS.snapToGrid.defaultValue,
   onSnapToGridToggle,
-  gridSize = 20,
+  gridSize = COMMON_TOOLBAR_SETTINGS.gridSize.defaultValue,
   onGridSizeChange,
-  showControls = true,
+  showControls = COMMON_TOOLBAR_SETTINGS.showControls.defaultValue,
   onShowControlsToggle,
   onOpenPresentationView,
   onShowKeyboardShortcuts,
@@ -88,6 +105,9 @@ export function DiagramToolbar({
   onExportWorkflowData,
 }: DiagramToolbarProps) {
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+
+  // Get current diagram type configuration
+  const diagramConfig = DIAGRAM_TYPE_CONTROLS[currentDiagramType];
 
   return (
     <div className="flex flex-col">
@@ -153,68 +173,86 @@ export function DiagramToolbar({
             <span>Fit View</span>
           </button>
 
+          <div className="w-px h-5 bg-border mx-1" />
 
-        </div>
-
-        {/* Center Section - Workflow Controls */}
-        <div className="flex-1 flex justify-center">
-          <div className="flex items-center space-x-1 bg-card border border-border rounded-lg px-2 py-1">
-            <button
-              onClick={onPlayWorkflow}
-              disabled={workflowState === 'playing'}
-              className={`btn btn-sm ${workflowState === 'playing' ? 'btn-success' : 'btn-outline'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-              title="Play Workflow"
+          {/* Diagram Type Selector */}
+          <div className="flex items-center space-x-2">
+            <label className="text-xs text-muted">Type:</label>
+            <select
+              value={currentDiagramType}
+              onChange={(e) => onDiagramTypeChange(e.target.value as DiagramType)}
+              className="text-xs border border-border rounded px-2 py-1 bg-background text-foreground min-w-[140px]"
+              title="Select diagram type"
             >
-              {workflowState === 'playing' ? (
-                <div className="w-4 h-4 animate-spin">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                </div>
-              ) : (
-                <svg className="w-4 h-4" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              )}
-            </button>
-
-            <button
-              onClick={onPauseWorkflow}
-              disabled={workflowState !== 'playing'}
-              className={`btn btn-sm ${workflowState === 'paused' ? 'btn-warning' : 'btn-outline'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-              title="Pause Workflow"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
-              </svg>
-            </button>
-
-            <button
-              onClick={onRestartWorkflow}
-              className="btn btn-sm btn-outline"
-              title="Restart Workflow"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
-
-            <button
-              onClick={onDebugWorkflow}
-              className={`btn btn-sm ${workflowState === 'debugging' ? 'btn-accent' : 'btn-outline'
-                }`}
-              title="Debug Workflow"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
+              {Object.entries(DIAGRAM_TYPES).map(([key, value]) => (
+                <option key={key} value={value}>{value}</option>
+              ))}
+            </select>
           </div>
+
         </div>
 
-        {/* Right Section - Presentation & Future Actions */}
+        {/* Center Section - Conditional Workflow Controls */}
+        <div className="flex-1 flex justify-center">
+          {diagramConfig.showWorkflowControls && (
+            <div className="flex items-center space-x-1 bg-card border border-border rounded-lg px-2 py-1">
+              <button
+                onClick={onPlayWorkflow}
+                disabled={workflowState === 'playing'}
+                className={`btn btn-sm ${workflowState === 'playing' ? 'btn-success' : 'btn-outline'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                title="Play Workflow"
+              >
+                {workflowState === 'playing' ? (
+                  <div className="w-4 h-4 animate-spin">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </div>
+                ) : (
+                  <svg className="w-4 h-4" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                )}
+              </button>
+
+              <button
+                onClick={onPauseWorkflow}
+                disabled={workflowState !== 'playing'}
+                className={`btn btn-sm ${workflowState === 'paused' ? 'btn-warning' : 'btn-outline'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                title="Pause Workflow"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
+                </svg>
+              </button>
+
+              <button
+                onClick={onRestartWorkflow}
+                className="btn btn-sm btn-outline"
+                title="Restart Workflow"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+
+              <button
+                onClick={onDebugWorkflow}
+                className={`btn btn-sm ${workflowState === 'debugging' ? 'btn-accent' : 'btn-outline'
+                  }`}
+                title="Debug Workflow"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Right Section - Always Visible Presentation & Export Actions */}
         <div className="flex items-center space-x-1.5">
           <button
             onClick={onOpenPresentationView}
@@ -302,60 +340,42 @@ export function DiagramToolbar({
             </button>
           </div>
 
+          {/* Animation Toggle - only for animated diagram types */}
+          {diagramConfig.showAnimationControls && onAnimationToggle && (
+            <>
+              <div className="w-px h-4 bg-border" />
+              <button
+                onClick={onAnimationToggle}
+                className={`btn btn-xs ${isAnimationEnabled ? 'btn-success' : 'btn-outline'}`}
+                title={`${isAnimationEnabled ? 'Disable' : 'Enable'} animations`}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {isAnimationEnabled ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
+                  )}
+                </svg>
+              </button>
+            </>
+          )}
           
         </div>
 
         {/* Right Section - Settings + MiniMap Toggle + Right Sidebar Toggle */}
         <div className="flex items-center space-x-2">
-          {/* Settings Controls */}
-          <label className="flex items-center space-x-1.5 text-xs text-muted cursor-pointer hover:text-foreground transition-colors">
-            <input
-              type="checkbox"
-              checked={snapToGrid}
-              onChange={(e) => onSnapToGridToggle(e.target.checked)}
-              className="checkbox w-3 h-3"
-            />
-            <span>Snap to Grid</span>
-          </label>
-
-          <div className="flex items-center space-x-1 text-xs text-muted">
-            <label>Grid:</label>
-            <input
-              type="number"
-              value={gridSize}
-              onChange={(e) => onGridSizeChange(parseInt(e.target.value))}
-              className="w-12 px-1 py-0.5 text-xs border border-border rounded bg-background text-foreground"
-              min={10}
-              max={100}
-              step={5}
-            />
-          </div>
-
-          <label className="flex items-center space-x-1.5 text-xs text-muted cursor-pointer hover:text-foreground transition-colors">
-            <input
-              type="checkbox"
-              checked={showControls}
-              onChange={(e) => onShowControlsToggle(e.target.checked)}
-              className="checkbox w-3 h-3"
-            />
-            <span>Show Controls</span>
-          </label>
-
-          <div className="w-px h-4 bg-border" />
-
-          <label className="flex items-center space-x-1.5 text-xs text-muted cursor-pointer hover:text-foreground transition-colors">
-            <input
-              type="checkbox"
-              checked={showMiniMap}
-              onChange={(e) => onMiniMapToggle(e.target.checked)}
-              className="checkbox w-3 h-3"
-            />
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Show MiniMap</span>
-          </label>
+          {/* Common Settings Controls */}
+          <CommonSettingsSection
+            snapToGrid={snapToGrid}
+            onSnapToGridToggle={onSnapToGridToggle}
+            gridSize={gridSize}
+            onGridSizeChange={onGridSizeChange}
+            showControls={showControls}
+            onShowControlsToggle={onShowControlsToggle}
+            showMiniMap={showMiniMap}
+            onMiniMapToggle={onMiniMapToggle}
+            compact={true}
+          />
 
           <div className="w-px h-4 bg-border" />
 

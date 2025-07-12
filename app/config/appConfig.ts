@@ -38,6 +38,65 @@ export const DIAGRAM_TYPE_DEFAULT_NODE: Record<DiagramType, string> = {
   [DIAGRAM_TYPES.DECISION_TREE]: 'decision',
 };
 
+/**
+ * Toolbar controls configuration for each diagram type
+ */
+export const DIAGRAM_TYPE_CONTROLS: Record<DiagramType, {
+  showWorkflowControls: boolean;
+  showAnimationControls: boolean;
+  defaultAnimationEnabled: boolean;
+}> = {
+  [DIAGRAM_TYPES.INTERACTIVE_FLOW]: {
+    showWorkflowControls: false,
+    showAnimationControls: false,
+    defaultAnimationEnabled: false,
+  },
+  [DIAGRAM_TYPES.ANIMATED_WORKFLOW]: {
+    showWorkflowControls: true,
+    showAnimationControls: true,
+    defaultAnimationEnabled: true,
+  },
+  [DIAGRAM_TYPES.PROCESS_FLOW]: {
+    showWorkflowControls: false,
+    showAnimationControls: false,
+    defaultAnimationEnabled: false,
+  },
+  [DIAGRAM_TYPES.DECISION_TREE]: {
+    showWorkflowControls: false,
+    showAnimationControls: false,
+    defaultAnimationEnabled: false,
+  },
+};
+
+/**
+ * Common toolbar settings section configuration
+ */
+export const COMMON_TOOLBAR_SETTINGS = {
+  snapToGrid: {
+    label: 'Snap to Grid',
+    defaultValue: false,
+    tooltip: 'Snap nodes to grid when dragging',
+  },
+  gridSize: {
+    label: 'Grid',
+    defaultValue: 20,
+    min: 10,
+    max: 100,
+    step: 5,
+    tooltip: 'Grid size in pixels',
+  },
+  showControls: {
+    label: 'Show Controls',
+    defaultValue: true,
+    tooltip: 'Show ReactFlow controls panel',
+  },
+  showMiniMap: {
+    label: 'Show MiniMap',
+    defaultValue: true,
+    tooltip: 'Show the minimap navigation',
+  },
+} as const;
+
 // Application-wide configuration and constants
 
 export const APP_COLORS = {
