@@ -201,13 +201,13 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
         type="target"
         position={Position.Left}
         id="left"
-        className={`w-6 h-6 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 hover:scale-110 transition-all duration-200 ${
-          isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+        className={`w-6 h-6 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 transition-colors duration-200 ${
+          isHovered || isConnecting || selected ? 'opacity-90' : 'opacity-70'
         }`}
         onMouseEnter={handleConnectionStart}
         onMouseLeave={handleConnectionEnd}
         style={{
-          left: '2px',
+          // left: '2px',
           borderRadius: '50%',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         }}
@@ -218,13 +218,13 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
         type="target"
         position={Position.Top}
         id="top"
-        className={`w-6 h-6 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 hover:scale-110 transition-all duration-200 ${
-          isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+        className={`w-6 h-6 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 transition-colors duration-200 ${
+          isHovered || isConnecting || selected ? 'opacity-90' : 'opacity-70'
         }`}
         onMouseEnter={handleConnectionStart}
         onMouseLeave={handleConnectionEnd}
         style={{
-          top: '2px',
+          // top: '2px',
           borderRadius: '50%',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         }}
@@ -335,9 +335,7 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
                 )}
               </div>
             ) : (
-              <span style={{ color: dynamicStyles.color, opacity: 0.4, fontStyle: 'italic' }}>
-                No custom attributes
-              </span>
+              <span style={{ color: dynamicStyles.color, opacity: 0.4, fontStyle: 'italic' }}>{/*No custom attributes*/}</span>
             )}
           </div>
 
@@ -382,8 +380,8 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
         type="source"
         position={Position.Right}
         id="right"
-        className={`w-6 h-6 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 hover:scale-110 transition-all duration-200 ${
-          isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+        className={`w-6 h-6 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 transition-colors duration-200 ${
+          isHovered || isConnecting || selected ? 'opacity-90' : 'opacity-70'
         }`}
         onMouseEnter={handleConnectionStart}
         onMouseLeave={handleConnectionEnd}
@@ -399,8 +397,8 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
         type="source"
         position={Position.Bottom}
         id="bottom"
-        className={`w-6 h-6 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 hover:scale-110 transition-all duration-200 ${
-          isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+        className={`w-6 h-6 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 transition-colors duration-200 ${
+          isHovered || isConnecting || selected ? 'opacity-90' : 'opacity-70'
         }`}
         onMouseEnter={handleConnectionStart}
         onMouseLeave={handleConnectionEnd}
@@ -419,8 +417,8 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
             type="source"
             position={Position.Right}
             id={`${id}-source-true`}
-            className={`w-5 h-5 !bg-green-500 border-2 border-white shadow-lg hover:border-green-300 hover:scale-110 transition-all duration-200 ${
-              isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-75 scale-100'
+            className={`w-5 h-5 !bg-green-500 border-2 border-white shadow-lg hover:border-green-300 transition-colors duration-200 ${
+              isHovered || isConnecting || selected ? 'opacity-90' : 'opacity-75'
             }`}
             onMouseEnter={handleConnectionStart}
             onMouseLeave={handleConnectionEnd}
@@ -437,8 +435,8 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
             type="source"
             position={Position.Right}
             id={`${id}-source-false`}
-            className={`w-5 h-5 !bg-red-500 border-2 border-white shadow-lg hover:border-red-300 hover:scale-110 transition-all duration-200 ${
-              isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-75 scale-100'
+            className={`w-5 h-5 !bg-red-500 border-2 border-white shadow-lg hover:border-red-300 transition-colors duration-200 ${
+              isHovered || isConnecting || selected ? 'opacity-90' : 'opacity-75'
             }`}
             onMouseEnter={handleConnectionStart}
             onMouseLeave={handleConnectionEnd}
@@ -455,8 +453,8 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
             type="source"
             position={Position.Bottom}
             id={`${id}-source-bottom-true`}
-            className={`w-5 h-5 !bg-green-500 border-2 border-white shadow-lg hover:border-green-300 hover:scale-110 transition-all duration-200 ${
-              isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-75 scale-100'
+            className={`w-5 h-5 !bg-green-500 border-2 border-white shadow-lg hover:border-green-300 transition-colors duration-200 ${
+              isHovered || isConnecting || selected ? 'opacity-90' : 'opacity-75'
             }`}
             onMouseEnter={handleConnectionStart}
             onMouseLeave={handleConnectionEnd}
@@ -473,8 +471,8 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
             type="source"
             position={Position.Bottom}
             id={`${id}-source-bottom-false`}
-            className={`w-5 h-5 !bg-red-500 border-2 border-white shadow-lg hover:border-red-300 hover:scale-110 transition-all duration-200 ${
-              isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-75 scale-100'
+            className={`w-5 h-5 !bg-red-500 border-2 border-white shadow-lg hover:border-red-300 transition-colors duration-200 ${
+              isHovered || isConnecting || selected ? 'opacity-90' : 'opacity-75'
             }`}
             onMouseEnter={handleConnectionStart}
             onMouseLeave={handleConnectionEnd}
@@ -487,24 +485,24 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
           />
 
           {/* Conditional Labels */}
-          <div className={`absolute right-8 top-1/4 transform -translate-y-1/2 text-xs font-medium text-green-600 bg-white px-1 rounded shadow-sm transition-all duration-200 ${
-            isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+          <div className={`absolute right-8 top-1/4 transform -translate-y-1/2 text-xs font-medium text-green-600 bg-white px-1 rounded shadow-sm transition-opacity duration-200 ${
+            isHovered || isConnecting || selected ? 'opacity-90' : 'opacity-70'
           }`}>
             Yes
           </div>
-          <div className={`absolute right-8 top-3/4 transform -translate-y-1/2 text-xs font-medium text-red-600 bg-white px-1 rounded shadow-sm transition-all duration-200 ${
-            isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+          <div className={`absolute right-8 top-3/4 transform -translate-y-1/2 text-xs font-medium text-red-600 bg-white px-1 rounded shadow-sm transition-opacity duration-200 ${
+            isHovered || isConnecting || selected ? 'opacity-90' : 'opacity-70'
           }`}>
             No
           </div>
 
-          <div className={`absolute bottom-8 left-1/4 transform -translate-x-1/2 text-xs font-medium text-green-600 bg-white px-1 rounded shadow-sm transition-all duration-200 ${
-            isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+          <div className={`absolute bottom-8 left-1/4 transform -translate-x-1/2 text-xs font-medium text-green-600 bg-white px-1 rounded shadow-sm transition-opacity duration-200 ${
+            isHovered || isConnecting || selected ? 'opacity-90' : 'opacity-70'
           }`}>
             Yes
           </div>
-          <div className={`absolute bottom-8 left-3/4 transform -translate-x-1/2 text-xs font-medium text-red-600 bg-white px-1 rounded shadow-sm transition-all duration-200 ${
-            isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+          <div className={`absolute bottom-8 left-3/4 transform -translate-x-1/2 text-xs font-medium text-red-600 bg-white px-1 rounded shadow-sm transition-opacity duration-200 ${
+            isHovered || isConnecting || selected ? 'opacity-90' : 'opacity-70'
           }`}>
             No
           </div>

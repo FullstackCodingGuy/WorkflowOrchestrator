@@ -159,7 +159,7 @@ const initialNodes: DiagramNode[] = [
       maxWidth: 220,
       icon: '🔀',
       nodeType: 'decision',
-      properties: { condition: 'if x > 10', branches: 2, timeout: '5s' }
+      // properties: { condition: 'if x > 10', branches: 2, timeout: '5s' }
     },
   },
   {
