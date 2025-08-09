@@ -193,7 +193,16 @@ const getLayoutedElements = (
     };
   });
 
-  return { nodes: layoutedNodes, edges };
+  // Update edges to remove explicit handles and use node's default connection points
+  const layoutedEdges = edges.map((edge) => {
+    // Create a new edge object without sourceHandle and targetHandle properties
+    const newEdge = { ...edge };
+    delete newEdge.sourceHandle;
+    delete newEdge.targetHandle;
+    return newEdge;
+  });
+
+  return { nodes: layoutedNodes, edges: layoutedEdges };
 };
 
 // Smart layout algorithms for better node arrangement
@@ -395,7 +404,16 @@ const getSmartLayoutElements = (
       layoutedNodes = nodes;
   }
 
-  return { nodes: layoutedNodes, edges };
+  // Process edges to remove explicit handles for all smart layouts
+  const layoutedEdges = edges.map((edge) => {
+    // Create a new edge object without sourceHandle and targetHandle properties
+    const newEdge = { ...edge };
+    delete newEdge.sourceHandle;
+    delete newEdge.targetHandle;
+    return newEdge;
+  });
+
+  return { nodes: layoutedNodes, edges: layoutedEdges };
 };
 
 const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({

@@ -102,7 +102,7 @@ const initialNodes: DiagramNode[] = [
     position: { x: 50, y: 50 }, // Top cliff start
     data: {
       label: 'Start Node',
-      description: 'Begin workflow execution',
+      // description: 'Begin workflow execution',
       color: APP_COLORS.nodeTypes.start,
       backgroundColor: '#f0fdf4', // Light green background
       borderColor: '#bbf7d0',
@@ -115,7 +115,7 @@ const initialNodes: DiagramNode[] = [
       maxWidth: 220,
       icon: '🚀',
       nodeType: 'start',
-      properties: { priority: 'high', trigger: 'manual', timeout: '30s' }
+      properties: { priority: 'high', trigger: 'manual' }
     },
   },
   {
@@ -124,7 +124,7 @@ const initialNodes: DiagramNode[] = [
     position: { x: 350, y: 250 }, // First step down and right
     data: {
       label: 'Process Data',
-      description: 'Transform and validate input',
+      // description: 'Transform and validate input',
       color: APP_COLORS.nodeTypes.process,
       backgroundColor: '#eff6ff', // Light blue background
       borderColor: '#bfdbfe',
@@ -137,7 +137,7 @@ const initialNodes: DiagramNode[] = [
       maxWidth: 220,
       icon: '⚙️',
       nodeType: 'process',
-      properties: { duration: '2 minutes', cpu: '0.5 cores', memory: '512MB' }
+      // properties: { duration: '2 minutes', cpu: '0.5 cores', memory: '512MB' }
     },
   },
   {
@@ -146,7 +146,7 @@ const initialNodes: DiagramNode[] = [
     position: { x: 650, y: 450 }, // Second step down and right
     data: {
       label: 'Decision Point',
-      description: 'Evaluate conditions and route',
+      // description: 'Evaluate conditions and route',
       color: APP_COLORS.nodeTypes.decision,
       backgroundColor: '#fffbeb', // Light amber background
       borderColor: '#fde68a',
@@ -168,7 +168,7 @@ const initialNodes: DiagramNode[] = [
     position: { x: 950, y: 650 }, // Final step down and right
     data: {
       label: 'Complete',
-      description: 'Workflow finished successfully',
+      // description: 'Workflow finished successfully',
       color: APP_COLORS.nodeTypes.end,
       backgroundColor: '#fef2f2', // Light red background
       borderColor: '#fecaca',
@@ -181,7 +181,7 @@ const initialNodes: DiagramNode[] = [
       maxWidth: 220,
       icon: '✅',
       nodeType: 'end',
-      properties: { result: 'success', notify: 'email', cleanup: true }
+      // properties: { result: 'success', notify: 'email', cleanup: true }
     },
   },
 ];

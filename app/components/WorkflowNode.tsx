@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef, useEffect } from 'react';
+import React, { memo, useState, useRef, useEffect, useCallback } from 'react';
 import { Handle, Position, NodeProps, useReactFlow, NodeResizer } from 'reactflow';
 import { getNodeTypeStyles, DEFAULT_NODE_STYLES } from '../config/appConfig';
 
@@ -25,12 +25,15 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
   const { setNodes } = useReactFlow();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(data.label);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Get default styles from centralized configuration
   const defaultStyles = getNodeTypeStyles((data.nodeType as 'start' | 'process' | 'action' | 'condition' | 'decision' | 'end' | 'custom') || 'custom');
 
-  // Create dynamic styles from template data with proper fallbacks
+  // Dynamic styles
   const dynamicStyles = {
     backgroundColor: data.backgroundColor || defaultStyles.backgroundColor,
     borderColor: data.borderColor || defaultStyles.borderColor,
@@ -43,6 +46,50 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
     maxWidth: `${data.maxWidth || defaultStyles.maxWidth}px`,
     minWidth: `${DEFAULT_NODE_STYLES.minWidth}px`,
   };
+
+  const handleMouseEnter = useCallback(() => {
+    setIsHovered(true);
+    // Clear any pending timeout that would hide handles
+    if (connectionTimeoutRef.current) {
+      clearTimeout(connectionTimeoutRef.current);
+      connectionTimeoutRef.current = null;
+    }
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    // Only hide handles after a delay to allow for connection attempts
+    connectionTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false);
+      setIsConnecting(false);
+    }, 200); // 200ms delay
+  }, []);
+
+  const handleConnectionStart = useCallback(() => {
+    setIsConnecting(true);
+    setIsHovered(true);
+    // Clear any timeout when starting a connection
+    if (connectionTimeoutRef.current) {
+      clearTimeout(connectionTimeoutRef.current);
+      connectionTimeoutRef.current = null;
+    }
+  }, []);
+
+  const handleConnectionEnd = useCallback(() => {
+    // Delay hiding handles after connection ends
+    connectionTimeoutRef.current = setTimeout(() => {
+      setIsConnecting(false);
+      setIsHovered(false);
+    }, 300);
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleDoubleClick = () => {
     setIsEditing(true);
@@ -95,6 +142,8 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
         ${selected ? 'shadow-xl ring-2 ring-indigo-200' : ''}
         ${data.isExecuting ? 'shadow-2xl scale-[1.04]' : ''}
       `}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       style={{
         backgroundColor: dynamicStyles.backgroundColor,
         borderTopColor: selected ? '#6366f1' : dynamicStyles.borderColor,
@@ -147,14 +196,37 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
         </>
       )}
 
-      {/* Enhanced Input Handle */}
+      {/* Enhanced Input Handle - Left */}
       <Handle
         type="target"
         position={Position.Left}
-        className="w-4 h-4 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 transition-all duration-200"
+        id="left"
+        className={`w-6 h-6 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 hover:scale-110 transition-all duration-200 ${
+          isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+        }`}
+        onMouseEnter={handleConnectionStart}
+        onMouseLeave={handleConnectionEnd}
         style={{
-          left: '-10px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+          left: '2px',
+          borderRadius: '50%',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        }}
+      />
+
+      {/* Enhanced Input Handle - Top */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        id="top"
+        className={`w-6 h-6 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 hover:scale-110 transition-all duration-200 ${
+          isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+        }`}
+        onMouseEnter={handleConnectionStart}
+        onMouseLeave={handleConnectionEnd}
+        style={{
+          top: '2px',
+          borderRadius: '50%',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         }}
       />
 
@@ -305,18 +377,143 @@ export const WorkflowNode = memo(({ data, selected, id }: NodeProps<DiagramNodeD
         </>
       )}
 
-      {/* Enhanced Output Handle */}
+      {/* Enhanced Output Handle - Right */}
       <Handle
         type="source"
         position={Position.Right}
-        className="w-4 h-4 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 transition-all duration-200"
+        id="right"
+        className={`w-6 h-6 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 hover:scale-110 transition-all duration-200 ${
+          isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+        }`}
+        onMouseEnter={handleConnectionStart}
+        onMouseLeave={handleConnectionEnd}
         style={{
-          right: '-10px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+          right: '2px',
+          borderRadius: '50%',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         }}
       />
+
+      {/* Enhanced Output Handle - Bottom */}
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="bottom"
+        className={`w-6 h-6 !bg-white border-3 border-slate-300 shadow-lg hover:border-indigo-400 hover:scale-110 transition-all duration-200 ${
+          isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+        }`}
+        onMouseEnter={handleConnectionStart}
+        onMouseLeave={handleConnectionEnd}
+        style={{
+          bottom: '2px',
+          borderRadius: '50%',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        }}
+      />
+
+      {/* Conditional Handles for Decision/Condition Nodes */}
+      {(data.nodeType === 'condition' || data.nodeType === 'decision') && (
+        <>
+          {/* True/Yes Handle - Right */}
+          <Handle
+            type="source"
+            position={Position.Right}
+            id={`${id}-source-true`}
+            className={`w-5 h-5 !bg-green-500 border-2 border-white shadow-lg hover:border-green-300 hover:scale-110 transition-all duration-200 ${
+              isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-75 scale-100'
+            }`}
+            onMouseEnter={handleConnectionStart}
+            onMouseLeave={handleConnectionEnd}
+            style={{
+              right: '2px',
+              top: '30%',
+              boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1)',
+              borderRadius: '50%',
+            }}
+          />
+          
+          {/* False/No Handle - Right */}
+          <Handle
+            type="source"
+            position={Position.Right}
+            id={`${id}-source-false`}
+            className={`w-5 h-5 !bg-red-500 border-2 border-white shadow-lg hover:border-red-300 hover:scale-110 transition-all duration-200 ${
+              isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-75 scale-100'
+            }`}
+            onMouseEnter={handleConnectionStart}
+            onMouseLeave={handleConnectionEnd}
+            style={{
+              right: '2px',
+              top: '70%',
+              boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1)',
+              borderRadius: '50%',
+            }}
+          />
+
+          {/* True/Yes Handle - Bottom */}
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            id={`${id}-source-bottom-true`}
+            className={`w-5 h-5 !bg-green-500 border-2 border-white shadow-lg hover:border-green-300 hover:scale-110 transition-all duration-200 ${
+              isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-75 scale-100'
+            }`}
+            onMouseEnter={handleConnectionStart}
+            onMouseLeave={handleConnectionEnd}
+            style={{
+              bottom: '2px',
+              left: '30%',
+              boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1)',
+              borderRadius: '50%',
+            }}
+          />
+          
+          {/* False/No Handle - Bottom */}
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            id={`${id}-source-bottom-false`}
+            className={`w-5 h-5 !bg-red-500 border-2 border-white shadow-lg hover:border-red-300 hover:scale-110 transition-all duration-200 ${
+              isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-75 scale-100'
+            }`}
+            onMouseEnter={handleConnectionStart}
+            onMouseLeave={handleConnectionEnd}
+            style={{
+              bottom: '2px',
+              left: '70%',
+              boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1)',
+              borderRadius: '50%',
+            }}
+          />
+
+          {/* Conditional Labels */}
+          <div className={`absolute right-8 top-1/4 transform -translate-y-1/2 text-xs font-medium text-green-600 bg-white px-1 rounded shadow-sm transition-all duration-200 ${
+            isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+          }`}>
+            Yes
+          </div>
+          <div className={`absolute right-8 top-3/4 transform -translate-y-1/2 text-xs font-medium text-red-600 bg-white px-1 rounded shadow-sm transition-all duration-200 ${
+            isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+          }`}>
+            No
+          </div>
+
+          <div className={`absolute bottom-8 left-1/4 transform -translate-x-1/2 text-xs font-medium text-green-600 bg-white px-1 rounded shadow-sm transition-all duration-200 ${
+            isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+          }`}>
+            Yes
+          </div>
+          <div className={`absolute bottom-8 left-3/4 transform -translate-x-1/2 text-xs font-medium text-red-600 bg-white px-1 rounded shadow-sm transition-all duration-200 ${
+            isHovered || isConnecting || selected ? 'opacity-90 scale-100' : 'opacity-70 scale-100'
+          }`}>
+            No
+          </div>
+        </>
+      )}
     </div>
   );
 });
 
 WorkflowNode.displayName = 'WorkflowNode';
+
+export default WorkflowNode;
