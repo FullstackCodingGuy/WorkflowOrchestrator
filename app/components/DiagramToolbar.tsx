@@ -28,6 +28,7 @@ import { EnhancedExportShareMenu } from './EnhancedExportShareMenu';
 import { ExportOptions } from './ExportManager';
 import { COMMON_TOOLBAR_SETTINGS } from '../config/appConfig';
 import { CommonSettingsSection } from './CommonSettingsSection';
+import { Tooltip } from './Tooltip';
 
 interface DiagramToolbarProps {
   onAddNode: () => void;
@@ -137,41 +138,45 @@ export function DiagramToolbar({
           />
           <div className="w-px h-5 bg-border mx-1" />
 
-          <button
-            onClick={onLoad}
-            className="btn btn-xs btn-outline"
-            title="Open Workflow (Ctrl+O)"
-          >
-            <IconFolderOpen size={16} />
-          </button>
+          <Tooltip content="Open Workflow (Ctrl+O)" position="bottom">
+            <button
+              onClick={onLoad}
+              className="btn btn-xs btn-outline"
+            >
+              <IconFolderOpen size={16} />
+            </button>
+          </Tooltip>
 
-          <button
-            onClick={onSave}
-            className="btn btn-xs btn-outline"
-            title="Save Workflow (Ctrl+S)"
-          >
-            <IconDeviceFloppy size={16} />
-          </button>
-
-          <div className="w-px h-5 bg-border mx-1" />
-
-          <button
-            onClick={onAddNode}
-            className="btn btn-xs btn-outline"
-            title="Add Node (Ctrl+N)"
-          >
-            <IconPlus size={16} />
-          </button>
+          <Tooltip content="Save Workflow (Ctrl+S)" position="bottom">
+            <button
+              onClick={onSave}
+              className="btn btn-xs btn-outline"
+            >
+              <IconDeviceFloppy size={16} />
+            </button>
+          </Tooltip>
 
           <div className="w-px h-5 bg-border mx-1" />
 
-          <button
-            onClick={onFitView}
-            className="btn btn-xs btn-outline"
-            title="Fit View (Ctrl+F)"
-          >
-            <IconFocus2 size={16} />
-          </button>
+          <Tooltip content="Add Node (Ctrl+N)" position="bottom">
+            <button
+              onClick={onAddNode}
+              className="btn btn-xs btn-outline"
+            >
+              <IconPlus size={16} />
+            </button>
+          </Tooltip>
+
+          <div className="w-px h-5 bg-border mx-1" />
+
+          <Tooltip content="Fit View (Ctrl+F)" position="bottom">
+            <button
+              onClick={onFitView}
+              className="btn btn-xs btn-outline"
+            >
+              <IconFocus2 size={16} />
+            </button>
+          </Tooltip>
 
         </div>
 
@@ -179,67 +184,73 @@ export function DiagramToolbar({
         <div className="flex-1 flex justify-center">
           {showWorkflowControls && (
             <div className="flex items-center space-x-1 bg-card border border-border rounded-lg px-2 py-1">
-              <button
-                onClick={onPlayWorkflow}
-                disabled={workflowState === 'playing'}
-                className={`btn btn-xs ${workflowState === 'playing' ? 'btn-success' : 'btn-outline'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                title="Play Workflow"
-              >
-                {workflowState === 'playing' ? (
-                  <IconRefresh size={14} className="animate-spin" />
-                ) : (
-                  <IconPlayerPlay size={14} />
-                )}
-              </button>
+              <Tooltip content="Play Workflow" position="bottom">
+                <button
+                  onClick={onPlayWorkflow}
+                  disabled={workflowState === 'playing'}
+                  className={`btn btn-xs ${workflowState === 'playing' ? 'btn-success' : 'btn-outline'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {workflowState === 'playing' ? (
+                    <IconRefresh size={14} className="animate-spin" />
+                  ) : (
+                    <IconPlayerPlay size={14} />
+                  )}
+                </button>
+              </Tooltip>
 
-              <button
-                onClick={onPauseWorkflow}
-                disabled={workflowState !== 'playing'}
-                className={`btn btn-xs ${workflowState === 'paused' ? 'btn-warning' : 'btn-outline'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                title="Pause Workflow"
-              >
-                <IconPlayerPause size={14} />
-              </button>
+              <Tooltip content="Pause Workflow" position="bottom">
+                <button
+                  onClick={onPauseWorkflow}
+                  disabled={workflowState !== 'playing'}
+                  className={`btn btn-xs ${workflowState === 'paused' ? 'btn-warning' : 'btn-outline'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  <IconPlayerPause size={14} />
+                </button>
+              </Tooltip>
 
-              <button
-                onClick={onRestartWorkflow}
-                className="btn btn-xs btn-outline"
-                title="Restart Workflow"
-              >
-                <IconRefresh size={14} />
-              </button>
+              <Tooltip content="Restart Workflow" position="bottom">
+                <button
+                  onClick={onRestartWorkflow}
+                  className="btn btn-xs btn-outline"
+                >
+                  <IconRefresh size={14} />
+                </button>
+              </Tooltip>
 
-              <button
-                onClick={onDebugWorkflow}
-                className={`btn btn-xs ${workflowState === 'debugging' ? 'btn-accent' : 'btn-outline'
-                  }`}
-                title="Debug Workflow"
-              >
-                <IconBug size={14} />
-              </button>
+              <Tooltip content="Debug Workflow" position="bottom">
+                <button
+                  onClick={onDebugWorkflow}
+                  className={`btn btn-xs ${workflowState === 'debugging' ? 'btn-accent' : 'btn-outline'
+                    }`}
+                >
+                  <IconBug size={14} />
+                </button>
+              </Tooltip>
             </div>
           )}
         </div>
 
         {/* Right Section - Always Visible Presentation & Export Actions */}
         <div className="flex items-center space-x-1.5">
-          <button
-            onClick={onOpenPresentationView}
-            className="btn btn-xs btn-primary"
-            title="Open Presentation View (Ctrl+P)"
-          >
-            <IconPresentation size={16} />
-          </button>
-          <div className="relative">
+          <Tooltip content="Open Presentation View (Ctrl+P)" position="bottom">
             <button
-              onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
-              className="btn btn-xs btn-outline"
-              title="Export & Share"
+              onClick={onOpenPresentationView}
+              className="btn btn-xs btn-primary"
             >
-              <IconDotsVertical size={16} />
+              <IconPresentation size={16} />
             </button>
+          </Tooltip>
+          <div className="relative">
+            <Tooltip content="Export & Share" position="bottom">
+              <button
+                onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
+                className="btn btn-xs btn-outline"
+              >
+                <IconDotsVertical size={16} />
+              </button>
+            </Tooltip>
             {isExportMenuOpen && (
               <EnhancedExportShareMenu
                 onExportSVG={onExportSVG}
@@ -261,96 +272,106 @@ export function DiagramToolbar({
         {/* Left Section - Left Sidebar Toggle + Background & Animation Controls */}
         <div className="flex items-center space-x-2">
           {/* Left Sidebar Toggle */}
-          <button
-            onClick={onToggleLeftSidebar}
-            className={`btn btn-xs ${showLeftSidebar
-                ? 'btn-primary'
-                : 'btn-outline'
-              }`}
-            title={`${showLeftSidebar ? 'Hide' : 'Show'} left sidebar`}
-          >
-            <IconLayoutSidebar size={12} />
-          </button>
+          <Tooltip content={`${showLeftSidebar ? 'Hide' : 'Show'} left sidebar`} position="top">
+            <button
+              onClick={onToggleLeftSidebar}
+              className={`btn btn-xs ${showLeftSidebar
+                  ? 'btn-primary'
+                  : 'btn-outline'
+                }`}
+            >
+              <IconLayoutSidebar size={12} />
+            </button>
+          </Tooltip>
 
           <div className="w-px h-4 bg-border" />          {/* Background Variant Buttons */}
           <div className="flex items-center bg-card border border-border rounded-sm overflow-hidden">
-            <button
-              onClick={() => onBackgroundVariantChange(BackgroundVariant.Dots)}
-              className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${backgroundVariant === BackgroundVariant.Dots ? 'bg-neutral-200' : ''
-                }`}
-              title="Dots Background"
-            >
-              <IconGridDots size={12} />
-            </button>
-            <button
-              onClick={() => onBackgroundVariantChange(BackgroundVariant.Lines)}
-              className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${backgroundVariant === BackgroundVariant.Lines ? 'bg-neutral-200' : ''
-                }`}
-              title="Grid Background"
-            >
-              <IconGrid3x3 size={12} />
-            </button>
-            <button
-              onClick={() => onBackgroundVariantChange(BackgroundVariant.Cross)}
-              className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${backgroundVariant === BackgroundVariant.Cross ? 'bg-neutral-200' : ''
-                }`}
-              title="No Background (Transparent)"
-            >
-              <IconSquare size={12} />
-            </button>
+            <Tooltip content="Dots Background" position="top">
+              <button
+                onClick={() => onBackgroundVariantChange(BackgroundVariant.Dots)}
+                className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${backgroundVariant === BackgroundVariant.Dots ? 'bg-neutral-200' : ''
+                  }`}
+              >
+                <IconGridDots size={12} />
+              </button>
+            </Tooltip>
+            <Tooltip content="Grid Background" position="top">
+              <button
+                onClick={() => onBackgroundVariantChange(BackgroundVariant.Lines)}
+                className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${backgroundVariant === BackgroundVariant.Lines ? 'bg-neutral-200' : ''
+                  }`}
+              >
+                <IconGrid3x3 size={12} />
+              </button>
+            </Tooltip>
+            <Tooltip content="No Background (Transparent)" position="top">
+              <button
+                onClick={() => onBackgroundVariantChange(BackgroundVariant.Cross)}
+                className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${backgroundVariant === BackgroundVariant.Cross ? 'bg-neutral-200' : ''
+                  }`}
+              >
+                <IconSquare size={12} />
+              </button>
+            </Tooltip>
           </div>
           <div className="w-px h-4 bg-border" />
 
           {/* Smart Arrange Controls */}
           <div className="flex items-center bg-card border border-border rounded-sm overflow-hidden">
-            <button
-              onClick={() => onApplySmartLayout('hierarchical')}
-              className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
-              title="Hierarchical Layout - Top-down flow"
-            >
-              <IconHierarchy size={12} />
-            </button>
-            <button
-              onClick={() => onApplySmartLayout('circular')}
-              className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
-              title="Circular Layout - Nodes in circle"
-            >
-              <IconCircle size={12} />
-            </button>
-            <button
-              onClick={() => onApplySmartLayout('force')}
-              className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
-              title="Force Layout - Organic arrangement"
-            >
-              <IconNetwork size={12} />
-            </button>
-            <button
-              onClick={() => onApplySmartLayout('grid')}
-              className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
-              title="Grid Layout - Organized grid"
-            >
-              <IconLayoutGrid size={12} />
-            </button>
+            <Tooltip content="Hierarchical Layout - Top-down flow" position="top">
+              <button
+                onClick={() => onApplySmartLayout('hierarchical')}
+                className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
+              >
+                <IconHierarchy size={12} />
+              </button>
+            </Tooltip>
+            <Tooltip content="Circular Layout - Nodes in circle" position="top">
+              <button
+                onClick={() => onApplySmartLayout('circular')}
+                className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
+              >
+                <IconCircle size={12} />
+              </button>
+            </Tooltip>
+            <Tooltip content="Force Layout - Organic arrangement" position="top">
+              <button
+                onClick={() => onApplySmartLayout('force')}
+                className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
+              >
+                <IconNetwork size={12} />
+              </button>
+            </Tooltip>
+            <Tooltip content="Grid Layout - Organized grid" position="top">
+              <button
+                onClick={() => onApplySmartLayout('grid')}
+                className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
+              >
+                <IconLayoutGrid size={12} />
+              </button>
+            </Tooltip>
           </div>
 
           <div className="w-px h-4 bg-border" />
 
           {/* Traditional Layout Controls */}
           <div className="flex items-center bg-card border border-border rounded-sm overflow-hidden">
-            <button
-              onClick={() => onApplyLayout('TB')}
-              className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
-              title="Vertical Layout - Top to Bottom"
-            >
-              <IconLayoutColumns size={12} />
-            </button>
-            <button
-              onClick={() => onApplyLayout('LR')}
-              className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
-              title="Horizontal Layout - Left to Right"
-            >
-              <IconWand size={12} />
-            </button>
+            <Tooltip content="Vertical Layout - Top to Bottom" position="top">
+              <button
+                onClick={() => onApplyLayout('TB')}
+                className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
+              >
+                <IconLayoutColumns size={12} />
+              </button>
+            </Tooltip>
+            <Tooltip content="Horizontal Layout - Left to Right" position="top">
+              <button
+                onClick={() => onApplyLayout('LR')}
+                className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
+              >
+                <IconWand size={12} />
+              </button>
+            </Tooltip>
           </div>
           
         </div>
@@ -373,27 +394,29 @@ export function DiagramToolbar({
           <div className="w-px h-4 bg-border" />
 
           {/* Right Sidebar Toggle */}
-          <button
-            onClick={onToggleRightSidebar}
-            className={`btn btn-xs ${showRightSidebar
-                ? 'btn-primary'
-                : 'btn-outline'
-              }`}
-            title={`${showRightSidebar ? 'Hide' : 'Show'} right sidebar`}
-          >
-            <IconLayoutSidebar size={12} />
-          </button>
+          <Tooltip content={`${showRightSidebar ? 'Hide' : 'Show'} right sidebar`} position="top">
+            <button
+              onClick={onToggleRightSidebar}
+              className={`btn btn-xs ${showRightSidebar
+                  ? 'btn-primary'
+                  : 'btn-outline'
+                }`}
+            >
+              <IconLayoutSidebar size={12} />
+            </button>
+          </Tooltip>
 
           <div className="w-px h-4 bg-border" />
 
           {/* Keyboard Shortcuts Help */}
-          <button
-            onClick={onShowKeyboardShortcuts}
-            className="btn btn-xs btn-ghost text-muted hover:text-foreground"
-            title="Show Keyboard Shortcuts (?)"
-          >
-            <IconKeyboard size={12} />
-          </button>
+          <Tooltip content="Show Keyboard Shortcuts (?)" position="top">
+            <button
+              onClick={onShowKeyboardShortcuts}
+              className="btn btn-xs btn-ghost text-muted hover:text-foreground"
+            >
+              <IconKeyboard size={12} />
+            </button>
+          </Tooltip>
         </div>
       </div>
     </div>
