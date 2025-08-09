@@ -15,7 +15,13 @@ import {
   IconGridDots,
   IconGrid3x3,
   IconSquare,
-  IconKeyboard
+  IconKeyboard,
+  IconWand,
+  IconHierarchy,
+  IconCircle,
+  IconNetwork,
+  IconLayoutGrid,
+  IconLayoutColumns
 } from '@tabler/icons-react';
 import { MegaFileMenu } from './MegaFileMenu';
 import { EnhancedExportShareMenu } from './EnhancedExportShareMenu';
@@ -70,6 +76,10 @@ interface DiagramToolbarProps {
   onShareToClipboard: () => Promise<void>;
   onGenerateSocialMediaLinks: () => { twitter: string; linkedin: string; facebook: string; email: string };
   onExportWorkflowData: () => void;
+  
+  // Smart arrange handlers
+  onApplyLayout: (direction: "TB" | "LR") => void;
+  onApplySmartLayout: (layoutType: "hierarchical" | "circular" | "force" | "grid") => void;
 }
 
 export function DiagramToolbar({
@@ -108,6 +118,8 @@ export function DiagramToolbar({
   onShareToClipboard,
   onGenerateSocialMediaLinks,
   onExportWorkflowData,
+  onApplyLayout,
+  onApplySmartLayout,
 }: DiagramToolbarProps) {
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
 
@@ -285,6 +297,59 @@ export function DiagramToolbar({
               title="No Background (Transparent)"
             >
               <IconSquare size={12} />
+            </button>
+          </div>
+          <div className="w-px h-4 bg-border" />
+
+          {/* Smart Arrange Controls */}
+          <div className="flex items-center bg-card border border-border rounded-sm overflow-hidden">
+            <button
+              onClick={() => onApplySmartLayout('hierarchical')}
+              className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
+              title="Hierarchical Layout - Top-down flow"
+            >
+              <IconHierarchy size={12} />
+            </button>
+            <button
+              onClick={() => onApplySmartLayout('circular')}
+              className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
+              title="Circular Layout - Nodes in circle"
+            >
+              <IconCircle size={12} />
+            </button>
+            <button
+              onClick={() => onApplySmartLayout('force')}
+              className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
+              title="Force Layout - Organic arrangement"
+            >
+              <IconNetwork size={12} />
+            </button>
+            <button
+              onClick={() => onApplySmartLayout('grid')}
+              className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
+              title="Grid Layout - Organized grid"
+            >
+              <IconLayoutGrid size={12} />
+            </button>
+          </div>
+
+          <div className="w-px h-4 bg-border" />
+
+          {/* Traditional Layout Controls */}
+          <div className="flex items-center bg-card border border-border rounded-sm overflow-hidden">
+            <button
+              onClick={() => onApplyLayout('TB')}
+              className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
+              title="Vertical Layout - Top to Bottom"
+            >
+              <IconLayoutColumns size={12} />
+            </button>
+            <button
+              onClick={() => onApplyLayout('LR')}
+              className="btn btn-xs btn-ghost border-0 rounded-none px-1.5"
+              title="Horizontal Layout - Left to Right"
+            >
+              <IconWand size={12} />
             </button>
           </div>
           

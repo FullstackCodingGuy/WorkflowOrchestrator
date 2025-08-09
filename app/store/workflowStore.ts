@@ -44,6 +44,7 @@ export interface WorkflowState {
   exportWorkflow: () => { nodes: Node[]; edges: Edge[] };
   toggleEdgeAnimation: () => void;
   applyLayout: (direction: "TB" | "LR") => void;
+  applySmartLayout: (layoutType: "hierarchical" | "circular" | "force" | "grid") => void;
   saveWorkflowToLocalStorage: () => void;
   loadWorkflowFromLocalStorage: () => boolean;
   // Actions for NodeToolbar
@@ -195,6 +196,208 @@ const getLayoutedElements = (
   return { nodes: layoutedNodes, edges };
 };
 
+// Smart layout algorithms for better node arrangement
+const getSmartLayoutElements = (
+  nodes: Node[],
+  edges: Edge[],
+  layoutType: "hierarchical" | "circular" | "force" | "grid"
+) => {
+  let layoutedNodes: Node[] = [];
+
+  const { nodeSeparation, rankSeparation } = calculateOptimalSpacing(nodes.length);
+  const canvasWidth = Math.max(1200, nodes.length * 200);
+  const canvasHeight = Math.max(800, nodes.length * 150);
+
+  switch (layoutType) {
+    case "hierarchical": {
+      // Enhanced hierarchical layout using Dagre with better spacing
+      dagreGraph.setGraph({ 
+        rankdir: "TB", 
+        nodesep: nodeSeparation * 1.2, 
+        ranksep: rankSeparation * 1.5,
+        marginx: NODE_DIMENSIONS.layoutMargin,
+        marginy: NODE_DIMENSIONS.layoutMargin,
+        ranker: 'tight-tree'
+      });
+
+      nodes.forEach((node) => {
+        let nodeWidth = node.width || NODE_DIMENSIONS.defaultWidth;
+        let nodeHeight = node.height || NODE_DIMENSIONS.defaultHeight;
+        
+        if (node.type === 'condition') {
+          nodeHeight = NODE_DIMENSIONS.conditionHeight;
+        } else if (node.type === 'start' || node.type === 'end') {
+          nodeHeight = NODE_DIMENSIONS.startEndHeight;
+        }
+        
+        if (node.data.label && node.data.label.length > 20) {
+          nodeWidth = NODE_DIMENSIONS.wideWidth;
+        }
+        
+        dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+      });
+
+      edges.forEach((edge) => {
+        dagreGraph.setEdge(edge.source, edge.target, { weight: 2 });
+      });
+
+      dagre.layout(dagreGraph);
+
+      layoutedNodes = nodes.map((node) => {
+        const nodeWithPosition = dagreGraph.node(node.id);
+        const nodeWidth = node.width || NODE_DIMENSIONS.defaultWidth;
+        const nodeHeight = node.height || NODE_DIMENSIONS.defaultHeight;
+        
+        return {
+          ...node,
+          targetPosition: Position.Top,
+          sourcePosition: Position.Bottom,
+          position: {
+            x: nodeWithPosition.x - nodeWidth / 2,
+            y: nodeWithPosition.y - nodeHeight / 2,
+          },
+          width: nodeWidth,
+          height: nodeHeight,
+        };
+      });
+      break;
+    }
+
+    case "circular": {
+      // Circular arrangement - great for understanding connections
+      const centerX = canvasWidth / 2;
+      const centerY = canvasHeight / 2;
+      const radius = Math.min(canvasWidth, canvasHeight) / 3;
+      
+      layoutedNodes = nodes.map((node, index) => {
+        const angle = (2 * Math.PI * index) / nodes.length;
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        
+        return {
+          ...node,
+          targetPosition: Position.Top,
+          sourcePosition: Position.Bottom,
+          position: {
+            x: x - (node.width || NODE_DIMENSIONS.defaultWidth) / 2,
+            y: y - (node.height || NODE_DIMENSIONS.defaultHeight) / 2,
+          },
+          width: node.width || NODE_DIMENSIONS.defaultWidth,
+          height: node.height || NODE_DIMENSIONS.defaultHeight,
+        };
+      });
+      break;
+    }
+
+    case "force": {
+      // Force-directed layout simulation for organic arrangement
+      const centerX = canvasWidth / 2;
+      const centerY = canvasHeight / 2;
+      
+      // Create a simple force simulation
+      const positions = nodes.map(() => ({
+        x: centerX + (Math.random() - 0.5) * 400,
+        y: centerY + (Math.random() - 0.5) * 400,
+        vx: 0,
+        vy: 0
+      }));
+
+      // Run simulation iterations
+      for (let iteration = 0; iteration < 100; iteration++) {
+        // Repulsive forces between nodes
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const dx = positions[i].x - positions[j].x;
+            const dy = positions[i].y - positions[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+            const force = Math.min(500, 2000 / (distance * distance));
+            
+            const fx = (dx / distance) * force;
+            const fy = (dy / distance) * force;
+            
+            positions[i].vx += fx * 0.1;
+            positions[i].vy += fy * 0.1;
+            positions[j].vx -= fx * 0.1;
+            positions[j].vy -= fy * 0.1;
+          }
+        }
+
+        // Attractive forces for connected nodes
+        edges.forEach(edge => {
+          const sourceIndex = nodes.findIndex(n => n.id === edge.source);
+          const targetIndex = nodes.findIndex(n => n.id === edge.target);
+          
+          if (sourceIndex !== -1 && targetIndex !== -1) {
+            const dx = positions[targetIndex].x - positions[sourceIndex].x;
+            const dy = positions[targetIndex].y - positions[sourceIndex].y;
+            const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+            const force = distance * 0.01;
+            
+            const fx = (dx / distance) * force;
+            const fy = (dy / distance) * force;
+            
+            positions[sourceIndex].vx += fx;
+            positions[sourceIndex].vy += fy;
+            positions[targetIndex].vx -= fx;
+            positions[targetIndex].vy -= fy;
+          }
+        });
+
+        // Apply velocities and damping
+        positions.forEach(pos => {
+          pos.x += pos.vx;
+          pos.y += pos.vy;
+          pos.vx *= 0.8;
+          pos.vy *= 0.8;
+        });
+      }
+
+      layoutedNodes = nodes.map((node, index) => ({
+        ...node,
+        targetPosition: Position.Top,
+        sourcePosition: Position.Bottom,
+        position: {
+          x: Math.max(50, Math.min(canvasWidth - 200, positions[index].x - (node.width || NODE_DIMENSIONS.defaultWidth) / 2)),
+          y: Math.max(50, Math.min(canvasHeight - 150, positions[index].y - (node.height || NODE_DIMENSIONS.defaultHeight) / 2)),
+        },
+        width: node.width || NODE_DIMENSIONS.defaultWidth,
+        height: node.height || NODE_DIMENSIONS.defaultHeight,
+      }));
+      break;
+    }
+
+    case "grid": {
+      // Grid layout - clean and organized
+      const cols = Math.ceil(Math.sqrt(nodes.length));
+      const cellWidth = (canvasWidth - 100) / cols;
+      const cellHeight = (canvasHeight - 100) / Math.ceil(nodes.length / cols);
+      
+      layoutedNodes = nodes.map((node, index) => {
+        const col = index % cols;
+        const row = Math.floor(index / cols);
+        
+        return {
+          ...node,
+          targetPosition: Position.Top,
+          sourcePosition: Position.Bottom,
+          position: {
+            x: 50 + col * cellWidth + cellWidth / 2 - (node.width || NODE_DIMENSIONS.defaultWidth) / 2,
+            y: 50 + row * cellHeight + cellHeight / 2 - (node.height || NODE_DIMENSIONS.defaultHeight) / 2,
+          },
+          width: node.width || NODE_DIMENSIONS.defaultWidth,
+          height: node.height || NODE_DIMENSIONS.defaultHeight,
+        };
+      });
+      break;
+    }
+
+    default:
+      layoutedNodes = nodes;
+  }
+
+  return { nodes: layoutedNodes, edges };
+};
+
 const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
   nodes: [
     {
@@ -310,6 +513,24 @@ const workflowStateCreator: StateCreator<WorkflowState> = (set, get) => ({
         type: isMessageFlowing ? "dotFlow" : undefined, // Keep dotFlow if active
       })),
       shouldAutoZoom: true, // Trigger auto-zoom after layout
+    });
+  },
+
+  applySmartLayout: (layoutType: "hierarchical" | "circular" | "force" | "grid") => {
+    const { nodes, edges, isMessageFlowing } = get();
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getSmartLayoutElements(
+      nodes,
+      edges,
+      layoutType
+    );
+    set({
+      nodes: layoutedNodes,
+      edges: layoutedEdges.map((edge) => ({
+        ...edge,
+        animated: get().areEdgesAnimated && !isMessageFlowing,
+        type: isMessageFlowing ? "dotFlow" : undefined,
+      })),
+      shouldAutoZoom: true,
     });
   },
 

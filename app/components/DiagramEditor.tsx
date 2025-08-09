@@ -256,7 +256,13 @@ const defaultEdgeOptions = {
 
 export default function DiagramEditor() {
   // Workflow store for diagram type management
-  const { currentDiagramType, getDefaultNodeTypeForDiagram, setDiagramType } = useWorkflowStore();
+  const { 
+    currentDiagramType, 
+    getDefaultNodeTypeForDiagram, 
+    setDiagramType,
+    applyLayout,
+    applySmartLayout 
+  } = useWorkflowStore();
   
   // State management
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -474,6 +480,51 @@ export default function DiagramEditor() {
     setSelectedNode(null);
     setPropertyPanelOpen(false);
   }, [setNodes, setEdges]);
+
+  // Layout handlers using workflow store
+  const handleApplyLayout = useCallback((direction: "TB" | "LR") => {
+    // Update the store with current nodes and edges first
+    const store = useWorkflowStore.getState();
+    store.setNodes(nodes);
+    store.setEdges(edges);
+    
+    // Apply layout
+    applyLayout(direction);
+    
+    // Get updated layout from store
+    const updatedState = useWorkflowStore.getState();
+    setNodes(updatedState.nodes);
+    setEdges(updatedState.edges);
+    
+    // Auto-fit view after layout
+    setTimeout(() => {
+      if (reactFlowInstance) {
+        reactFlowInstance.fitView({ padding: 0.1, duration: 800 });
+      }
+    }, 100);
+  }, [nodes, edges, applyLayout, setNodes, setEdges, reactFlowInstance]);
+
+  const handleApplySmartLayout = useCallback((layoutType: "hierarchical" | "circular" | "force" | "grid") => {
+    // Update the store with current nodes and edges first
+    const store = useWorkflowStore.getState();
+    store.setNodes(nodes);
+    store.setEdges(edges);
+    
+    // Apply smart layout
+    applySmartLayout(layoutType);
+    
+    // Get updated layout from store
+    const updatedState = useWorkflowStore.getState();
+    setNodes(updatedState.nodes);
+    setEdges(updatedState.edges);
+    
+    // Auto-fit view after layout
+    setTimeout(() => {
+      if (reactFlowInstance) {
+        reactFlowInstance.fitView({ padding: 0.1, duration: 800 });
+      }
+    }, 100);
+  }, [nodes, edges, applySmartLayout, setNodes, setEdges, reactFlowInstance]);
 
   // Create new workflow (same as clear but with confirmation)
   const newWorkflow = useCallback(() => {
@@ -1268,9 +1319,6 @@ export default function DiagramEditor() {
         onRestartWorkflow={handleRestartWorkflow}
         onDebugWorkflow={handleDebugWorkflow}
         workflowState={workflowState}
-        showAnimationControls={true} // Always show animation controls
-        isAnimationEnabled={isAnimationEnabled}
-        onAnimationToggle={handleAnimationToggle}
         showLeftSidebar={leftPanelOpen}
         onToggleLeftSidebar={() => setLeftPanelOpen(!leftPanelOpen)}
         showRightSidebar={false}
@@ -1290,6 +1338,8 @@ export default function DiagramEditor() {
         onShareToClipboard={shareToClipboard}
         onGenerateSocialMediaLinks={generateSocialMediaLinks}
         onExportWorkflowData={exportWorkflowData}
+        onApplyLayout={handleApplyLayout}
+        onApplySmartLayout={handleApplySmartLayout}
       />
 
       {/* Main Editor Area */}
