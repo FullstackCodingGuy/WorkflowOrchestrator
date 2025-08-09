@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
+import { IconFile } from '@tabler/icons-react';
 
 interface DiagramTemplate {
   id: string;
@@ -143,18 +143,13 @@ export function MegaFileMenu({
 
   const trigger = (
     <button className={`
-      px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 
-      border border-gray-200 rounded-sm transition-all duration-150 
-      flex items-center space-x-2 min-w-[80px] justify-center
-      shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
+      btn btn-xs btn-outline
       ${isOpen ? 'bg-blue-50 border-blue-300 text-blue-700' : ''}
       ${className}
-    `}>
-      <span>File</span>
-      <svg className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
-           fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-      </svg>
+    `}
+    title="File Menu"
+    >
+      <IconFile size={16} />
     </button>
   );
 
