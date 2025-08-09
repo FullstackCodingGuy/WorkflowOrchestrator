@@ -3,25 +3,16 @@
 import React from 'react';
 import { Node, Edge } from 'reactflow';
 import { DiagramNodeData, DiagramEdgeData } from '../../DiagramEditor';
-import { ValidationError } from '../hooks/usePropertyForm';
-import { DeviceType } from '../PropertyPanel';
+import { PropertyPanelState } from '../PropertyPanel';
 import { EdgeValuesInput } from '../controls/EdgeValuesInput';
 import { KeyValueInput } from '../controls/KeyValueInput';
+import { NumberInput } from '../controls/NumberInput';
 import styles from '../PropertyPanel.module.css';
 
 interface PropertiesTabProps {
-  selectedItems: (Node<DiagramNodeData> | Edge<DiagramEdgeData>)[];
-  formData: Record<string, unknown>;
-  errors: Record<string, ValidationError | undefined>;
-  isDirty: boolean;
-  isCompactMode: boolean;
-  deviceType: DeviceType;
-  bulkEditMode: boolean;
-  searchQuery: string;
-  onFieldUpdate: (field: string, value: unknown) => void;
-  onApplyChanges: () => void;
-  onPreviewChanges: () => void;
-  onResetForm: () => void;
+  state: PropertyPanelState;
+  onItemUpdate: (itemId: string, updates: Record<string, unknown>) => void;
+  onNodePositionUpdate: (nodeId: string, position: { x: number; y: number }) => void;
 }
 
 // Custom Tag Configuration Control
@@ -84,15 +75,13 @@ const TagInput: React.FC<{
 };
 
 export const PropertiesTab: React.FC<PropertiesTabProps> = ({
-  selectedItems,
-  formData,
-  errors,
-  onFieldUpdate,
+  state,
+  onItemUpdate,
+  onNodePositionUpdate,
 }) => {
+  const { selectedItems } = state;
   const hasSelection = selectedItems.length > 0;
-  const isNode = hasSelection && !('source' in selectedItems[0]);
-  const isEdge = hasSelection && ('source' in selectedItems[0]);
-
+  
   if (!hasSelection) {
     return (
       <div className={`${styles.tabContent} ${styles.propertiesTab} ${styles.emptyStateContainer}`}>
@@ -113,11 +102,28 @@ export const PropertiesTab: React.FC<PropertiesTabProps> = ({
     );
   }
 
+  const item = selectedItems[0];
+  const isNode = 'position' in item;
+  const isEdge = 'source' in item;
+  const data = item.data as DiagramNodeData | DiagramEdgeData;
+
+  const handleFieldUpdate = (field: string, value: unknown) => {
+    onItemUpdate(item.id, { [field]: value });
+  };
+
+  const handlePositionChange = (axis: 'x' | 'y', value: number) => {
+    if (isNode) {
+      const node = item as Node<DiagramNodeData>;
+      const newPosition = { ...node.position, [axis]: value };
+      onNodePositionUpdate(node.id, newPosition);
+    }
+  };
+
   return (
     <div className={`${styles.tabContent} ${styles.propertiesTab} ${styles.scrollablePanel}`}> 
       <div className={styles.sectionHeader}>
-        <span className={styles.sectionType}>{(formData.type as string) || 'Unknown'}</span>
-        <span className={styles.sectionId}>ID: {formData.id as string}</span>
+        <span className={styles.sectionType}>{isNode ? (item as Node).type : 'Edge'}</span>
+        <span className={styles.sectionId}>ID: {item.id}</span>
         {selectedItems.length > 1 && (
           <span className={styles.bulkEditBadge}>Bulk Edit ({selectedItems.length})</span>
         )}
@@ -127,73 +133,53 @@ export const PropertiesTab: React.FC<PropertiesTabProps> = ({
         <input
           type="text"
           className={styles.formInput}
-          value={(formData.label as string) || ''}
-          onChange={(e) => onFieldUpdate('label', e.target.value)}
+          value={data.label || ''}
+          onChange={(e) => handleFieldUpdate('label', e.target.value)}
           placeholder={`Enter ${isNode ? 'node' : 'edge'} label`}
         />
-        {errors.label && (
-          <span className={styles.errorMessage}>{errors.label.message}</span>
-        )}
       </div>
       <div className={styles.formGroup}>
         <label className={styles.formLabel}>Description</label>
         <textarea
           className={styles.formTextarea}
-          value={(formData.description as string) || ''}
-          onChange={(e) => onFieldUpdate('description', e.target.value)}
+          value={data.description || ''}
+          onChange={(e) => handleFieldUpdate('description', e.target.value)}
           placeholder={`Describe this ${isNode ? 'node' : 'edge'}...`}
           rows={3}
         />
-        {errors.description && (
-          <span className={styles.errorMessage}>{errors.description.message}</span>
-        )}
       </div>
       {isNode && (
-        <div className={styles.formGroup}>
-          <label className={styles.formLabel}>Icon</label>
-          <input
-            type="text"
-            className={styles.formInput}
-            value={(formData.icon as string) || ''}
-            onChange={(e) => onFieldUpdate('icon', e.target.value)}
-            placeholder="🚀"
-            maxLength={2}
-          />
-          <span className={styles.helpText}>Emoji or single character</span>
-        </div>
-      )}
-      {isNode && (
         <>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Icon</label>
+            <input
+              type="text"
+              className={styles.formInput}
+              value={(data as DiagramNodeData).icon || ''}
+              onChange={(e) => handleFieldUpdate('icon', e.target.value)}
+              placeholder="🚀"
+              maxLength={2}
+            />
+            <span className={styles.helpText}>Emoji or single character</span>
+          </div>
           <div className={styles.inlineFields}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>X</label>
-              <input
-                type="number"
-                className={styles.formInput}
-                value={(formData.positionX as number) || 0}
-                onChange={(e) => onFieldUpdate('positionX', parseFloat(e.target.value))}
-                step="1"
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Y</label>
-              <input
-                type="number"
-                className={styles.formInput}
-                value={(formData.positionY as number) || 0}
-                onChange={(e) => onFieldUpdate('positionY', parseFloat(e.target.value))}
-                step="1"
-              />
-            </div>
+            <NumberInput
+              label="X"
+              value={(item as Node).position.x}
+              onChange={(value) => handlePositionChange('x', value)}
+              step={1}
+            />
+            <NumberInput
+              label="Y"
+              value={(item as Node).position.y}
+              onChange={(value) => handlePositionChange('y', value)}
+              step={1}
+            />
           </div>
           <KeyValueInput
             label="Custom Properties"
-            properties={
-              typeof formData.properties === 'object' && formData.properties !== null
-                ? (formData.properties as Record<string, unknown>)
-                : {}
-            }
-            onChange={(properties) => onFieldUpdate('properties', properties)}
+            properties={(data as DiagramNodeData).properties || {}}
+            onChange={(properties) => handleFieldUpdate('properties', properties)}
             placeholder={{ key: 'Property name...', value: 'Property value...' }}
           />
         </>
@@ -201,18 +187,18 @@ export const PropertiesTab: React.FC<PropertiesTabProps> = ({
       {isEdge && (
         <>
           <div className={styles.connectionInfoRow}>
-            <div className={styles.connectionItem}><span>Source:</span> <span>{String(formData.source)}</span></div>
-            <div className={styles.connectionItem}><span>Target:</span> <span>{String(formData.target)}</span></div>
+            <div className={styles.connectionItem}><span>Source:</span> <span>{String((item as Edge).source)}</span></div>
+            <div className={styles.connectionItem}><span>Target:</span> <span>{String((item as Edge).target)}</span></div>
           </div>
           <EdgeValuesInput
             label="Custom Values"
-            values={Array.isArray(formData.values) ? (formData.values as string[]) : []}
-            onChange={(vals) => onFieldUpdate('values', vals)}
+            values={(data as DiagramEdgeData).values || []}
+            onChange={(vals) => handleFieldUpdate('values', vals)}
             placeholder="Add value for edge..."
           />
           <TagInput
-            tags={Array.isArray(formData.tags) ? (formData.tags as string[]) : []}
-            onChange={(tags) => onFieldUpdate('tags', tags)}
+            tags={(data as DiagramEdgeData).tags || []}
+            onChange={(tags) => handleFieldUpdate('tags', tags)}
             placeholder="Add tag for edge..."
           />
         </>

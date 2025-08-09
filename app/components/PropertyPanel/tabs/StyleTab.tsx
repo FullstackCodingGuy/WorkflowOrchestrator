@@ -1,36 +1,49 @@
 'use client';
 
 import React from 'react';
-import { Node, Edge } from 'reactflow';
 import { DiagramNodeData, DiagramEdgeData } from '../../DiagramEditor';
-import { ValidationError } from '../hooks/usePropertyForm';
-import { DeviceType } from '../PropertyPanel';
+import { PropertyPanelState } from '../PropertyPanel';
 import { ColorPicker } from '../controls/ColorPicker';
+import { NumberInput } from '../controls/NumberInput';
 import styles from '../PropertyPanel.module.css';
 
 interface StyleTabProps {
-  selectedItems: (Node<DiagramNodeData> | Edge<DiagramEdgeData>)[];
-  formData: Record<string, unknown>;
-  errors: Record<string, ValidationError | undefined>;
-  isDirty: boolean;
-  isCompactMode: boolean;
-  deviceType: DeviceType;
-  bulkEditMode: boolean;
-  searchQuery: string;
-  onFieldUpdate: (field: string, value: unknown) => void;
-  onApplyChanges: () => void;
-  onPreviewChanges: () => void;
-  onResetForm: () => void;
+  state: PropertyPanelState;
+  onItemUpdate: (itemId: string, updates: Record<string, unknown>) => void;
 }
 
 export const StyleTab: React.FC<StyleTabProps> = ({
-  selectedItems,
-  formData,
-  errors,
-  onFieldUpdate,
+  state,
+  onItemUpdate,
 }) => {
-  const isNode = selectedItems.length > 0 && !('source' in selectedItems[0]);
-  const isEdge = selectedItems.length > 0 && ('source' in selectedItems[0]);
+  const { selectedItems } = state;
+  const hasSelection = selectedItems.length > 0;
+  const isNode = hasSelection && 'position' in selectedItems[0];
+  const isEdge = hasSelection && 'source' in selectedItems[0];
+  const item = selectedItems[0];
+  const data = item?.data as DiagramNodeData | DiagramEdgeData;
+
+  const handleFieldUpdate = (field: string, value: unknown) => {
+    onItemUpdate(item.id, { [field]: value });
+  };
+
+  if (!hasSelection) {
+    return (
+      <div className={`${styles.tabContent} ${styles.styleTab} ${styles.emptyStateContainer}`}>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyStateIcon}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </div>
+          <h3 className={styles.emptyStateTitle}>No Selection</h3>
+          <p className={styles.emptyStateMessage}>
+            Select a node or edge to view and edit its style properties
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`${styles.tabContent} ${styles.styleTab} ${styles.scrollablePanel}`}> 
@@ -38,9 +51,8 @@ export const StyleTab: React.FC<StyleTabProps> = ({
       <div className={styles.formGroup}>
         <ColorPicker
           label={isEdge ? 'Edge Color' : 'Primary Color'}
-          value={(formData.color as string) || '#6366f1'}
-          onChange={(color: string) => onFieldUpdate('color', color)}
-          error={errors.color?.message}
+          value={(data.color as string) || '#6366f1'}
+          onChange={(color: string) => handleFieldUpdate('color', color)}
         />
       </div>
       {isNode && (
@@ -48,63 +60,49 @@ export const StyleTab: React.FC<StyleTabProps> = ({
           <div className={styles.formGroup}>
             <ColorPicker
               label="Background"
-              value={(formData.backgroundColor as string) || '#f8fafc'}
-              onChange={(color: string) => onFieldUpdate('backgroundColor', color)}
-              error={errors.backgroundColor?.message}
+              value={(data as DiagramNodeData).backgroundColor || '#f8fafc'}
+              onChange={(color: string) => handleFieldUpdate('backgroundColor', color)}
             />
           </div>
           <div className={styles.formGroup}>
             <ColorPicker
               label="Border"
-              value={(formData.borderColor as string) || '#e2e8f0'}
-              onChange={(color: string) => onFieldUpdate('borderColor', color)}
-              error={errors.borderColor?.message}
+              value={(data as DiagramNodeData).borderColor || '#e2e8f0'}
+              onChange={(color: string) => handleFieldUpdate('borderColor', color)}
             />
           </div>
           <div className={styles.formGroup}>
             <ColorPicker
               label="Text Color"
-              value={(formData.textColor as string) || '#334155'}
-              onChange={(color: string) => onFieldUpdate('textColor', color)}
-              error={errors.textColor?.message}
+              value={(data as DiagramNodeData).textColor || '#334155'}
+              onChange={(color: string) => handleFieldUpdate('textColor', color)}
             />
           </div>
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Max Width</label>
-            <input
-              type="number"
-              className={styles.formInput}
-              value={(formData.maxWidth as number) || 200}
-              onChange={(e) => onFieldUpdate('maxWidth', parseInt(e.target.value))}
-              min="50"
-              max="1000"
-              placeholder="Max width in pixels"
-            />
-            {errors.maxWidth && (
-              <span className={styles.errorMessage}>{errors.maxWidth.message}</span>
-            )}
-          </div>
+          <NumberInput
+            label="Max Width"
+            value={(data as DiagramNodeData).maxWidth || 200}
+            onChange={(value) => handleFieldUpdate('maxWidth', value)}
+            min={50}
+            max={1000}
+            unit="px"
+          />
         </>
       )}
       {isEdge && (
         <div className={styles.inlineFields}>
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Width</label>
-            <input
-              type="number"
-              className={styles.formInput}
-              value={(formData.strokeWidth as number) || 2}
-              onChange={(e) => onFieldUpdate('strokeWidth', parseInt(e.target.value))}
-              min="1"
-              max="10"
-            />
-          </div>
+          <NumberInput
+            label="Width"
+            value={(data as DiagramEdgeData).strokeWidth || 2}
+            onChange={(value) => handleFieldUpdate('strokeWidth', value)}
+            min={1}
+            max={10}
+          />
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Style</label>
             <select
               className={styles.formInput}
-              value={(formData.strokeStyle as string) || 'solid'}
-              onChange={(e) => onFieldUpdate('strokeStyle', e.target.value)}
+              value={(data as DiagramEdgeData).strokeStyle || 'solid'}
+              onChange={(e) => handleFieldUpdate('strokeStyle', e.target.value)}
             >
               <option value="solid">Solid</option>
               <option value="dashed">Dashed</option>
@@ -116,39 +114,29 @@ export const StyleTab: React.FC<StyleTabProps> = ({
       
       {/* Typography Controls */}
       <div className={styles.inlineFields}>
-        <div className={styles.formGroup}>
-          <label className={styles.formLabel}>Font Size</label>
-          <input
-            type="number"
-            className={styles.formInput}
-            value={(formData.fontSize as number) || 14}
-            onChange={(e) => onFieldUpdate('fontSize', parseInt(e.target.value))}
-            min="8"
-            max="72"
-          />
-          {errors.fontSize && (
-            <span className={styles.errorMessage}>{errors.fontSize.message}</span>
-          )}
-        </div>
-        <div className={styles.formGroup}>
-          <label className={styles.formLabel}>Line Height</label>
-          <input
-            type="number"
-            className={styles.formInput}
-            value={(formData.lineHeight as number) || 1.5}
-            onChange={(e) => onFieldUpdate('lineHeight', parseFloat(e.target.value))}
-            min="0.8"
-            max="3"
-            step="0.1"
-          />
-        </div>
+        <NumberInput
+          label="Font Size"
+          value={data.fontSize || 14}
+          onChange={(value) => handleFieldUpdate('fontSize', value)}
+          min={8}
+          max={72}
+          unit="px"
+        />
+        <NumberInput
+          label="Line Height"
+          value={(data as DiagramNodeData).lineHeight || 1.5}
+          onChange={(value) => handleFieldUpdate('lineHeight', value)}
+          min={0.8}
+          max={3}
+          step={0.1}
+        />
       </div>
       <div className={styles.formGroup}>
         <label className={styles.formLabel}>Font Family</label>
         <select
           className={styles.formInput}
-          value={(formData.fontFamily as string) || 'Arial, sans-serif'}
-          onChange={(e) => onFieldUpdate('fontFamily', e.target.value)}
+          value={data.fontFamily || 'Arial, sans-serif'}
+          onChange={(e) => handleFieldUpdate('fontFamily', e.target.value)}
         >
           <option value="Arial, sans-serif">Arial</option>
           <option value="'Times New Roman', serif">Times New Roman</option>
@@ -163,8 +151,8 @@ export const StyleTab: React.FC<StyleTabProps> = ({
           <label className={styles.formLabel}>Weight</label>
           <select
             className={styles.formInput}
-            value={(formData.fontWeight as string) || 'normal'}
-            onChange={(e) => onFieldUpdate('fontWeight', e.target.value)}
+            value={data.fontWeight || 'normal'}
+            onChange={(e) => handleFieldUpdate('fontWeight', e.target.value)}
           >
             <option value="normal">Normal</option>
             <option value="bold">Bold</option>
@@ -183,8 +171,8 @@ export const StyleTab: React.FC<StyleTabProps> = ({
           <label className={styles.formLabel}>Align</label>
           <select
             className={styles.formInput}
-            value={(formData.textAlign as string) || 'left'}
-            onChange={(e) => onFieldUpdate('textAlign', e.target.value)}
+            value={data.textAlign || 'left'}
+            onChange={(e) => handleFieldUpdate('textAlign', e.target.value)}
           >
             <option value="left">Left</option>
             <option value="center">Center</option>

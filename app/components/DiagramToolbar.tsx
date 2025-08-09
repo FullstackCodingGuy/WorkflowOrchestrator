@@ -5,10 +5,6 @@ import {
   IconDeviceFloppy, 
   IconPlus, 
   IconFocus2, 
-  IconPlayerPlay, 
-  IconPlayerPause, 
-  IconRefresh, 
-  IconBug, 
   IconPresentation, 
   IconDotsVertical,
   IconLayoutSidebar,
@@ -23,10 +19,8 @@ import {
   IconLayoutGrid,
   IconLayoutColumns
 } from '@tabler/icons-react';
-import { MegaFileMenu } from './MegaFileMenu';
 import { EnhancedExportShareMenu } from './EnhancedExportShareMenu';
 import { ExportOptions } from './ExportManager';
-import { COMMON_TOOLBAR_SETTINGS } from '../config/appConfig';
 import { CommonSettingsSection } from './CommonSettingsSection';
 import { Tooltip } from './Tooltip';
 
@@ -34,21 +28,12 @@ interface DiagramToolbarProps {
   onAddNode: () => void;
   onFitView: () => void;
   onNew: () => void;
-  onNewTemplate: (templateId: string) => void;
   onSave: () => void;
   onLoad: () => void;
   backgroundVariant: BackgroundVariant;
   onBackgroundVariantChange: (variant: BackgroundVariant) => void;
   showMiniMap: boolean;
   onMiniMapToggle: (show: boolean) => void;
-  
-  // Workflow controls
-  showWorkflowControls?: boolean;
-  onPlayWorkflow: () => void;
-  onPauseWorkflow: () => void;
-  onRestartWorkflow: () => void;
-  onDebugWorkflow: () => void;
-  workflowState: 'idle' | 'playing' | 'paused' | 'debugging';
   
   // Sidebar controls
   showLeftSidebar: boolean;
@@ -87,28 +72,21 @@ export function DiagramToolbar({
   onAddNode,
   onFitView,
   onNew,
-  onNewTemplate,
   onSave,
   onLoad,
   backgroundVariant,
   onBackgroundVariantChange,
   showMiniMap,
   onMiniMapToggle,
-  showWorkflowControls = false,
-  onPlayWorkflow,
-  onPauseWorkflow,
-  onRestartWorkflow,
-  onDebugWorkflow,
-  workflowState,
   showLeftSidebar,
   onToggleLeftSidebar,
   showRightSidebar,
   onToggleRightSidebar,
-  snapToGrid = COMMON_TOOLBAR_SETTINGS.snapToGrid.defaultValue,
+  snapToGrid = false,
   onSnapToGridToggle,
-  gridSize = COMMON_TOOLBAR_SETTINGS.gridSize.defaultValue,
+  gridSize = 20,
   onGridSizeChange,
-  showControls = COMMON_TOOLBAR_SETTINGS.showControls.defaultValue,
+  showControls = true,
   onShowControlsToggle,
   onOpenPresentationView,
   onShowKeyboardShortcuts,
@@ -130,15 +108,17 @@ export function DiagramToolbar({
       <div id="main-toolbar" className="h-12 bg-header border-b border-border flex items-center px-3 shadow-soft">
         {/* Left Section - File Menu + Main Actions */}
         <div className="flex items-center space-x-1.5">
-          <MegaFileMenu
-            onNew={onNew}
-            onNewTemplate={onNewTemplate}
-            onLoad={onLoad}
-            onSave={onSave}
-          />
+          <Tooltip content="New Diagram (Ctrl+Shift+N)" position="bottom">
+            <button
+              onClick={onNew}
+              className="btn btn-xs btn-outline"
+            >
+              <IconPlus size={16} />
+            </button>
+          </Tooltip>
           <div className="w-px h-5 bg-border mx-1" />
 
-          <Tooltip content="Open Workflow (Ctrl+O)" position="bottom">
+          <Tooltip content="Open Diagram (Ctrl+O)" position="bottom">
             <button
               onClick={onLoad}
               className="btn btn-xs btn-outline"
@@ -147,7 +127,7 @@ export function DiagramToolbar({
             </button>
           </Tooltip>
 
-          <Tooltip content="Save Workflow (Ctrl+S)" position="bottom">
+          <Tooltip content="Save Diagram (Ctrl+S)" position="bottom">
             <button
               onClick={onSave}
               className="btn btn-xs btn-outline"
@@ -180,56 +160,8 @@ export function DiagramToolbar({
 
         </div>
 
-        {/* Center Section - Conditional Workflow Controls */}
+        {/* Center Section - Empty */}
         <div className="flex-1 flex justify-center">
-          {showWorkflowControls && (
-            <div className="flex items-center space-x-1 bg-card border border-border rounded-lg px-2 py-1">
-              <Tooltip content="Play Workflow" position="bottom">
-                <button
-                  onClick={onPlayWorkflow}
-                  disabled={workflowState === 'playing'}
-                  className={`btn btn-xs ${workflowState === 'playing' ? 'btn-success' : 'btn-outline'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  {workflowState === 'playing' ? (
-                    <IconRefresh size={14} className="animate-spin" />
-                  ) : (
-                    <IconPlayerPlay size={14} />
-                  )}
-                </button>
-              </Tooltip>
-
-              <Tooltip content="Pause Workflow" position="bottom">
-                <button
-                  onClick={onPauseWorkflow}
-                  disabled={workflowState !== 'playing'}
-                  className={`btn btn-xs ${workflowState === 'paused' ? 'btn-warning' : 'btn-outline'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  <IconPlayerPause size={14} />
-                </button>
-              </Tooltip>
-
-              <Tooltip content="Restart Workflow" position="bottom">
-                <button
-                  onClick={onRestartWorkflow}
-                  className="btn btn-xs btn-outline"
-                >
-                  <IconRefresh size={14} />
-                </button>
-              </Tooltip>
-
-              <Tooltip content="Debug Workflow" position="bottom">
-                <button
-                  onClick={onDebugWorkflow}
-                  className={`btn btn-xs ${workflowState === 'debugging' ? 'btn-accent' : 'btn-outline'
-                    }`}
-                >
-                  <IconBug size={14} />
-                </button>
-              </Tooltip>
-            </div>
-          )}
         </div>
 
         {/* Right Section - Always Visible Presentation & Export Actions */}

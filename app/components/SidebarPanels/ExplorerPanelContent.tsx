@@ -1,78 +1,114 @@
-import React from 'react';
-import { DiagramNode, DiagramEdge } from '../DiagramEditor';
+import React, { useState } from 'react';
+import { Node, Edge } from 'reactflow';
+import { IconChevronRight, IconPlus, IconTrash, IconFile, IconLink } from '@tabler/icons-react';
 
 interface ExplorerPanelProps {
-  nodes: DiagramNode[];
-  edges: DiagramEdge[];
-  selectedNode: DiagramNode | null;
-  onNodeSelect: (node: DiagramNode) => void;
+  nodes: Node[];
+  edges: Edge[];
+  selectedNode: Node | null;
+  onNodeSelect: (node: Node) => void;
   onNodeDelete: (nodeId: string) => void;
   onAddNode: () => void;
 }
 
-export function ExplorerPanel({ 
-  nodes, 
-  selectedNode, 
-  onNodeSelect, 
-  onNodeDelete, 
-  onAddNode 
+export function ExplorerPanel({
+  nodes,
+  edges,
+  selectedNode,
+  onNodeSelect,
+  onNodeDelete,
+  onAddNode,
 }: ExplorerPanelProps) {
-  return (
-    <div className="space-y-4">
-      {/* Add Node Button */}
-      <button
-        onClick={onAddNode}
-        className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-      >
-        <span>➕</span>
-        <span className="text-sm font-medium">Add Node</span>
-      </button>
+  const [isNodesOpen, setIsNodesOpen] = useState(true);
+  const [isEdgesOpen, setIsEdgesOpen] = useState(false);
 
-      {/* Nodes List */}
-      <div className="space-y-1">
-        {nodes.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <div className="text-3xl mb-2">📄</div>
-            <div className="text-sm">No nodes in diagram</div>
-          </div>
-        ) : (
-          nodes.map((node) => (
-            <div
-              key={node.id}
-              className={`
-                flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors
-                ${selectedNode?.id === node.id 
-                  ? 'bg-blue-100 border-l-4 border-blue-500' 
-                  : 'hover:bg-gray-100'
-                }
-              `}
-              onClick={() => onNodeSelect(node)}
-            >
-              <div className="flex items-center space-x-2 flex-1 min-w-0">
-                <span className="text-sm">{node.data.icon || '📋'}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 truncate">
-                    {node.data.label}
+  return (
+    <div className="p-2 text-sm">
+      <div className="mb-2">
+        <button
+          onClick={onAddNode}
+          className="w-full btn btn-sm btn-primary"
+        >
+          <IconPlus size={16} className="mr-1" />
+          Add New Node
+        </button>
+      </div>
+      
+      {/* Nodes Section */}
+      <div>
+        <button
+          onClick={() => setIsNodesOpen(!isNodesOpen)}
+          className="w-full flex items-center justify-between text-left font-semibold py-1"
+        >
+          <span>Nodes ({nodes.length})</span>
+          <IconChevronRight
+            size={16}
+            className={`transform transition-transform ${isNodesOpen ? 'rotate-90' : ''}`}
+          />
+        </button>
+        {isNodesOpen && (
+          <div className="pl-2 border-l border-border ml-2">
+            {nodes.length > 0 ? (
+              nodes.map((node) => (
+                <div
+                  key={node.id}
+                  onClick={() => onNodeSelect(node)}
+                  className={`flex items-center justify-between p-1 rounded cursor-pointer ${
+                    selectedNode?.id === node.id
+                      ? 'bg-primary text-primary-foreground'
+                      : 'hover:bg-muted'
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <IconFile size={14} className="mr-2" />
+                    <span>{node.data.label || 'Untitled Node'}</span>
                   </div>
-                  <div className="text-xs text-gray-500 truncate">
-                    {node.id}
-                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onNodeDelete(node.id);
+                    }}
+                    className="btn btn-xs btn-ghost text-muted hover:text-destructive"
+                  >
+                    <IconTrash size={14} />
+                  </button>
                 </div>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onNodeDelete(node.id);
-                }}
-                className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                title="Delete node"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            </div>
-          ))
+              ))
+            ) : (
+              <p className="text-muted text-xs p-1">No nodes yet.</p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Edges Section */}
+      <div className="mt-2">
+        <button
+          onClick={() => setIsEdgesOpen(!isEdgesOpen)}
+          className="w-full flex items-center justify-between text-left font-semibold py-1"
+        >
+          <span>Edges ({edges.length})</span>
+          <IconChevronRight
+            size={16}
+            className={`transform transition-transform ${isEdgesOpen ? 'rotate-90' : ''}`}
+          />
+        </button>
+        {isEdgesOpen && (
+          <div className="pl-2 border-l border-border ml-2">
+            {edges.length > 0 ? (
+              edges.map((edge) => (
+                <div
+                  key={edge.id}
+                  className="flex items-center p-1"
+                >
+                  <IconLink size={14} className="mr-2" />
+                  <span>{edge.id}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-muted text-xs p-1">No edges yet.</p>
+            )}
+          </div>
         )}
       </div>
     </div>
@@ -80,80 +116,29 @@ export function ExplorerPanel({
 }
 
 interface OutlinePanelProps {
-  nodes: DiagramNode[];
-  edges: DiagramEdge[];
-  onNodeSelect: (node: DiagramNode) => void;
+  nodes: Node[];
+  edges: Edge[];
+  onNodeSelect: (node: Node) => void;
   onFitView: () => void;
 }
 
-export function OutlinePanel({ nodes, edges, onNodeSelect, onFitView }: OutlinePanelProps) {
-  const nodesByType = nodes.reduce((acc, node) => {
-    const type = node.type || 'default';
-    if (!acc[type]) acc[type] = [];
-    acc[type].push(node);
-    return acc;
-  }, {} as Record<string, DiagramNode[]>);
-
+export function OutlinePanel({ nodes, onNodeSelect, onFitView }: OutlinePanelProps) {
   return (
-    <div className="space-y-4">
-      {/* Fit View Button */}
-      <button
-        onClick={onFitView}
-        className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-      >
-        <span>🎯</span>
-        <span className="text-sm font-medium">Fit View</span>
+    <div className="p-2 text-sm">
+      <button onClick={onFitView} className="w-full btn btn-sm btn-outline mb-2">
+        Fit View
       </button>
-
-      {/* Nodes by Type */}
-      <div className="space-y-3">
-        {Object.entries(nodesByType).map(([type, typeNodes]) => (
-          <div key={type} className="space-y-1">
-            <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-              {type} ({typeNodes.length})
-            </div>
-            {typeNodes.map((node) => (
-              <button
-                key={node.id}
-                onClick={() => onNodeSelect(node)}
-                className="w-full flex items-center space-x-2 p-1 text-left rounded hover:bg-gray-100 transition-colors"
-              >
-                <span className="text-xs">{node.data.icon || '📋'}</span>
-                <span className="text-xs text-gray-700 truncate flex-1">
-                  {node.data.label}
-                </span>
-              </button>
-            ))}
-          </div>
+      <ul className="space-y-1">
+        {nodes.map((node) => (
+          <li
+            key={node.id}
+            onClick={() => onNodeSelect(node)}
+            className="p-1 rounded cursor-pointer hover:bg-muted"
+          >
+            {node.data.label || 'Untitled Node'}
+          </li>
         ))}
-      </div>
-
-      {/* Statistics */}
-      <div className="pt-3 border-t border-gray-200">
-        <div className="text-xs text-gray-600 space-y-1">
-          <div className="flex justify-between">
-            <span>Nodes:</span>
-            <span className="font-medium">{nodes.length}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Edges:</span>
-            <span className="font-medium">{edges.length}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Types:</span>
-            <span className="font-medium">{Object.keys(nodesByType).length}</span>
-          </div>
-        </div>
-      </div>
+      </ul>
     </div>
   );
 }
-
-interface FileExplorerProps {
-  onSave: () => void;
-  onLoad: () => void;
-  onClear: () => void;
-  onExport?: () => void;
-}
-
-// FileExplorer removed from sidebar and recent files section removed. Component kept for possible future use.

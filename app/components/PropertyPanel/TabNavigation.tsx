@@ -3,6 +3,7 @@
 import React from 'react';
 import { TabType, SelectionType, DeviceType } from './PropertyPanel';
 import styles from './PropertyPanel.module.css';
+import { SettingsIcon, CogIcon, VisualEditorIcon, MenuIcon } from '../Icons';
 
 interface TabNavigationProps {
   activeTab: TabType;
@@ -22,13 +23,15 @@ interface TabConfig {
 
 const TAB_CONFIGS: TabConfig[] = [
   {
+    id: 'overview',
+    label: 'Overview',
+    icon: <MenuIcon />,
+    showForSelection: ['single', 'multiple'],
+  },
+  {
     id: 'properties',
     label: 'Properties',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
-      </svg>
-    ),
+    icon: <SettingsIcon />,
     showForSelection: ['single', 'multiple'],
   },
   {
@@ -40,6 +43,19 @@ const TAB_CONFIGS: TabConfig[] = [
       </svg>
     ),
     showForSelection: ['single', 'multiple'],
+  },
+  {
+    id: 'advanced',
+    label: 'Advanced',
+    icon: <CogIcon />,
+    showForSelection: ['single', 'multiple'],
+  },
+  {
+    id: 'diagram',
+    label: 'Diagram',
+    icon: <VisualEditorIcon />,
+    showForSelection: ['none'],
+    alwaysShow: true,
   },
 ];
 
@@ -66,7 +82,6 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
       ${styles[deviceType]}
     `}>
       {deviceType === 'mobile' ? (
-        // Mobile: Horizontal scrollable tabs
         <div className={styles.mobileTabContainer}>
           {visibleTabs.map((tab) => (
             <button
@@ -88,7 +103,6 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
           ))}
         </div>
       ) : (
-        // Desktop/Tablet: Standard tabs
         <div className={styles.tabContainer} role="tablist">
           {visibleTabs.map((tab) => (
             <button
@@ -107,7 +121,6 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
                 <span className={styles.tabLabel}>{tab.label}</span>
               )}
               
-              {/* Active indicator */}
               {activeTab === tab.id && (
                 <span className={styles.activeIndicator} />
               )}

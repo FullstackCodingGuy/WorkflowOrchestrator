@@ -154,3 +154,9 @@ export const StopIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" />
   </svg>
 );
+
+export const CompressIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 9V4.5M9 9H4.5M9 9l7.5-7.5M15 15v4.5M15 15h4.5M15 15l-7.5 7.5" />
+  </svg>
+);

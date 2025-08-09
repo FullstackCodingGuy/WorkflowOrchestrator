@@ -1,5 +1,4 @@
 import React from 'react';
-import { COMMON_TOOLBAR_SETTINGS } from '../config/appConfig';
 
 // Reusable Common Settings Section Component
 export interface CommonSettingsSectionProps {
@@ -41,23 +40,23 @@ export function CommonSettingsSection({
           checked={snapToGrid}
           onChange={(e) => onSnapToGridToggle(e.target.checked)}
           className={`checkbox ${inputSize}`}
-          title={COMMON_TOOLBAR_SETTINGS.snapToGrid.tooltip}
+          title="Snap nodes to grid when dragging"
         />
-        <span>{COMMON_TOOLBAR_SETTINGS.snapToGrid.label}</span>
+        <span>Snap to Grid</span>
       </label>
 
       {/* Grid Size */}
       <div className={`flex items-center space-x-1 ${textSize} text-muted`}>
-        <label>{COMMON_TOOLBAR_SETTINGS.gridSize.label}:</label>
+        <label>Grid:</label>
         <input
           type="number"
           value={gridSize}
           onChange={(e) => onGridSizeChange(parseInt(e.target.value))}
           className={`${numberInputSize} px-1 py-0.5 ${textSize} border border-border rounded bg-background text-foreground`}
-          min={COMMON_TOOLBAR_SETTINGS.gridSize.min}
-          max={COMMON_TOOLBAR_SETTINGS.gridSize.max}
-          step={COMMON_TOOLBAR_SETTINGS.gridSize.step}
-          title={COMMON_TOOLBAR_SETTINGS.gridSize.tooltip}
+          min={10}
+          max={100}
+          step={5}
+          title="Grid size in pixels"
         />
       </div>
 
@@ -68,9 +67,9 @@ export function CommonSettingsSection({
           checked={showControls}
           onChange={(e) => onShowControlsToggle(e.target.checked)}
           className={`checkbox ${inputSize}`}
-          title={COMMON_TOOLBAR_SETTINGS.showControls.tooltip}
+          title="Show ReactFlow controls panel"
         />
-        <span>{COMMON_TOOLBAR_SETTINGS.showControls.label}</span>
+        <span>Show Controls</span>
       </label>
 
       <div className="w-px h-4 bg-border" />
@@ -82,26 +81,14 @@ export function CommonSettingsSection({
           checked={showMiniMap}
           onChange={(e) => onMiniMapToggle(e.target.checked)}
           className={`checkbox ${inputSize}`}
-          title={COMMON_TOOLBAR_SETTINGS.showMiniMap.tooltip}
+          title="Show the minimap navigation"
         />
         <svg className={`${inputSize} flex-shrink-0`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-        <span>{COMMON_TOOLBAR_SETTINGS.showMiniMap.label}</span>
+        <span>Show MiniMap</span>
       </label>
     </div>
   );
-}
-
-/**
- * Hook to provide default settings values based on global defaults
- */
-export function useCommonSettings() {
-  return {
-    snapToGrid: COMMON_TOOLBAR_SETTINGS.snapToGrid.defaultValue,
-    gridSize: COMMON_TOOLBAR_SETTINGS.gridSize.defaultValue,
-    showControls: COMMON_TOOLBAR_SETTINGS.showControls.defaultValue,
-    showMiniMap: COMMON_TOOLBAR_SETTINGS.showMiniMap.defaultValue,
-  };
 }

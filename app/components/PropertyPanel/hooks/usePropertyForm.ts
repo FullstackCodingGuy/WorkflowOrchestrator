@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Node, Edge } from 'reactflow';
 import { DiagramNodeData, DiagramEdgeData } from '../../DiagramEditor';
-import { getNodeTypeStyles } from '../../../config/appConfig';
+import { DEFAULT_NODE_STYLES } from '../../../config/appConfig';
 
 interface ValidationError {
   field: string;
@@ -71,7 +71,7 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate, onNodePositionUpd
       newData.type = item.type;
       
       // Enhanced color and typography extraction with centralized defaults
-      const defaultStyles = getNodeTypeStyles('custom');
+      const defaultStyles = DEFAULT_NODE_STYLES;
       newData.color = newData.color || defaultStyles.color;
       newData.backgroundColor = newData.backgroundColor || defaultStyles.backgroundColor;
       newData.borderColor = newData.borderColor || defaultStyles.borderColor;
@@ -145,6 +145,86 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate, onNodePositionUpd
       errors: {},
     }));
   }, [selectedItems]);
+
+  // Helper function to validate color
+  const isValidColor = (color: string): boolean => {
+    // Check hex colors
+    if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color)) {
+      return true;
+    }
+    
+    // Check rgb/rgba colors
+    if (/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+)?\s*\)$/.test(color)) {
+      return true;
+    }
+    
+    // Check named colors (basic check)
+    const namedColors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'black', 'white', 'gray', 'grey'];
+    return namedColors.includes(color.toLowerCase());
+  };
+
+  // Validate a single field
+  const validateField = useCallback((field: string, value: unknown) => {
+    const errors: ValidationError[] = [];
+
+    // Required field validation
+    if (field.includes('label') && (!value || (typeof value === 'string' && value.trim() === ''))) {
+      errors.push({
+        field,
+        message: 'Label is required',
+        type: 'required',
+      });
+    }
+
+    // Numeric validation
+    if (field.includes('width') || field.includes('height') || field === 'maxWidth' || field === 'fontSize' || field === 'lineHeight') {
+      const numValue = typeof value === 'string' ? parseFloat(value) : value;
+      if (value !== undefined && value !== '' && (typeof numValue !== 'number' || isNaN(numValue) || numValue < 0)) {
+        errors.push({
+          field,
+          message: field === 'maxWidth' ? 'Max width must be a positive number' : 'Must be a positive number',
+          type: 'range',
+        });
+      }
+    }
+
+    // Position validation
+    if (field === 'positionX' || field === 'positionY') {
+      const numValue = typeof value === 'string' ? parseFloat(value) : value;
+      if (value !== undefined && value !== '' && (typeof numValue !== 'number' || isNaN(numValue))) {
+        errors.push({
+          field,
+          message: 'Position must be a valid number',
+          type: 'invalid',
+        });
+      }
+    }
+
+    // Color validation
+    if (field.includes('color') || field.includes('Color')) {
+      if (value && typeof value === 'string' && !isValidColor(value)) {
+        errors.push({
+          field,
+          message: 'Invalid color format',
+          type: 'invalid',
+        });
+      }
+    }
+
+    setFormState(prev => {
+      const newErrors = { ...prev.errors };
+      if (errors.length > 0) {
+        newErrors[field] = errors[0];
+      } else {
+        delete newErrors[field];
+      }
+      
+      return {
+        ...prev,
+        errors: newErrors,
+      };
+    });
+  }, []);
 
   // Update a single field with enhanced auto-sync
   const updateField = useCallback((field: string, value: unknown) => {
@@ -249,87 +329,7 @@ export const usePropertyForm = ({ selectedItems, onItemUpdate, onNodePositionUpd
       // Also run validation
       validateField(field, value);
     }, syncDelay);
-  }, [selectedItems, onItemUpdate]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Validate a single field
-  const validateField = useCallback((field: string, value: unknown) => {
-    const errors: ValidationError[] = [];
-
-    // Required field validation
-    if (field.includes('label') && (!value || (typeof value === 'string' && value.trim() === ''))) {
-      errors.push({
-        field,
-        message: 'Label is required',
-        type: 'required',
-      });
-    }
-
-    // Numeric validation
-    if (field.includes('width') || field.includes('height') || field === 'maxWidth' || field === 'fontSize' || field === 'lineHeight') {
-      const numValue = typeof value === 'string' ? parseFloat(value) : value;
-      if (value !== undefined && value !== '' && (typeof numValue !== 'number' || isNaN(numValue) || numValue < 0)) {
-        errors.push({
-          field,
-          message: field === 'maxWidth' ? 'Max width must be a positive number' : 'Must be a positive number',
-          type: 'range',
-        });
-      }
-    }
-
-    // Position validation
-    if (field === 'positionX' || field === 'positionY') {
-      const numValue = typeof value === 'string' ? parseFloat(value) : value;
-      if (value !== undefined && value !== '' && (typeof numValue !== 'number' || isNaN(numValue))) {
-        errors.push({
-          field,
-          message: 'Position must be a valid number',
-          type: 'invalid',
-        });
-      }
-    }
-
-    // Color validation
-    if (field.includes('color') || field.includes('Color')) {
-      if (value && typeof value === 'string' && !isValidColor(value)) {
-        errors.push({
-          field,
-          message: 'Invalid color format',
-          type: 'invalid',
-        });
-      }
-    }
-
-    setFormState(prev => {
-      const newErrors = { ...prev.errors };
-      if (errors.length > 0) {
-        newErrors[field] = errors[0];
-      } else {
-        delete newErrors[field];
-      }
-      
-      return {
-        ...prev,
-        errors: newErrors,
-      };
-    });
-  }, []);
-
-  // Helper function to validate color
-  const isValidColor = (color: string): boolean => {
-    // Check hex colors
-    if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color)) {
-      return true;
-    }
-    
-    // Check rgb/rgba colors
-    if (/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+)?\s*\)$/.test(color)) {
-      return true;
-    }
-    
-    // Check named colors (basic check)
-    const namedColors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'black', 'white', 'gray', 'grey'];
-    return namedColors.includes(color.toLowerCase());
-  };
+  }, [selectedItems, onItemUpdate, onNodePositionUpdate, validateField]);
 
   // Apply changes to selected items with enhanced batching
   const applyChanges = useCallback(() => {

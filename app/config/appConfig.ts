@@ -1,103 +1,8 @@
 // Application-wide configuration and constants
 
 // ============================================================================
-// DIAGRAM TYPE CONFIGURATION
+// CENTRALIZED DEFAULT STYLES CONFIGURATION
 // ============================================================================
-
-export const DIAGRAM_TYPES = {
-  INTERACTIVE_FLOW: 'Interactive Flow Diagram',
-  ANIMATED_WORKFLOW: 'Animated Workflow Diagram',
-  PROCESS_FLOW: 'Process Flow Diagram',
-  DECISION_TREE: 'Decision Tree Diagram',
-} as const;
-
-export type DiagramType = typeof DIAGRAM_TYPES[keyof typeof DIAGRAM_TYPES];
-
-/**
- * Default diagram type when creating new workflows
- */
-export const DEFAULT_DIAGRAM_TYPE: DiagramType = DIAGRAM_TYPES.INTERACTIVE_FLOW;
-
-/**
- * Node types available for each diagram type
- */
-export const DIAGRAM_TYPE_NODE_TYPES: Record<DiagramType, string[]> = {
-  [DIAGRAM_TYPES.INTERACTIVE_FLOW]: ['start', 'process', 'decision', 'action', 'end', 'custom'],
-  [DIAGRAM_TYPES.ANIMATED_WORKFLOW]: ['start', 'process', 'condition', 'action', 'end', 'custom'],
-  [DIAGRAM_TYPES.PROCESS_FLOW]: ['start', 'process', 'decision', 'end', 'custom'],
-  [DIAGRAM_TYPES.DECISION_TREE]: ['start', 'decision', 'condition', 'end', 'custom'],
-};
-
-/**
- * Default node type when adding new nodes for each diagram type
- */
-export const DIAGRAM_TYPE_DEFAULT_NODE: Record<DiagramType, string> = {
-  [DIAGRAM_TYPES.INTERACTIVE_FLOW]: 'process',
-  [DIAGRAM_TYPES.ANIMATED_WORKFLOW]: 'action',
-  [DIAGRAM_TYPES.PROCESS_FLOW]: 'process',
-  [DIAGRAM_TYPES.DECISION_TREE]: 'decision',
-};
-
-/**
- * Toolbar controls configuration for each diagram type
- */
-export const DIAGRAM_TYPE_CONTROLS: Record<DiagramType, {
-  showWorkflowControls: boolean;
-  showAnimationControls: boolean;
-  defaultAnimationEnabled: boolean;
-}> = {
-  [DIAGRAM_TYPES.INTERACTIVE_FLOW]: {
-    showWorkflowControls: false,
-    showAnimationControls: false,
-    defaultAnimationEnabled: false,
-  },
-  [DIAGRAM_TYPES.ANIMATED_WORKFLOW]: {
-    showWorkflowControls: true,
-    showAnimationControls: true,
-    defaultAnimationEnabled: true,
-  },
-  [DIAGRAM_TYPES.PROCESS_FLOW]: {
-    showWorkflowControls: false,
-    showAnimationControls: false,
-    defaultAnimationEnabled: false,
-  },
-  [DIAGRAM_TYPES.DECISION_TREE]: {
-    showWorkflowControls: false,
-    showAnimationControls: false,
-    defaultAnimationEnabled: false,
-  },
-};
-
-/**
- * Common toolbar settings section configuration
- */
-export const COMMON_TOOLBAR_SETTINGS = {
-  snapToGrid: {
-    label: 'Snap to Grid',
-    defaultValue: false,
-    tooltip: 'Snap nodes to grid when dragging',
-  },
-  gridSize: {
-    label: 'Grid',
-    defaultValue: 20,
-    min: 10,
-    max: 100,
-    step: 5,
-    tooltip: 'Grid size in pixels',
-  },
-  showControls: {
-    label: 'Show Controls',
-    defaultValue: true,
-    tooltip: 'Show ReactFlow controls panel',
-  },
-  showMiniMap: {
-    label: 'Show MiniMap',
-    defaultValue: true,
-    tooltip: 'Show the minimap navigation',
-  },
-} as const;
-
-// Application-wide configuration and constants
 
 export const APP_COLORS = {
   defaultBg: '#f8fafc',
@@ -135,10 +40,6 @@ export const APP_COLORS = {
     info: '#3b82f6',
   }
 };
-
-// ============================================================================
-// CENTRALIZED DEFAULT STYLES CONFIGURATION
-// ============================================================================
 
 /**
  * Default Node Styles - Single source of truth for all node styling
@@ -179,55 +80,6 @@ export const DEFAULT_NODE_STYLES = {
 };
 
 /**
- * Node Type Specific Style Overrides
- * These extend the DEFAULT_NODE_STYLES for specific node types
- */
-export const NODE_TYPE_STYLES = {
-  start: {
-    backgroundColor: '#f0fdf4', // Light green
-    textColor: '#065f46', // Dark green
-    borderColor: '#bbf7d0',
-    color: '#10b981',
-  },
-  process: {
-    backgroundColor: '#eff6ff', // Light blue
-    textColor: '#1e40af', // Dark blue
-    borderColor: '#bfdbfe',
-    color: '#3b82f6',
-  },
-  action: {
-    backgroundColor: '#ecfeff', // Light cyan
-    textColor: '#155e75', // Dark cyan
-    borderColor: '#a5f3fc',
-    color: '#06b6d4',
-  },
-  condition: {
-    backgroundColor: '#f3e8ff', // Light purple
-    textColor: '#5b21b6', // Dark purple
-    borderColor: '#c4b5fd',
-    color: '#8b5cf6',
-  },
-  decision: {
-    backgroundColor: '#fff7ed', // Light orange
-    textColor: '#9a3412', // Dark orange
-    borderColor: '#fed7aa',
-    color: '#ea580c',
-  },
-  end: {
-    backgroundColor: '#fef2f2', // Light red
-    textColor: '#991b1b', // Dark red
-    borderColor: '#fecaca',
-    color: '#dc2626',
-  },
-  custom: {
-    backgroundColor: '#ffffff', // Pure white
-    textColor: '#1f2937', // Dark gray
-    borderColor: '#d1d5db',
-    color: '#64748b',
-  },
-};
-
-/**
  * Default Edge Styles - Single source of truth for all edge styling
  */
 export const DEFAULT_EDGE_STYLES = {
@@ -259,33 +111,12 @@ export const DEFAULT_EDGE_STYLES = {
   },
 };
 
-/**
- * Utility function to get complete node styles for a specific type
- */
-export const getNodeTypeStyles = (nodeType: keyof typeof NODE_TYPE_STYLES = 'custom') => {
-  return {
-    ...DEFAULT_NODE_STYLES,
-    ...NODE_TYPE_STYLES[nodeType],
-  };
-};
-
-/**
- * Utility function to get complete edge styles with optional overrides
- */
-export const getEdgeStyles = (styleOverrides: Partial<typeof DEFAULT_EDGE_STYLES> = {}) => {
-  return {
-    ...DEFAULT_EDGE_STYLES,
-    ...styleOverrides,
-  };
-};
-
 export const NODE_DIMENSIONS = {
-  defaultWidth: 200, // Increased for better readability
-  defaultHeight: 80, // Increased for better spacing
+  defaultWidth: 200,
+  defaultHeight: 80,
   startEndHeight: 70,
   conditionHeight: 90,
   wideWidth: 250,
-  // Layout spacing configurations
   minNodeSeparation: 140,
   minRankSeparation: 180,
   maxNodeSeparation: 220,
@@ -293,51 +124,10 @@ export const NODE_DIMENSIONS = {
   layoutMargin: 60,
 };
 
-export const ANIMATION = {
-  dotDuration: '2.5s', // Slightly slower for better visibility
-  dotRepeatCount: 'indefinite',
-  dotRadius: 6, // Smaller for cleaner look
-  pulseSpeed: '1.5s',
-};
-
-export const STYLES = {
-  // Enhanced shadows for depth
-  shadows: {
-    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-    md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-  },
-  
-  // Modern border radius
-  borderRadius: {
-    sm: '6px',
-    md: '8px',
-    lg: '12px',
-    xl: '16px',
-  },
-  
-  // Enhanced transitions
-  transitions: {
-    fast: '150ms ease-in-out',
-    normal: '250ms ease-in-out',
-    slow: '400ms ease-in-out',
-  }
-};
-
-export const VIEWPORT = {
-  autoZoomEnabled: true,
-  autoZoomPadding: 0.1, // 10% padding around the workflow
-  autoZoomMaxZoom: 1.2,
-  autoZoomMinZoom: 0.1,
-  autoZoomDuration: 800, // Animation duration in ms
-  fitViewPadding: 50, // Padding in pixels
-};
-
 export const STORAGE_KEYS = {
-  workflow: 'reactflow_workflow',
-  settings: 'workflow_app_settings',
-  panelState: 'workflow_panel_state',
+  diagram: 'uml_diagram_data',
+  settings: 'uml_app_settings',
+  panelState: 'uml_panel_state',
 };
 
 // Add more config as needed

@@ -4,14 +4,14 @@ import React from 'react';
 import styles from '../PropertyPanel.module.css';
 
 interface NumberInputProps {
-  label?: string;
+  label: string;
   value: number;
   onChange: (value: number) => void;
   min?: number;
   max?: number;
   step?: number;
-  disabled?: boolean;
-  placeholder?: string;
+  unit?: string;
+  icon?: React.ReactNode;
 }
 
 export const NumberInput: React.FC<NumberInputProps> = ({
@@ -21,32 +21,32 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   min,
   max,
   step = 1,
-  disabled = false,
-  placeholder = '0',
+  unit,
+  icon,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = parseFloat(e.target.value);
-    if (!isNaN(newValue)) {
-      onChange(newValue);
+    const val = parseFloat(e.target.value);
+    if (!isNaN(val)) {
+      onChange(val);
     }
   };
 
   return (
     <div className={styles.formGroup}>
-      {label && (
-        <label className={styles.formLabel}>{label}</label>
-      )}
-      <input
-        type="number"
-        value={value}
-        onChange={handleChange}
-        min={min}
-        max={max}
-        step={step}
-        disabled={disabled}
-        placeholder={placeholder}
-        className={`${styles.formInput} ${disabled ? styles.disabled : ''}`}
-      />
+      <label className={styles.formLabel}>{label}</label>
+      <div className={styles.inputContainer}>
+        {icon && <div className={styles.inputIcon}>{icon}</div>}
+        <input
+          type="number"
+          className={styles.formInput}
+          value={value}
+          onChange={handleChange}
+          min={min}
+          max={max}
+          step={step}
+        />
+        {unit && <div className={styles.inputUnit}>{unit}</div>}
+      </div>
     </div>
   );
 };

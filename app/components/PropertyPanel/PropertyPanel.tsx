@@ -11,7 +11,7 @@ import { useResponsivePanel } from './hooks/useResponsivePanel';
 import { usePanelPersistence } from './hooks/usePanelPersistence';
 import { DiagramNodeData, DiagramEdgeData } from '../DiagramEditor';
 
-export type TabType = 'properties' | 'style';
+export type TabType = 'overview' | 'properties' | 'style' | 'advanced' | 'diagram';
 export type SelectionType = 'none' | 'single' | 'multiple';
 export type PanelMode = 'sidebar' | 'modal' | 'bottomSheet';
 export type DeviceType = 'mobile' | 'tablet' | 'desktop';
@@ -256,9 +256,9 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
           
           <PropertyForm
             state={panelState}
-            selectedItems={panelState.selectedItems}
+            
             onItemUpdate={handleItemUpdate}
-            onNodePositionUpdate={onNodePositionUpdate}
+            onNodePositionUpdate={onNodePositionUpdate || (() => {})}
             onStateUpdate={handleStateUpdate}
           />
         </>

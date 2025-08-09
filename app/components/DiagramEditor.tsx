@@ -31,10 +31,8 @@ import {
   SidePanel, 
   PanelSection, 
   ExplorerPanel, 
-  OutlinePanel, 
-  TemplateLibraryPanel 
+  OutlinePanel
 } from './SidebarPanels';
-import { WorkflowTemplate, workflowTemplates } from './workflowTemplates';
 import { PresentationView } from './PresentationView';
 import { KeyboardShortcutsHelp } from './KeyboardShortcutsHelp';
 
@@ -42,14 +40,12 @@ import { KeyboardShortcutsHelp } from './KeyboardShortcutsHelp';
 import { nodeTypes, edgeTypes } from './reactFlowConfig';
 
 // Import enhanced configuration
-import { APP_COLORS, getNodeTypeStyles, DIAGRAM_TYPE_CONTROLS } from '../config/appConfig';
+import { APP_COLORS } from '../config/appConfig';
 
 // Import workflow store for diagram type management
 import useWorkflowStore from '../store/workflowStore';
 
 // Types
-export type WorkflowNodeType = 'start' | 'process' | 'decision' | 'condition' | 'action' | 'end' | 'custom';
-
 export interface DiagramNodeData {
   label: string;
   description?: string;
@@ -64,7 +60,6 @@ export interface DiagramNodeData {
   lineHeight?: number;
   maxWidth?: number;
   icon?: string;
-  nodeType?: WorkflowNodeType; // New node type attribute
   properties?: Record<string, unknown>;
   isExecuting?: boolean;
   // Settings properties
@@ -78,6 +73,7 @@ export type DiagramNode = Node<DiagramNodeData>;
 
 export interface DiagramEdgeData {
   label?: string;
+  description?: string;
   animated?: boolean;
   color?: string;
   backgroundColor?: string;
@@ -90,152 +86,17 @@ export interface DiagramEdgeData {
   fontFamily?: string;
   fontWeight?: string;
   textAlign?: 'left' | 'center' | 'right' | 'justify';
+  values?: string[];
+  tags?: string[];
 }
 
 export type DiagramEdge = Edge<DiagramEdgeData>;
 
 // Initial nodes with enhanced default styling
-const initialNodes: DiagramNode[] = [
-  {
-    id: '1',
-    type: 'custom',
-    position: { x: 50, y: 50 }, // Top cliff start
-    data: {
-      label: 'Start Node',
-      // description: 'Begin workflow execution',
-      color: APP_COLORS.nodeTypes.start,
-      backgroundColor: '#f0fdf4', // Light green background
-      borderColor: '#bbf7d0',
-      textColor: '#065f46', // Dark green text
-      fontSize: 16,
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontWeight: '600',
-      textAlign: 'center',
-      lineHeight: 1.4,
-      maxWidth: 220,
-      icon: '🚀',
-      nodeType: 'start',
-      properties: { priority: 'high', trigger: 'manual' }
-    },
-  },
-  {
-    id: '2',
-    type: 'custom',
-    position: { x: 350, y: 250 }, // First step down and right
-    data: {
-      label: 'Process Data',
-      // description: 'Transform and validate input',
-      color: APP_COLORS.nodeTypes.process,
-      backgroundColor: '#eff6ff', // Light blue background
-      borderColor: '#bfdbfe',
-      textColor: '#1e40af', // Dark blue text
-      fontSize: 15,
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontWeight: '500',
-      textAlign: 'center',
-      lineHeight: 1.4,
-      maxWidth: 220,
-      icon: '⚙️',
-      nodeType: 'process',
-      // properties: { duration: '2 minutes', cpu: '0.5 cores', memory: '512MB' }
-    },
-  },
-  {
-    id: '3',
-    type: 'custom',
-    position: { x: 650, y: 450 }, // Second step down and right
-    data: {
-      label: 'Decision Point',
-      // description: 'Evaluate conditions and route',
-      color: APP_COLORS.nodeTypes.decision,
-      backgroundColor: '#fffbeb', // Light amber background
-      borderColor: '#fde68a',
-      textColor: '#92400e', // Dark amber text
-      fontSize: 15,
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontWeight: '500',
-      textAlign: 'center',
-      lineHeight: 1.4,
-      maxWidth: 220,
-      icon: '🔀',
-      nodeType: 'decision',
-      // properties: { condition: 'if x > 10', branches: 2, timeout: '5s' }
-    },
-  },
-  {
-    id: '4',
-    type: 'custom',
-    position: { x: 950, y: 650 }, // Final step down and right
-    data: {
-      label: 'Complete',
-      // description: 'Workflow finished successfully',
-      color: APP_COLORS.nodeTypes.end,
-      backgroundColor: '#fef2f2', // Light red background
-      borderColor: '#fecaca',
-      textColor: '#991b1b', // Dark red text
-      fontSize: 16,
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontWeight: '600',
-      textAlign: 'center',
-      lineHeight: 1.4,
-      maxWidth: 220,
-      icon: '✅',
-      nodeType: 'end',
-      // properties: { result: 'success', notify: 'email', cleanup: true }
-    },
-  },
-];
+const initialNodes: DiagramNode[] = [];
 
 // Initial edges with enhanced modern styling
-const initialEdges: DiagramEdge[] = [
-  {
-    id: '1->2',
-    type: 'workflowEdge',
-    source: '1',
-    target: '2',
-    data: { 
-      label: 'Execute', 
-      animated: false, 
-      color: APP_COLORS.edgeTypes.success,
-      backgroundColor: '#ffffff',
-      strokeWidth: 3,
-      strokeStyle: 'solid',
-      animationSpeed: 'normal',
-      markerEnd: 'arrow',
-      fontSize: 12,
-      fontFamily: 'Arial, sans-serif',
-      fontWeight: 'normal',
-      textAlign: 'center',
-    },
-    markerEnd: { type: MarkerType.ArrowClosed, color: APP_COLORS.edgeTypes.success },
-  },
-  {
-    id: '2->3',
-    type: 'workflowEdge',
-    source: '2',
-    target: '3',
-    data: { 
-      label: 'Evaluate', 
-      animated: false, 
-      color: APP_COLORS.edgeTypes.info,
-      strokeWidth: 3,
-    },
-    markerEnd: { type: MarkerType.ArrowClosed, color: APP_COLORS.edgeTypes.info },
-  },
-  {
-    id: '3->4',
-    type: 'workflowEdge',
-    source: '3',
-    target: '4',
-    data: { 
-      label: 'Finish', 
-      animated: false, 
-      color: APP_COLORS.edgeTypes.success,
-      strokeWidth: 3,
-    },
-    markerEnd: { type: MarkerType.ArrowClosed, color: APP_COLORS.edgeTypes.success },
-  },
-];
+const initialEdges: DiagramEdge[] = [];
 
 // Enhanced connection line style
 const connectionLineStyle = {
@@ -257,9 +118,6 @@ const defaultEdgeOptions = {
 export default function DiagramEditor() {
   // Workflow store for diagram type management
   const { 
-    currentDiagramType, 
-    getDefaultNodeTypeForDiagram, 
-    setDiagramType,
     applyLayout,
     applySmartLayout 
   } = useWorkflowStore();
@@ -275,22 +133,13 @@ export default function DiagramEditor() {
   const handleBackgroundVariantChange = useCallback((variant: BackgroundVariant) => {
     setBackgroundVariant(variant);
   }, []);
-  const [isAnimationEnabled, setIsAnimationEnabled] = useState(() => 
-    DIAGRAM_TYPE_CONTROLS[currentDiagramType].defaultAnimationEnabled
-  );
+  const [isAnimationEnabled] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(true);
 
   // Settings state (moved from property panel)
   const [snapToGrid, setSnapToGrid] = useState(false);
   const [gridSize, setGridSize] = useState(20);
   const [showControls, setShowControls] = useState(true);
-
-  // Workflow state
-  const [workflowState, setWorkflowState] = useState<'idle' | 'playing' | 'paused' | 'debugging'>('idle');
-  const [workflowSequence, setWorkflowSequence] = useState<string[]>([]);
-  const [workflowEndNodes, setWorkflowEndNodes] = useState<string[]>([]);
-  const [workflowStep, setWorkflowStep] = useState(0);
-  const workflowTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Refs
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -361,7 +210,7 @@ export default function DiagramEditor() {
         id: `${params.source}->${params.target}`,
         source: params.source,
         target: params.target,
-        type: isAnimationEnabled ? 'workflowEdge' : 'smoothstep',
+        type: 'smoothstep',
         data: {
           animated: isAnimationEnabled,
           color: APP_COLORS.edgeTypes.default,
@@ -396,39 +245,18 @@ export default function DiagramEditor() {
     (type?: string) => {
       if (!reactFlowInstance) return;
 
-      // Use diagram type to determine default node type if not specified
-      let nodeType: string = 'custom'; // Start with a safe default
-      
-      if (type) {
-        nodeType = type;
-      } else {
-        try {
-          const defaultType = getDefaultNodeTypeForDiagram();
-          if (defaultType && typeof defaultType === 'string') {
-            nodeType = defaultType;
-          }
-        } catch (error) {
-          console.warn('Error getting default node type from diagram configuration:', error);
-        }
-      }
-      
-      // Final safety check
-      if (!nodeType || typeof nodeType !== 'string') {
-        nodeType = 'custom';
-        console.warn('Invalid node type resolved, using "custom" as fallback');
-      }
+      const nodeType = type || 'custom';
       
       // Calculate waterfall position based on existing nodes
       const nodeCount = nodes.length;
-      const stepX = 300; // Horizontal step distance
-      const stepY = 150; // Vertical step distance
-      const startX = 50;  // Starting X position (cliff top)
+      const stepX = 150; // Horizontal step distance
+      const stepY = 100; // Vertical step distance
+      const startX = 50;  // Starting X position
       const startY = 50;  // Starting Y position
       
-      // Create stepped waterfall layout: each new node steps down and right
       const position = {
-        x: startX + (nodeCount * stepX),
-        y: startY + (nodeCount * stepY),
+        x: startX + (nodeCount * stepX) % 800,
+        y: startY + Math.floor((nodeCount * stepX) / 800) * stepY,
       };
 
       const newNode: DiagramNode = {
@@ -436,22 +264,19 @@ export default function DiagramEditor() {
         type: nodeType,
         position,
         data: {
-          label: `New ${nodeType.charAt(0).toUpperCase() + nodeType.slice(1)} ${nodes.length + 1}`,
+          label: `New Node ${nodes.length + 1}`,
           description: 'Click to customize this node',
-          ...getNodeTypeStyles(nodeType as WorkflowNodeType),
-          icon: nodeType === 'start' ? '🚀' : nodeType === 'end' ? '🏁' : nodeType === 'decision' ? '❓' : nodeType === 'action' ? '⚡' : '✨',
-          nodeType: nodeType as WorkflowNodeType,
+          icon: '✨',
           properties: { 
             created: new Date().toISOString(), 
             version: '1.0',
-            diagramType: currentDiagramType,
           },
         },
       };
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [reactFlowInstance, nodes.length, setNodes, getDefaultNodeTypeForDiagram, currentDiagramType]
+    [reactFlowInstance, nodes.length, setNodes]
   );
 
   // Delete selected node
@@ -483,20 +308,16 @@ export default function DiagramEditor() {
 
   // Layout handlers using workflow store
   const handleApplyLayout = useCallback((direction: "TB" | "LR") => {
-    // Update the store with current nodes and edges first
     const store = useWorkflowStore.getState();
     store.setNodes(nodes);
     store.setEdges(edges);
     
-    // Apply layout
     applyLayout(direction);
     
-    // Get updated layout from store
     const updatedState = useWorkflowStore.getState();
     setNodes(updatedState.nodes);
     setEdges(updatedState.edges);
     
-    // Auto-fit view after layout
     setTimeout(() => {
       if (reactFlowInstance) {
         reactFlowInstance.fitView({ padding: 0.1, duration: 800 });
@@ -505,20 +326,16 @@ export default function DiagramEditor() {
   }, [nodes, edges, applyLayout, setNodes, setEdges, reactFlowInstance]);
 
   const handleApplySmartLayout = useCallback((layoutType: "hierarchical" | "circular" | "force" | "grid") => {
-    // Update the store with current nodes and edges first
     const store = useWorkflowStore.getState();
     store.setNodes(nodes);
     store.setEdges(edges);
     
-    // Apply smart layout
     applySmartLayout(layoutType);
     
-    // Get updated layout from store
     const updatedState = useWorkflowStore.getState();
     setNodes(updatedState.nodes);
     setEdges(updatedState.edges);
     
-    // Auto-fit view after layout
     setTimeout(() => {
       if (reactFlowInstance) {
         reactFlowInstance.fitView({ padding: 0.1, duration: 800 });
@@ -529,128 +346,21 @@ export default function DiagramEditor() {
   // Create new workflow (same as clear but with confirmation)
   const newWorkflow = useCallback(() => {
     if (nodes.length > 0 || edges.length > 0) {
-      const confirmed = window.confirm('This will clear the current workflow. Are you sure?');
+      const confirmed = window.confirm('This will clear the current diagram. Are you sure?');
       if (!confirmed) return;
     }
     
-    setNodes([]);
-    setEdges([]);
-    setSelectedNode(null);
-    setPropertyPanelOpen(false);
+    clearDiagram();
     
-    // Show toast notification
     if (window.showToast) {
       window.showToast({
         type: 'success',
-        title: 'New Workflow',
-        message: 'Started a new workflow. Ready to add nodes!',
+        title: 'New Diagram',
+        message: 'Started a new diagram. Ready to add nodes!',
         duration: 3000,
       });
     }
-  }, [nodes.length, edges.length, setNodes, setEdges]);
-
-  // Handle template-based workflow creation
-  const handleNewTemplate = useCallback((templateId: string) => {
-    // Check if current workflow needs to be saved
-    if (nodes.length > 0 || edges.length > 0) {
-      const confirmed = window.confirm('This will replace the current workflow. Are you sure?');
-      if (!confirmed) return;
-    }
-
-    // Create template based on ID
-    let templateNodes: Node[] = [];
-    let templateEdges: Edge[] = [];
-    let templateName = 'New Workflow';
-
-    switch (templateId) {
-      case 'basic-workflow':
-        templateName = 'Basic Workflow';
-        templateNodes = [
-          {
-            id: 'start-1',
-            type: 'start',
-            data: { 
-              label: 'Start Process',
-              nodeType: 'start',
-              ...getNodeTypeStyles('start')
-            },
-            position: { x: 100, y: 50 },
-            width: 120,
-            height: 60,
-          },
-          {
-            id: 'action-1',
-            type: 'action',
-            data: { 
-              label: 'Process Task',
-              nodeType: 'action',
-              ...getNodeTypeStyles('action')
-            },
-            position: { x: 100, y: 150 },
-            width: 120,
-            height: 60,
-          },
-          {
-            id: 'end-1',
-            type: 'end',
-            data: { 
-              label: 'Complete',
-              nodeType: 'end',
-              ...getNodeTypeStyles('end')
-            },
-            position: { x: 100, y: 250 },
-            width: 120,
-            height: 60,
-          },
-        ];
-        templateEdges = [
-          {
-            id: 'e1-2',
-            source: 'start-1',
-            target: 'action-1',
-            type: 'default',
-          },
-          {
-            id: 'e2-3',
-            source: 'action-1',
-            target: 'end-1',
-            type: 'default',
-          },
-        ];
-        break;
-
-      default:
-        // Use existing template if templateId matches a known template
-        const existingTemplate = workflowTemplates.find(t => t.name.toLowerCase().replace(/\s+/g, '-') === templateId);
-        if (existingTemplate) {
-          templateName = existingTemplate.name;
-          templateNodes = existingTemplate.nodes;
-          templateEdges = existingTemplate.edges;
-        }
-        break;
-    }
-
-    // Apply the template
-    setNodes(templateNodes);
-    setEdges(templateEdges);
-    setSelectedNode(null);
-    setPropertyPanelOpen(false);
-
-    // Auto-fit view to show the template
-    setTimeout(() => {
-      fitView();
-    }, 100);
-
-    // Show toast notification
-    if (window.showToast) {
-      window.showToast({
-        type: 'success',
-        title: 'Template Applied',
-        message: `Created "${templateName}" workflow from template`,
-        duration: 3000,
-      });
-    }
-  }, [nodes.length, edges.length, setNodes, setEdges, fitView]);
+  }, [nodes.length, edges.length, clearDiagram]);
 
   // Save diagram to localStorage
   const saveDiagram = useCallback(() => {
@@ -684,7 +394,6 @@ export default function DiagramEditor() {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Handle Escape key for closing modals
       if (event.key === 'Escape') {
         if (keyboardShortcutsOpen) {
           setKeyboardShortcutsOpen(false);
@@ -699,7 +408,6 @@ export default function DiagramEditor() {
         return;
       }
 
-      // Handle ? key for showing shortcuts help
       if (event.key === '?' && !event.ctrlKey && !event.metaKey) {
         event.preventDefault();
         setKeyboardShortcutsOpen(true);
@@ -717,7 +425,6 @@ export default function DiagramEditor() {
             loadDiagram();
             break;
           case 'n':
-            // Check if this is a new workflow (Shift+Ctrl+N) or add node (Ctrl+N)
             if (event.shiftKey) {
               event.preventDefault();
               newWorkflow();
@@ -749,372 +456,6 @@ export default function DiagramEditor() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [saveDiagram, loadDiagram, addNewNode, newWorkflow, fitView, deleteSelectedNode, selectedNode, showMiniMap, keyboardShortcutsOpen, presentationViewOpen]);
 
-  // Workflow handlers
-  const buildWorkflowSequence = useCallback(() => {
-    // Find all start nodes (nodes with nodeType 'start' or no incoming edges)
-    const startNodes = nodes.filter(node => 
-      node.data.nodeType === 'start' || 
-      (!node.data.nodeType && !edges.some(edge => edge.target === node.id)) ||
-      (node.data.nodeType === undefined && node.data.label.toLowerCase().includes('start'))
-    );
-    
-    // Find all end nodes (nodes with nodeType 'end' or no outgoing edges)
-    const endNodes = nodes.filter(node =>
-      node.data.nodeType === 'end' ||
-      (!node.data.nodeType && !edges.some(edge => edge.source === node.id)) ||
-      (node.data.nodeType === undefined && node.data.label.toLowerCase().includes('end'))
-    );
-    
-    if (startNodes.length === 0) return { sequence: [], endNodes: [] };
-    
-    // Use the first start node if multiple exist
-    const startNode = startNodes[0];
-    
-    const sequence: Array<{ nodeId: string; level: number; isEndNode: boolean }> = [];
-    const visited = new Set<string>();
-    const nodeToLevel = new Map<string, number>();
-    
-    // Breadth-first traversal to build proper workflow sequence
-    const buildSequenceBFS = () => {
-      const queue: Array<{ nodeId: string; level: number }> = [{ nodeId: startNode.id, level: 0 }];
-      nodeToLevel.set(startNode.id, 0);
-      
-      while (queue.length > 0) {
-        const { nodeId, level } = queue.shift()!;
-        
-        if (visited.has(nodeId)) continue;
-        visited.add(nodeId);
-        
-        const isEndNode = endNodes.some(endNode => endNode.id === nodeId);
-        sequence.push({ nodeId, level, isEndNode });
-        
-        // Find all direct children (outgoing edges)
-        const outgoingEdges = edges.filter(edge => edge.source === nodeId);
-        
-        outgoingEdges.forEach(edge => {
-          if (edge.target && !visited.has(edge.target)) {
-            const targetLevel = level + 1;
-            
-            // Only update level if it's higher (handles convergent paths)
-            if (!nodeToLevel.has(edge.target) || nodeToLevel.get(edge.target)! < targetLevel) {
-              nodeToLevel.set(edge.target, targetLevel);
-              queue.push({ nodeId: edge.target, level: targetLevel });
-            }
-          }
-        });
-      }
-    };
-    
-    buildSequenceBFS();
-    
-    // Sort by level to ensure proper execution order
-    sequence.sort((a, b) => a.level - b.level);
-    
-    return {
-      sequence: sequence.map(item => item.nodeId),
-      endNodes: sequence.filter(item => item.isEndNode).map(item => item.nodeId),
-      sequenceWithMetadata: sequence
-    };
-  }, [nodes, edges]);
-
-  const highlightNode = useCallback((nodeId: string | null) => {
-    setNodes((nds) =>
-      nds.map((node) => {
-        // Ensure node has proper structure
-        if (!node || !node.id || !node.data) {
-          return node;
-        }
-        
-        if (node.id === nodeId) {
-          // Node is executing - ONLY modify data, never style
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              isExecuting: true,
-            },
-            // NEVER modify style - let WorkflowNode handle visual feedback
-          };
-        } else if (node.data.isExecuting) {
-          // Node was executing but no longer is - ONLY modify data
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              isExecuting: false,
-            },
-            // NEVER modify style - preserve original ReactFlow positioning
-          };
-        } else {
-          // Node is not being highlighted - return unchanged
-          return node;
-        }
-      })
-    );
-  }, [setNodes]);
-
-  const animateEdge = useCallback((sourceId: string, targetId: string) => {
-    // Try multiple edge ID patterns to find the correct edge
-    const possibleEdgeIds = [
-      `${sourceId}->${targetId}`, // Our standard format
-      `${sourceId}-${targetId}`,  // Alternative format
-      `reactflow__edge-${sourceId}${targetId}`, // ReactFlow auto-generated format
-    ];
-    
-    setEdges((eds) =>
-      eds.map((edge) => {
-        // Check if this edge matches any of the possible patterns
-        const isTargetEdge = possibleEdgeIds.includes(edge.id) || 
-                           (edge.source === sourceId && edge.target === targetId);
-        
-        if (isTargetEdge) {
-          return {
-            ...edge,
-            data: {
-              ...edge.data,
-              animated: true,
-            },
-          };
-        }
-        return edge; // Don't modify other edges
-      })
-    );
-
-    // Reset edge animation after a delay
-    setTimeout(() => {
-      setEdges((eds) =>
-        eds.map((edge) => {
-          const isTargetEdge = possibleEdgeIds.includes(edge.id) || 
-                             (edge.source === sourceId && edge.target === targetId);
-          
-          if (isTargetEdge) {
-            return {
-              ...edge,
-              data: {
-                ...edge.data,
-                animated: false,
-              },
-            };
-          }
-          return edge;
-        })
-      );
-    }, 2000);
-  }, [setEdges]);
-
-  const executeWorkflowStep = useCallback(() => {
-    if (workflowStep >= workflowSequence.length) {
-      // Workflow completed - check if we've reached all end nodes
-      const currentNodeId = workflowSequence[workflowStep - 1];
-      const isActualEndNode = workflowEndNodes.includes(currentNodeId);
-      
-      setWorkflowState('idle');
-      highlightNode(null);
-      setWorkflowStep(0);
-      
-      // Show completion toast with enhanced information
-      if (window.showToast) {
-        window.showToast({
-          type: 'success',
-          title: isActualEndNode ? 'Workflow Completed! 🎉' : 'Workflow Path Completed! ✅',
-          message: isActualEndNode 
-            ? `Successfully executed ${workflowSequence.length} node${workflowSequence.length === 1 ? '' : 's'} and reached the final node.`
-            : `Executed ${workflowSequence.length} node${workflowSequence.length === 1 ? '' : 's'}. Workflow path completed.`,
-          duration: 5000,
-        });
-      }
-      
-      return;
-    }
-
-    const currentNodeId = workflowSequence[workflowStep];
-    const isEndNode = workflowEndNodes.includes(currentNodeId);
-    
-    highlightNode(currentNodeId);
-
-    // Animate edges to next nodes (only if not the last step)
-    const nextNodeId = workflowSequence[workflowStep + 1];
-    if (nextNodeId) {
-      animateEdge(currentNodeId, nextNodeId);
-    }
-
-    // If this is an end node, show a special indicator
-    if (isEndNode && window.showToast) {
-      window.showToast({
-        type: 'info',
-        title: 'End Node Reached',
-        message: 'This node marks the end of a workflow path.',
-        duration: 2000,
-      });
-    }
-
-    setWorkflowStep(prev => prev + 1);
-  }, [workflowStep, workflowSequence, workflowEndNodes, highlightNode, animateEdge]);
-
-  // Separate effect to handle workflow stepping
-  useEffect(() => {
-    if (workflowState === 'playing' || workflowState === 'debugging') {
-      if (workflowStep < workflowSequence.length && workflowSequence.length > 0) {
-        // Clear any existing timeout before setting a new one
-        if (workflowTimerRef.current) {
-          clearTimeout(workflowTimerRef.current);
-        }
-        
-        workflowTimerRef.current = setTimeout(() => {
-          // Double-check the state before executing to prevent race conditions
-          if (workflowState === 'playing' || workflowState === 'debugging') {
-            executeWorkflowStep();
-          }
-        }, workflowState === 'debugging' ? 3000 : 1500);
-      }
-    }
-
-    return () => {
-      if (workflowTimerRef.current) {
-        clearTimeout(workflowTimerRef.current);
-        workflowTimerRef.current = null;
-      }
-    };
-  }, [workflowState, workflowStep, workflowSequence.length, executeWorkflowStep]);
-
-  const handlePlayWorkflow = useCallback(() => {
-    if (workflowState === 'paused') {
-      // Resume from current step
-      setWorkflowState('playing');
-      
-      // Show resume toast
-      if (window.showToast) {
-        window.showToast({
-          type: 'info',
-          title: 'Workflow Resumed',
-          message: 'Continuing from where it was paused.',
-          duration: 3000,
-        });
-      }
-    } else {
-      // Start new workflow
-      const workflowData = buildWorkflowSequence();
-      
-      if (workflowData.sequence.length === 0) {
-        // Show error toast instead of alert
-        if (window.showToast) {
-          window.showToast({
-            type: 'warning',
-            title: 'No Workflow Found',
-            message: 'Please add nodes with connections to create a workflow.',
-            duration: 4000,
-          });
-        }
-        return;
-      }
-      
-      setWorkflowSequence(workflowData.sequence);
-      setWorkflowEndNodes(workflowData.endNodes);
-      setWorkflowStep(0);
-      setWorkflowState('playing');
-      
-      // Show start toast
-      if (window.showToast) {
-        window.showToast({
-          type: 'info',
-          title: 'Workflow Started',
-          message: `Executing workflow with ${workflowData.sequence.length} node${workflowData.sequence.length === 1 ? '' : 's'}.${workflowData.endNodes.length > 1 ? ` (${workflowData.endNodes.length} end nodes detected)` : ''}`,
-          duration: 3000,
-        });
-      }
-    }
-  }, [workflowState, buildWorkflowSequence]);
-
-  const handlePauseWorkflow = useCallback(() => {
-    setWorkflowState('paused');
-    if (workflowTimerRef.current) {
-      clearTimeout(workflowTimerRef.current);
-      workflowTimerRef.current = null;
-    }
-    
-    // Show pause toast
-    if (window.showToast) {
-      window.showToast({
-        type: 'warning',
-        title: 'Workflow Paused',
-        message: 'Click Play to resume from current step.',
-        duration: 3000,
-      });
-    }
-  }, []);
-
-  const handleRestartWorkflow = useCallback(() => {
-    setWorkflowState('idle');
-    setWorkflowStep(0);
-    highlightNode(null);
-    if (workflowTimerRef.current) {
-      clearTimeout(workflowTimerRef.current);
-      workflowTimerRef.current = null;
-    }
-    
-    // Show restart toast
-    if (window.showToast) {
-      window.showToast({
-        type: 'info',
-        title: 'Workflow Reset',
-        message: 'Workflow has been reset to initial state.',
-        duration: 3000,
-      });
-    }
-  }, [highlightNode]);
-
-  const handleDebugWorkflow = useCallback(() => {
-    if (workflowState === 'debugging') {
-      // Stop debugging
-      setWorkflowState('idle');
-      highlightNode(null);
-      if (workflowTimerRef.current) {
-        clearTimeout(workflowTimerRef.current);
-        workflowTimerRef.current = null;
-      }
-      
-      // Show debug stop toast
-      if (window.showToast) {
-        window.showToast({
-          type: 'info',
-          title: 'Debug Mode Stopped',
-          message: 'Debugging session has ended.',
-          duration: 3000,
-        });
-      }
-    } else {
-      // Start debugging
-      const workflowData = buildWorkflowSequence();
-      if (workflowData.sequence.length === 0) {
-        // Show error toast
-        if (window.showToast) {
-          window.showToast({
-            type: 'warning',
-            title: 'No Workflow to Debug',
-            message: 'Please add nodes with connections to create a workflow.',
-            duration: 4000,
-          });
-        }
-        return;
-      }
-      
-      setWorkflowSequence(workflowData.sequence);
-      setWorkflowEndNodes(workflowData.endNodes);
-      setWorkflowStep(0);
-      setWorkflowState('debugging');
-      
-      // Show debug start toast
-      if (window.showToast) {
-        window.showToast({
-          type: 'info',
-          title: 'Debug Mode Started',
-          message: `Workflow will execute with 3-second delays between steps. ${workflowData.endNodes.length > 1 ? `${workflowData.endNodes.length} end nodes detected.` : ''}`,
-          duration: 4000,
-        });
-      }
-    }
-  }, [workflowState, buildWorkflowSequence, highlightNode]);
-
   // Presentation view handler
   const handleOpenPresentationView = useCallback(() => {
     setPresentationViewOpen(true);
@@ -1123,8 +464,6 @@ export default function DiagramEditor() {
   const handleClosePresentationView = useCallback(() => {
     setPresentationViewOpen(false);
   }, []);
-
-  
 
   // Keyboard shortcuts help handler
   const handleShowKeyboardShortcuts = useCallback(() => {
@@ -1135,45 +474,13 @@ export default function DiagramEditor() {
     setKeyboardShortcutsOpen(false);
   }, []);
 
-  // Cleanup workflow timer on unmount
-  useEffect(() => {
-    return () => {
-      if (workflowTimerRef.current) {
-        clearTimeout(workflowTimerRef.current);
-      }
-    };
-  }, []);
-
   // Configure left panel sections
   const leftPanelSections: PanelSection[] = [
-    {
-      id: 'examples',
-      title: 'Workflow Examples',
-      icon: '📚',
-      defaultOpen: true,
-      content: (
-        <TemplateLibraryPanel
-          onLoadExample={(template: WorkflowTemplate) => {
-            setNodes(template.nodes);
-            setEdges(template.edges);
-            // Clear selections when loading new example
-            setSelectedNode(null);
-            setSelectedEdge(null);
-            // Auto-fit view after loading
-            setTimeout(() => {
-              if (reactFlowInstance) {
-                reactFlowInstance.fitView({ padding: 0.1, duration: 800 });
-              }
-            }, 100);
-          }}
-        />
-      ),
-    },
     {
       id: 'explorer',
       title: 'Explorer',
       icon: '📁',
-      defaultOpen: false,
+      defaultOpen: true,
       content: (
         <ExplorerPanel
           nodes={nodes}
@@ -1222,20 +529,6 @@ export default function DiagramEditor() {
     []
   );
 
-  // Animation toggle handler
-  const handleAnimationToggle = useCallback(() => {
-    const diagramConfig = DIAGRAM_TYPE_CONTROLS[currentDiagramType];
-    if (diagramConfig.showAnimationControls) {
-      setIsAnimationEnabled(!isAnimationEnabled);
-    }
-  }, [currentDiagramType, isAnimationEnabled, setIsAnimationEnabled]);
-
-  // Update animation state when diagram type changes
-  useEffect(() => {
-    const diagramConfig = DIAGRAM_TYPE_CONTROLS[currentDiagramType];
-    setIsAnimationEnabled(diagramConfig.defaultAnimationEnabled);
-  }, [currentDiagramType]);
-
   // Enhanced node update callback
   const handleNodeUpdate = useCallback(
     (nodeId: string, updates: Partial<DiagramNodeData> & Record<string, unknown>) => {
@@ -1243,7 +536,6 @@ export default function DiagramEditor() {
         nds.map((node) => {
           if (node.id !== nodeId) return node;
           
-          // Separate node-level properties from data properties
           const { 
             draggable, 
             selectable, 
@@ -1252,7 +544,6 @@ export default function DiagramEditor() {
             ...dataUpdates 
           } = updates;
           
-          // Update node-level properties
           const nodeUpdates: Partial<Node> = {};
           if (draggable !== undefined) nodeUpdates.draggable = draggable as boolean;
           if (selectable !== undefined) nodeUpdates.selectable = selectable as boolean;
@@ -1306,23 +597,17 @@ export default function DiagramEditor() {
         onAddNode={addNewNode}
         onFitView={fitView}
         onNew={newWorkflow}
-        onNewTemplate={handleNewTemplate}
         onSave={saveDiagram}
         onLoad={loadDiagram}
         backgroundVariant={backgroundVariant}
         onBackgroundVariantChange={handleBackgroundVariantChange}
         showMiniMap={showMiniMap}
         onMiniMapToggle={setShowMiniMap}
-        showWorkflowControls={isAnimationEnabled} // Show workflow controls when animation is enabled
-        onPlayWorkflow={handlePlayWorkflow}
-        onPauseWorkflow={handlePauseWorkflow}
-        onRestartWorkflow={handleRestartWorkflow}
-        onDebugWorkflow={handleDebugWorkflow}
-        workflowState={workflowState}
+        
         showLeftSidebar={leftPanelOpen}
         onToggleLeftSidebar={() => setLeftPanelOpen(!leftPanelOpen)}
         showRightSidebar={false}
-        onToggleRightSidebar={() => {}} // Placeholder - no right sidebar functionality
+        onToggleRightSidebar={() => {}}
         snapToGrid={snapToGrid}
         onSnapToGridToggle={setSnapToGrid}
         gridSize={gridSize}
@@ -1448,11 +733,7 @@ export default function DiagramEditor() {
         edges={edges}
         backgroundVariant={backgroundVariant}
         showMiniMap={showMiniMap}
-        workflowState={workflowState}
-        onPlayWorkflow={handlePlayWorkflow}
-        onPauseWorkflow={handlePauseWorkflow}
-        onRestartWorkflow={handleRestartWorkflow}
-        onDebugWorkflow={handleDebugWorkflow}
+        workflowState={'idle'}
         onClose={handleClosePresentationView}
       />
 
