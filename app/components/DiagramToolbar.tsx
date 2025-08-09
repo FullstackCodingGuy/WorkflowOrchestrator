@@ -1,5 +1,24 @@
 import React, { useState } from 'react';
 import { BackgroundVariant } from 'reactflow';
+import { 
+  IconFolderOpen, 
+  IconDeviceFloppy, 
+  IconPlus, 
+  IconFocus2, 
+  IconPlayerPlay, 
+  IconPlayerPause, 
+  IconRefresh, 
+  IconBug, 
+  IconPresentation, 
+  IconDotsVertical,
+  IconLayoutSidebar,
+  IconGridDots,
+  IconGrid3x3,
+  IconSquare,
+  IconBolt,
+  IconBoltOff,
+  IconKeyboard
+} from '@tabler/icons-react';
 import { MegaFileMenu } from './MegaFileMenu';
 import { EnhancedExportShareMenu } from './EnhancedExportShareMenu';
 import { ExportOptions } from './ExportManager';
@@ -118,50 +137,38 @@ export function DiagramToolbar({
 
           <button
             onClick={onLoad}
-            className="btn btn-sm btn-outline"
+            className="btn btn-xs btn-outline"
             title="Open Workflow (Ctrl+O)"
           >
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span>Open</span>
+            <IconFolderOpen size={16} />
           </button>
 
           <button
             onClick={onSave}
-            className="btn btn-sm btn-outline"
+            className="btn btn-xs btn-outline"
             title="Save Workflow (Ctrl+S)"
           >
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Save</span>
+            <IconDeviceFloppy size={16} />
           </button>
 
           <div className="w-px h-5 bg-border mx-1" />
 
           <button
             onClick={onAddNode}
-            className="btn btn-sm btn-outline"
+            className="btn btn-xs btn-outline"
             title="Add Node (Ctrl+N)"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span>Add Node</span>
+            <IconPlus size={16} />
           </button>
 
           <div className="w-px h-5 bg-border mx-1" />
 
           <button
             onClick={onFitView}
-            className="btn btn-sm btn-outline"
+            className="btn btn-xs btn-outline"
             title="Fit View (Ctrl+F)"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-            </svg>
-            <span>Fit View</span>
+            <IconFocus2 size={16} />
           </button>
 
         </div>
@@ -173,54 +180,42 @@ export function DiagramToolbar({
               <button
                 onClick={onPlayWorkflow}
                 disabled={workflowState === 'playing'}
-                className={`btn btn-sm ${workflowState === 'playing' ? 'btn-success' : 'btn-outline'
+                className={`btn btn-xs ${workflowState === 'playing' ? 'btn-success' : 'btn-outline'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 title="Play Workflow"
               >
                 {workflowState === 'playing' ? (
-                  <div className="w-4 h-4 animate-spin">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                  </div>
+                  <IconRefresh size={14} className="animate-spin" />
                 ) : (
-                  <svg className="w-4 h-4" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
+                  <IconPlayerPlay size={14} />
                 )}
               </button>
 
               <button
                 onClick={onPauseWorkflow}
                 disabled={workflowState !== 'playing'}
-                className={`btn btn-sm ${workflowState === 'paused' ? 'btn-warning' : 'btn-outline'
+                className={`btn btn-xs ${workflowState === 'paused' ? 'btn-warning' : 'btn-outline'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 title="Pause Workflow"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
-                </svg>
+                <IconPlayerPause size={14} />
               </button>
 
               <button
                 onClick={onRestartWorkflow}
-                className="btn btn-sm btn-outline"
+                className="btn btn-xs btn-outline"
                 title="Restart Workflow"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
+                <IconRefresh size={14} />
               </button>
 
               <button
                 onClick={onDebugWorkflow}
-                className={`btn btn-sm ${workflowState === 'debugging' ? 'btn-accent' : 'btn-outline'
+                className={`btn btn-xs ${workflowState === 'debugging' ? 'btn-accent' : 'btn-outline'
                   }`}
                 title="Debug Workflow"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <IconBug size={14} />
               </button>
             </div>
           )}
@@ -230,27 +225,18 @@ export function DiagramToolbar({
         <div className="flex items-center space-x-1.5">
           <button
             onClick={onOpenPresentationView}
-            className="btn btn-sm btn-primary"
+            className="btn btn-xs btn-primary"
             title="Open Presentation View (Ctrl+P)"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1h4a1 1 0 011 1v18a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1h4v3m0 0h8M5 8h14M5 12h14M5 16h14" />
-            </svg>
-            <span>Present</span>
+            <IconPresentation size={16} />
           </button>
           <div className="relative">
             <button
               onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
-              className="btn btn-sm btn-outline"
+              className="btn btn-xs btn-outline"
               title="Export & Share"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
-                <path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
-                <path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
-              </svg>
-              <span>Export</span>
+              <IconDotsVertical size={16} />
             </button>
             {isExportMenuOpen && (
               <EnhancedExportShareMenu
@@ -281,9 +267,7 @@ export function DiagramToolbar({
               }`}
             title={`${showLeftSidebar ? 'Hide' : 'Show'} left sidebar`}
           >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
-            </svg>
+            <IconLayoutSidebar size={12} />
           </button>
 
           <div className="w-px h-4 bg-border" />          {/* Background Variant Buttons */}
@@ -294,13 +278,7 @@ export function DiagramToolbar({
                 }`}
               title="Dots Background"
             >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="1" fill="currentColor" />
-                <circle cx="6" cy="6" r="1" fill="currentColor" />
-                <circle cx="18" cy="6" r="1" fill="currentColor" />
-                <circle cx="6" cy="18" r="1" fill="currentColor" />
-                <circle cx="18" cy="18" r="1" fill="currentColor" />
-              </svg>
+              <IconGridDots size={12} />
             </button>
             <button
               onClick={() => onBackgroundVariantChange(BackgroundVariant.Lines)}
@@ -308,9 +286,15 @@ export function DiagramToolbar({
                 }`}
               title="Grid Background"
             >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12h18M3 6h18M3 18h18" />
-              </svg>
+              <IconGrid3x3 size={12} />
+            </button>
+            <button
+              onClick={() => onBackgroundVariantChange(BackgroundVariant.Cross)}
+              className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${backgroundVariant === BackgroundVariant.Cross ? 'bg-neutral-200' : ''
+                }`}
+              title="Solid Background"
+            >
+              <IconSquare size={12} />
             </button>
           </div>
 
@@ -323,13 +307,11 @@ export function DiagramToolbar({
                 className={`btn btn-xs ${isAnimationEnabled ? 'btn-success' : 'btn-outline'}`}
                 title={`${isAnimationEnabled ? 'Disable' : 'Enable'} animations`}
               >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {isAnimationEnabled ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
-                  )}
-                </svg>
+                {isAnimationEnabled ? (
+                  <IconBolt size={12} />
+                ) : (
+                  <IconBoltOff size={12} />
+                )}
               </button>
             </>
           )}
@@ -362,9 +344,7 @@ export function DiagramToolbar({
               }`}
             title={`${showRightSidebar ? 'Hide' : 'Show'} right sidebar`}
           >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 6H4M20 12H4m16 6H11" />
-            </svg>
+            <IconLayoutSidebar size={12} />
           </button>
 
           <div className="w-px h-4 bg-border" />
@@ -375,9 +355,7 @@ export function DiagramToolbar({
             className="btn btn-xs btn-ghost text-muted hover:text-foreground"
             title="Show Keyboard Shortcuts (?)"
           >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <IconKeyboard size={12} />
           </button>
         </div>
       </div>
