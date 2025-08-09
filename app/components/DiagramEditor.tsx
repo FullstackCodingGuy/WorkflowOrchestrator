@@ -265,13 +265,9 @@ export default function DiagramEditor() {
   const [selectedEdge, setSelectedEdge] = useState<DiagramEdge | null>(null);
   const [backgroundVariant, setBackgroundVariant] = useState<BackgroundVariant>(BackgroundVariant.Dots);
   
-  // Handle background variant changes, default Cross to Dots since Cross is removed
+  // Handle background variant changes, support solid background with Cross variant
   const handleBackgroundVariantChange = useCallback((variant: BackgroundVariant) => {
-    if (variant === BackgroundVariant.Cross) {
-      setBackgroundVariant(BackgroundVariant.Dots);
-    } else {
-      setBackgroundVariant(variant);
-    }
+    setBackgroundVariant(variant);
   }, []);
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(() => 
     DIAGRAM_TYPE_CONTROLS[currentDiagramType].defaultAnimationEnabled
@@ -1260,20 +1256,19 @@ export default function DiagramEditor() {
         onFitView={fitView}
         onNew={newWorkflow}
         onNewTemplate={handleNewTemplate}
-        onClear={clearDiagram}
         onSave={saveDiagram}
         onLoad={loadDiagram}
         backgroundVariant={backgroundVariant}
         onBackgroundVariantChange={handleBackgroundVariantChange}
         showMiniMap={showMiniMap}
         onMiniMapToggle={setShowMiniMap}
-        currentDiagramType={currentDiagramType}
-        onDiagramTypeChange={setDiagramType}
+        showWorkflowControls={isAnimationEnabled} // Show workflow controls when animation is enabled
         onPlayWorkflow={handlePlayWorkflow}
         onPauseWorkflow={handlePauseWorkflow}
         onRestartWorkflow={handleRestartWorkflow}
         onDebugWorkflow={handleDebugWorkflow}
         workflowState={workflowState}
+        showAnimationControls={true} // Always show animation controls
         isAnimationEnabled={isAnimationEnabled}
         onAnimationToggle={handleAnimationToggle}
         showLeftSidebar={leftPanelOpen}
@@ -1346,13 +1341,15 @@ export default function DiagramEditor() {
                 className="bg-card border border-border rounded-lg shadow-soft"
               />
             )}
-            <Background 
-              variant={backgroundVariant}
-              gap={backgroundVariant === BackgroundVariant.Dots ? 32 : 24}
-              size={backgroundVariant === BackgroundVariant.Dots ? 2.5 : 2}
-              color="#cbd5e1"
-              lineWidth={backgroundVariant === BackgroundVariant.Lines ? 1 : 1.5}
-            />
+            {backgroundVariant !== BackgroundVariant.Cross && (
+              <Background 
+                variant={backgroundVariant}
+                gap={backgroundVariant === BackgroundVariant.Dots ? 32 : 24}
+                size={backgroundVariant === BackgroundVariant.Dots ? 2.5 : 2}
+                color="#cbd5e1"
+                lineWidth={backgroundVariant === BackgroundVariant.Lines ? 1 : 1.5}
+              />
+            )}
           </ReactFlow>
         </div>
       </div>

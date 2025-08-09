@@ -15,8 +15,6 @@ import {
   IconGridDots,
   IconGrid3x3,
   IconSquare,
-  IconBolt,
-  IconBoltOff,
   IconKeyboard
 } from '@tabler/icons-react';
 import { MegaFileMenu } from './MegaFileMenu';
@@ -44,11 +42,6 @@ interface DiagramToolbarProps {
   onRestartWorkflow: () => void;
   onDebugWorkflow: () => void;
   workflowState: 'idle' | 'playing' | 'paused' | 'debugging';
-  
-  // Animation controls
-  showAnimationControls?: boolean;
-  isAnimationEnabled?: boolean;
-  onAnimationToggle?: () => void;
   
   // Sidebar controls
   showLeftSidebar: boolean;
@@ -96,9 +89,6 @@ export function DiagramToolbar({
   onRestartWorkflow,
   onDebugWorkflow,
   workflowState,
-  showAnimationControls = false,
-  isAnimationEnabled = false,
-  onAnimationToggle,
   showLeftSidebar,
   onToggleLeftSidebar,
   showRightSidebar,
@@ -292,29 +282,11 @@ export function DiagramToolbar({
               onClick={() => onBackgroundVariantChange(BackgroundVariant.Cross)}
               className={`btn btn-xs btn-ghost border-0 rounded-none px-1.5 ${backgroundVariant === BackgroundVariant.Cross ? 'bg-neutral-200' : ''
                 }`}
-              title="Solid Background"
+              title="No Background (Transparent)"
             >
               <IconSquare size={12} />
             </button>
           </div>
-
-          {/* Animation Toggle - only for animated diagram types */}
-          {showAnimationControls && onAnimationToggle && (
-            <>
-              <div className="w-px h-4 bg-border" />
-              <button
-                onClick={onAnimationToggle}
-                className={`btn btn-xs ${isAnimationEnabled ? 'btn-success' : 'btn-outline'}`}
-                title={`${isAnimationEnabled ? 'Disable' : 'Enable'} animations`}
-              >
-                {isAnimationEnabled ? (
-                  <IconBolt size={12} />
-                ) : (
-                  <IconBoltOff size={12} />
-                )}
-              </button>
-            </>
-          )}
           
         </div>
 
