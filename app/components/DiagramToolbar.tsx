@@ -3,7 +3,7 @@ import { BackgroundVariant } from 'reactflow';
 import { MegaFileMenu } from './MegaFileMenu';
 import { EnhancedExportShareMenu } from './EnhancedExportShareMenu';
 import { ExportOptions } from './ExportManager';
-import { DiagramType, DIAGRAM_TYPES, DIAGRAM_TYPE_CONTROLS, COMMON_TOOLBAR_SETTINGS } from '../config/appConfig';
+import { COMMON_TOOLBAR_SETTINGS } from '../config/appConfig';
 import { CommonSettingsSection } from './CommonSettingsSection';
 
 interface DiagramToolbarProps {
@@ -11,7 +11,6 @@ interface DiagramToolbarProps {
   onFitView: () => void;
   onNew: () => void;
   onNewTemplate: (templateId: string) => void;
-  onClear: () => void;
   onSave: () => void;
   onLoad: () => void;
   backgroundVariant: BackgroundVariant;
@@ -19,18 +18,16 @@ interface DiagramToolbarProps {
   showMiniMap: boolean;
   onMiniMapToggle: (show: boolean) => void;
   
-  // Diagram type selection
-  currentDiagramType: DiagramType;
-  onDiagramTypeChange: (type: DiagramType) => void;
-  
-  // Workflow controls (conditional based on diagram type)
+  // Workflow controls
+  showWorkflowControls?: boolean;
   onPlayWorkflow: () => void;
   onPauseWorkflow: () => void;
   onRestartWorkflow: () => void;
   onDebugWorkflow: () => void;
   workflowState: 'idle' | 'playing' | 'paused' | 'debugging';
   
-  // Animation controls (conditional based on diagram type)
+  // Animation controls
+  showAnimationControls?: boolean;
   isAnimationEnabled?: boolean;
   onAnimationToggle?: () => void;
   
@@ -68,20 +65,19 @@ export function DiagramToolbar({
   onFitView,
   onNew,
   onNewTemplate,
-  onClear,
   onSave,
   onLoad,
   backgroundVariant,
   onBackgroundVariantChange,
   showMiniMap,
   onMiniMapToggle,
-  currentDiagramType,
-  onDiagramTypeChange,
+  showWorkflowControls = false,
   onPlayWorkflow,
   onPauseWorkflow,
   onRestartWorkflow,
   onDebugWorkflow,
   workflowState,
+  showAnimationControls = false,
   isAnimationEnabled = false,
   onAnimationToggle,
   showLeftSidebar,
@@ -106,9 +102,6 @@ export function DiagramToolbar({
 }: DiagramToolbarProps) {
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
 
-  // Get current diagram type configuration
-  const diagramConfig = DIAGRAM_TYPE_CONTROLS[currentDiagramType];
-
   return (
     <div className="flex flex-col">
       {/* Main Toolbar */}
@@ -120,8 +113,6 @@ export function DiagramToolbar({
             onNewTemplate={onNewTemplate}
             onLoad={onLoad}
             onSave={onSave}
-            onClear={onClear}
-            onOpenPresentationView={onOpenPresentationView}
           />
           <div className="w-px h-5 bg-border mx-1" />
 
@@ -173,28 +164,11 @@ export function DiagramToolbar({
             <span>Fit View</span>
           </button>
 
-          <div className="w-px h-5 bg-border mx-1" />
-
-          {/* Diagram Type Selector */}
-          <div className="flex items-center space-x-2">
-            <label className="text-xs text-muted">Type:</label>
-            <select
-              value={currentDiagramType}
-              onChange={(e) => onDiagramTypeChange(e.target.value as DiagramType)}
-              className="text-xs border border-border rounded px-2 py-1 bg-background text-foreground min-w-[140px]"
-              title="Select diagram type"
-            >
-              {Object.entries(DIAGRAM_TYPES).map(([key, value]) => (
-                <option key={key} value={value}>{value}</option>
-              ))}
-            </select>
-          </div>
-
         </div>
 
         {/* Center Section - Conditional Workflow Controls */}
         <div className="flex-1 flex justify-center">
-          {diagramConfig.showWorkflowControls && (
+          {showWorkflowControls && (
             <div className="flex items-center space-x-1 bg-card border border-border rounded-lg px-2 py-1">
               <button
                 onClick={onPlayWorkflow}
@@ -341,7 +315,7 @@ export function DiagramToolbar({
           </div>
 
           {/* Animation Toggle - only for animated diagram types */}
-          {diagramConfig.showAnimationControls && onAnimationToggle && (
+          {showAnimationControls && onAnimationToggle && (
             <>
               <div className="w-px h-4 bg-border" />
               <button
